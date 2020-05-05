@@ -16,3 +16,5 @@
 
 # Additional files
 *.pbf
+*.geojson
+

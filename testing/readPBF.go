@@ -7,8 +7,14 @@ import ("fmt"
 		"io"
 		"time"
 		"github.com/qedus/osmpbf"
-		//"github.com/paulmach/go.geojson"
+		"github.com/paulmach/go.geojson"
 		)
+
+func check(e error) {
+    if e != nil {
+        panic(e)
+    }
+}
 
 func get_some_key(m map[int64]*osmpbf.Way) int64 {
     for k := range m {
@@ -36,11 +42,12 @@ if err != nil {
     log.Fatal(err)
 }
 
-var test map[int64]*osmpbf.Way
-test = make(map[int64]*osmpbf.Way)
-var coastlines []*osmpbf.Way
-var nodeIDs []int64
-var nodes []*osmpbf.Node
+var coastlineMap map[int64]*osmpbf.Way
+coastlineMap = make(map[int64]*osmpbf.Way)
+
+var nodeMap map[int64]*osmpbf.Node
+nodeMap = make(map[int64]*osmpbf.Node)
+
 var nc, wc, rc uint64
 for {
     if v, err := d.Decode(); err == io.EOF {
@@ -50,16 +57,14 @@ for {
     } else {
         switch v := v.(type) {
         case *osmpbf.Node:
-        	nodes = append(nodes,v)
+        	nodeMap[v.ID] = v
             // Process Node v.
             nc++
         case *osmpbf.Way:
             // Process Way v.
             for _,value := range v.Tags {
             	if(value == "coastline"){
-            		test[v.NodeIDs[0]] = v
-            		coastlines = append(coastlines,v)
-            		nodeIDs = append(nodeIDs,v.NodeIDs[:len(v.NodeIDs)-1]...)
+            		coastlineMap[v.NodeIDs[0]] = v
             		wc++
             	}
             }
@@ -73,45 +78,64 @@ for {
 }
 
 
+var allPolygonsID [][]int64
+var allPolygonsCoord[][][]float64
 
-var coastline []int64
+var coastlineID []int64
+var coastlineCoord [][]float64
 
-for len(test) > 0 {
-	var key = get_some_key(test)
-	var nodeids = test[key].NodeIDs
-	coastline = nodeids[:len(nodeids)-1]
-	delete(test,key)
-	key = coastline[len(coastline)-1]
+for len(coastlineMap) > 0 {
+	var key = get_some_key(coastlineMap)
+	var nodeids = coastlineMap[key].NodeIDs
+	coastlineID = nodeids[:len(nodeids)-1]
+	coastlineCoord =nil
+	for _,x := range nodeids{
+				var coord []float64
+				coord = append(coord,nodeMap[x].Lon)
+				coord = append(coord,nodeMap[x].Lat)
+				coastlineCoord= append(coastlineCoord,coord)
+			}
+	delete(coastlineMap,key)
+	key = nodeids[len(nodeids)-1]
+	//fmt.Printf("1")
 	for {
-		if val,ok := test[key]; ok {
+		//fmt.Printf("2")
+		if val,ok := coastlineMap[key]; ok {
     		var nodeids = val.NodeIDs
-			coastline = nodeids[:len(nodeids)-1]
-			delete(test,key)
-			key = coastline[len(coastline)-1]
+			coastlineID = append(coastlineID,nodeids[:len(nodeids)-1]...)
+			for _,x := range nodeids{
+				var coord []float64
+				coord = append(coord,nodeMap[x].Lon)
+				coord = append(coord,nodeMap[x].Lat)
+				coastlineCoord= append(coastlineCoord,coord)
+			}
+			delete(coastlineMap,key)
+			key = nodeids[len(nodeids)-1]
 		} else {
 			break
 		}
 
 	}
+	allPolygonsID = append(allPolygonsID, coastlineID)
+	allPolygonsCoord = append(allPolygonsCoord, coastlineCoord)
 }
-/*var coastline []*osmpbf.Node
-for _,id := range nodeIDs {
-	for _,node := range nodes{
-		if node.ID == id {
-			coastline = append(coastline,node)
-			//fmt.Printf("%d\n", id)
-			break
-		}
-	}
-}*/
-//var coastlineIDs []int64
-//for _,x := range coastlines{
-	//for _,y := range x.NodeIDs[:len(x.NodeIDs)-1]{
-	//	coastlineIDs = append(coastlineIDs,y)
-	//}
-//}
-fmt.Printf("%d\n", len(coastlines))
-fmt.Printf("%d\n", len(nodeIDs))
+
+
+var rawJson []byte
+for j,i := range allPolygonsCoord{
+	g := geojson.NewMultiLineStringGeometry(i)
+	rawJson, err = g.MarshalJSON();
+	var filename = fmt.Sprintf("tmp/data%d.geojson",j)
+	f, err := os.Create(filename)
+	check(err)
+	_, err1 := f.Write(rawJson)
+    check(err1)
+
+    f.Sync()
+}
+
+fmt.Printf("%d\n", len(allPolygonsID))
+fmt.Printf("%d\n", len(allPolygonsCoord))
 fmt.Printf("Nodes: %d, Ways: %d, Relations: %d\n", nc, wc, rc)
 t := time.Now()
 elapsed := t.Sub(start)
