@@ -123,7 +123,9 @@ for len(coastlineMap) > 0 {
 
 var rawJson []byte
 for j,i := range allPolygonsCoord{
-	g := geojson.NewMultiLineStringGeometry(i)
+	var polygon [][][]float64
+	polygon = append(polygon, i)
+	g := geojson.NewPolygonGeometry(polygon)
 	rawJson, err = g.MarshalJSON();
 	var filename = fmt.Sprintf("tmp/data%d.geojson",j)
 	f, err := os.Create(filename)
