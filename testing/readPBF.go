@@ -25,7 +25,7 @@ func get_some_key(m map[int64]*osmpbf.Way) int64 {
 
 func main() {
 	start := time.Now()
-	f, err := os.Open("antarctica-latest.osm.pbf")
+	f, err := os.Open("../data/antarctica-latest.osm.pbf")
 if err != nil {
     log.Fatal(err)
 }
