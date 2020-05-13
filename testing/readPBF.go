@@ -26,6 +26,7 @@ func get_some_key(m map[int64]*osmpbf.Way) int64 {
 func main() {
 	start := time.Now()
 	f, err := os.Open("../data/antarctica-latest.osm.pbf")
+	//f, err := os.Open("../data/planet-coastlines.pbf")
 if err != nil {
     log.Fatal(err)
 }
@@ -76,6 +77,9 @@ for {
         }
     }
 }
+t := time.Now()
+elapsed := t.Sub(start)
+fmt.Printf("Done Reading file after: %s\n", elapsed)
 
 
 var allPolygonsID [][]int64
@@ -119,7 +123,9 @@ for len(coastlineMap) > 0 {
 	allPolygonsID = append(allPolygonsID, coastlineID)
 	allPolygonsCoord = append(allPolygonsCoord, coastlineCoord)
 }
-
+t = time.Now()
+	elapsed = t.Sub(start)
+	fmt.Printf("Made all polygons: %s\n", elapsed)
 
 var rawJson []byte
 for j,i := range allPolygonsCoord{
@@ -139,7 +145,7 @@ for j,i := range allPolygonsCoord{
 fmt.Printf("%d\n", len(allPolygonsID))
 fmt.Printf("%d\n", len(allPolygonsCoord))
 fmt.Printf("Nodes: %d, Ways: %d, Relations: %d\n", nc, wc, rc)
-t := time.Now()
-elapsed := t.Sub(start)
+t = time.Now()
+elapsed = t.Sub(start)
 fmt.Printf("%s\n", elapsed)
 }
