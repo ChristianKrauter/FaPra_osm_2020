@@ -122,7 +122,7 @@ func create_bounding_Box(polygon [][]float64)[][] float64{
 			maxY = coord[1]
 		}
 	}
-
+	
 	coord1 := [] float64 {minX,minY}
 	coord2 := [] float64 {minX,maxY}
 	coord3 := [] float64 {maxX,maxY}
@@ -237,8 +237,13 @@ t = time.Now()
 	fmt.Printf("Made all polygons: %s\n", elapsed)
 
 
-for _,i := range allPolygonsCoord{
-	allPolygonsBounding = append(allPolygonsBounding,create_bounding_Box(i))
+for j,i := range allPolygonsCoord{
+	bounding_Box := create_bounding_Box(i)
+	temp := bounding_Box[0][0]-bounding_Box[2][0]
+	if math.Abs(temp) > 1 {
+		print("%s/%s, ",j,temp)
+	}
+	allPolygonsBounding = append(allPolygonsBounding,bounding_Box)
 }
 
 
@@ -310,7 +315,7 @@ elapsed = t.Sub(start)
 fmt.Printf("End of Program: %s\n", elapsed)
 }
 
-//Merge gone wrong
+//Merge gone wrong below
 
 /*package main
 
