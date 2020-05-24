@@ -31,7 +31,7 @@
 	function displayContents(contents) {
   		var element = document.getElementById('file-content');
   		element.textContent = contents;
-  		L.geoJSON([JSON.parse(contents)]).addTo(mymap).bindPopup("HERE!.").openPopup()
+  		L.geoJSON([JSON.parse(contents)]).addTo(mymap).bindPopup("HERE!.").setContent("You clicked thes map at " + e.latlng.toString()).openPopup()
 	}
 
 

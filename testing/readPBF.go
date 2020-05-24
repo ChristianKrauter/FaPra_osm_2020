@@ -7,7 +7,9 @@ import ("fmt"
 		"io"
 		"time"
 		"github.com/qedus/osmpbf"
-		"github.com/paulmach/go.geojson"
+		"math"
+		//"math/rand"
+		//"github.com/paulmach/go.geojson"
 		)
 
 func check(e error) {
@@ -21,6 +23,111 @@ func get_some_key(m map[int64]*osmpbf.Way) int64 {
         return k
     }
     return 0
+}
+
+func rayCast(p,s,e [] float64)(bool, bool){
+	if s[0] > e[0] {
+		s, e = e, s
+	}
+
+	if p[0] == s[0] {
+		if p[1] == s[1] {
+			// p == start
+			return false, true
+		} else if s[0] == e[0] {
+			// vertical segment (s -> e)
+			// return true if within the line, check to see if start or end is greater.
+			if s[1] > e[1] && s[1] >= p[1] && p[1] >= e[1] {
+				return false, true
+			}
+
+			if e[1] > s[1] && e[1] >= p[1] && p[1] >= s[1] {
+				return false, true
+			}
+		}
+
+		// Move the y coordinate to deal with degenerate case
+		p[0] = math.Nextafter(p[0], math.Inf(1))
+	} else if p[0] == e[0] {
+		if p[1] == e[1] {
+			// matching the end point
+			return false, true
+		}
+
+		p[0] = math.Nextafter(p[0], math.Inf(1))
+	}
+
+	if p[0] < s[0] || p[0] > e[0] {
+		return false, false
+	}
+
+	if s[1] > e[1] {
+		if p[1] > s[1] {
+			return false, false
+		} else if p[1] < e[1] {
+			return true, false
+		}
+	} else {
+		if p[1] > e[1] {
+			return false, false
+		} else if p[1] < s[1] {
+			return true, false
+		}
+	}
+
+	rs := (p[1] - s[1]) / (p[0] - s[0])
+	ds := (e[1] - s[1]) / (e[0] - s[0])
+
+	if rs == ds {
+		return false, true
+	}
+
+	return rs <= ds, false
+}
+
+func polygon_contains(polygon [][] float64, point [] float64) bool{
+	
+	c, on := rayCast(point, polygon[0], polygon[len(polygon)-1])
+	if on {
+		return true
+	}
+
+	for i := 0; i < len(polygon)-1; i++ {
+		inter, on := rayCast(point, polygon[i], polygon[i+1])
+		if on {
+			return true
+		}
+
+		if inter {
+			c = !c
+		}
+	}
+	return c
+}
+
+func create_bounding_Box(polygon [][]float64)[][] float64{
+	minX := math.Inf(1)
+	maxX := math.Inf(-1)
+	minY := math.Inf(1)
+	maxY := math.Inf(-1)
+	for _,coord := range polygon{
+		if coord[0] < minX {
+			minX = coord[0]
+		} else if coord[0] > maxX {
+			maxX = coord[0]
+		}
+		if coord[1] < minY {
+			minY= coord[1]
+		} else if coord[1] > maxY {
+			maxY = coord[1]
+		}
+	}
+
+	coord1 := [] float64 {minX,minY}
+	coord2 := [] float64 {minX,maxY}
+	coord3 := [] float64 {maxX,maxY}
+	coord4 := [] float64 {minX,maxY}
+	return [][] float64 {coord1,coord2,coord3,coord4}
 }
 
 func main() {
@@ -85,6 +192,8 @@ fmt.Printf("Done Reading file after: %s\n", elapsed)
 var allPolygonsID [][]int64
 var allPolygonsCoord[][][]float64
 
+var allPolygonsBounding[][][]float64
+
 var coastlineID []int64
 var coastlineCoord [][]float64
 
@@ -127,7 +236,13 @@ t = time.Now()
 	elapsed = t.Sub(start)
 	fmt.Printf("Made all polygons: %s\n", elapsed)
 
-var rawJson []byte
+
+for _,i := range allPolygonsCoord{
+	allPolygonsBounding = append(allPolygonsBounding,create_bounding_Box(i))
+}
+
+
+/*var rawJson []byte
 for j,i := range allPolygonsCoord{
 	var polygon [][][]float64
 	polygon = append(polygon, i)
@@ -140,12 +255,56 @@ for j,i := range allPolygonsCoord{
     check(err1)
 
     f.Sync()
+}*/
+point := []float64{-77,7}
+for i,j := range allPolygonsBounding {
+		if (polygon_contains(j,point)){
+			fmt.Printf("Hi!")
+			if(polygon_contains(allPolygonsCoord[i],point)){
+				fmt.Printf("Hi")
+			}
+		}
+	}
+print("test Failed")
+var Meshgrid [360][360]bool
+var MeshgridString =""
+for x := 0.0; x < 360; x++ {
+	for y := 0.0; y < 360; y++ {
+		isWater := true
+		for i,j := range allPolygonsBounding {
+			if (polygon_contains(j,[]float64{x,y})){
+				fmt.Printf("Hi!")
+				if(polygon_contains(allPolygonsCoord[i],[]float64{x,y})){
+					isWater = false	
+					fmt.Printf("Hi")
+				}
+			}
+		}
+		Meshgrid[int(x)][int(y)] = isWater
+		if(isWater){
+			MeshgridString = MeshgridString + "w"
+		} else{
+			MeshgridString = MeshgridString + "o"			
+		}
+	}
+	MeshgridString = MeshgridString + "\n"			
 }
 
-fmt.Printf("%d\n", len(allPolygonsID))
-fmt.Printf("%d\n", len(allPolygonsCoord))
-fmt.Printf("Nodes: %d, Ways: %d, Relations: %d\n", nc, wc, rc)
+
+
+/*
+var filename = fmt.Sprintf("tmp/Meshgrid.txt")
+f, errWrite := os.Create(filename)
+check(errWrite)
+_, errWrite1 := f.WriteString(MeshgridString)
+check(errWrite1)
+
+f.Sync()
+*/
+//fmt.Printf("%d\n", len(allPolygonsID))
+//fmt.Printf("%d\n", len(allPolygonsCoord))
+//fmt.Printf("Nodes: %d, Ways: %d, Relations: %d\n", nc, wc, rc)
 t = time.Now()
 elapsed = t.Sub(start)
-fmt.Printf("%s\n", elapsed)
+fmt.Printf("End of Program: %s\n", elapsed)
 }
