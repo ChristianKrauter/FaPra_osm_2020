@@ -105,6 +105,11 @@ func polygon_contains(polygon [][] float64, point [] float64) bool{
 	return c
 }
 
+func boundingContains(bounding []float64){
+	
+}
+
+
 func create_bounding_Box(polygon [][]float64)[][] float64{
 	minX := math.Inf(1)
 	maxX := math.Inf(-1)
