@@ -10,7 +10,7 @@ import (
 	"runtime"
 	"time"
 	"encoding/json"
-	//"github.com/paulmach/go.geojson"
+	"github.com/paulmach/go.geojson"
 )
 
 func check(e error) {
@@ -19,7 +19,7 @@ func check(e error) {
 	}
 }
 
-func get_some_key(m map[int64]*osmpbf.Way) int64 {
+func getSomeKey(m map[int64]*osmpbf.Way) int64 {
 	for k := range m {
 		return k
 	}
@@ -27,57 +27,57 @@ func get_some_key(m map[int64]*osmpbf.Way) int64 {
 }
 
 // After https://github.com/paulmach/orb
-func rayCast(p, s, e []float64) (bool, bool) {
+func rayCast(point, s, e []float64) (bool, bool) {
 	if s[0] > e[0] {
 		s, e = e, s
 	}
 
-	if p[0] == s[0] {
-		if p[1] == s[1] {
-			// p == start
+	if point[0] == s[0] {
+		if point[1] == s[1] {
+			// point == start
 			return false, true
 		} else if s[0] == e[0] {
 			// vertical segment (s -> e)
 			// return true if within the line, check to see if start or end is greater.
-			if s[1] > e[1] && s[1] >= p[1] && p[1] >= e[1] {
+			if s[1] > e[1] && s[1] >= point[1] && point[1] >= e[1] {
 				return false, true
 			}
 
-			if e[1] > s[1] && e[1] >= p[1] && p[1] >= s[1] {
+			if e[1] > s[1] && e[1] >= point[1] && point[1] >= s[1] {
 				return false, true
 			}
 		}
 
 		// Move the y coordinate to deal with degenerate case
-		p[0] = math.Nextafter(p[0], math.Inf(1))
-	} else if p[0] == e[0] {
-		if p[1] == e[1] {
+		point[0] = math.Nextafter(point[0], math.Inf(1))
+	} else if point[0] == e[0] {
+		if point[1] == e[1] {
 			// matching the end point
 			return false, true
 		}
 
-		p[0] = math.Nextafter(p[0], math.Inf(1))
+		point[0] = math.Nextafter(point[0], math.Inf(1))
 	}
 
-	if p[0] < s[0] || p[0] > e[0] {
+	if point[0] < s[0] || point[0] > e[0] {
 		return false, false
 	}
 
 	if s[1] > e[1] {
-		if p[1] > s[1] {
+		if point[1] > s[1] {
 			return false, false
-		} else if p[1] < e[1] {
+		} else if point[1] < e[1] {
 			return true, false
 		}
 	} else {
-		if p[1] > e[1] {
+		if point[1] > e[1] {
 			return false, false
-		} else if p[1] < s[1] {
+		} else if point[1] < s[1] {
 			return true, false
 		}
 	}
 
-	rs := (p[1] - s[1]) / (p[0] - s[0])
+	rs := (point[1] - s[1]) / (point[0] - s[0])
 	ds := (e[1] - s[1]) / (e[0] - s[0])
 
 	if rs == ds {
@@ -88,7 +88,7 @@ func rayCast(p, s, e []float64) (bool, bool) {
 }
 
 // https://github.com/paulmach/orb
-func polygon_contains(polygon [][]float64, point []float64) bool {
+func polygonContains(polygon [][]float64, point []float64) bool {
 	b, on := rayCast(point, polygon[0], polygon[len(polygon)-1])
 	if on {
 		return true
@@ -106,7 +106,7 @@ func polygon_contains(polygon [][]float64, point []float64) bool {
 	return b
 }
 
-func bounding_contains(bounding map[string]float64, point []float64) bool{
+func boundingContains(bounding map[string]float64, point []float64) bool{
 	if (bounding["minX"] <= point[0] && point[0] <= bounding["maxX"]) {
 		if (bounding["minY"] <= point[1] && point[1] <= bounding["maxY"]) {
 			return true
@@ -115,7 +115,7 @@ func bounding_contains(bounding map[string]float64, point []float64) bool{
 	return false
 }
 
-func create_bounding_Box(polygon [][]float64) map[string]float64 {
+func createBoundingBox(polygon [][]float64) map[string]float64 {
 	minX := math.Inf(1)
 	maxX := math.Inf(-1)
 	minY := math.Inf(1)
@@ -133,14 +133,18 @@ func create_bounding_Box(polygon [][]float64) map[string]float64 {
 		}
 	}
 
-	var bounding_box map[string]float64
-	bounding_box = make(map[string]float64)
-	bounding_box["minX"]=minX
-	bounding_box["maxX"]=maxX
-	bounding_box["minY"]=minY
-	bounding_box["maxY"]=maxY
 
-	return bounding_box
+	//boundingBox := map[string]float64{"minX":minX, "maxX":maxX, "minY":minY, "maxY":maxY}
+	/*var boundingBox map[string]float64
+	boundingBox = make(map[string]float64)
+	boundingBox["minX"]=minX
+	boundingBox["maxX"]=maxX
+	boundingBox["minY"]=minY
+	boundingBox["maxY"]=maxY
+
+	return boundingBox
+	*/
+	return map[string]float64{"minX":minX, "maxX":maxX, "minY":minY, "maxY":maxY}
 }
 
 func main() {
@@ -149,12 +153,13 @@ func main() {
 	var pbfFileName = "../data/antarctica-latest.osm.pbf"
 	//var pbfFileName = "../data/planet-coastlines.pbf"
 
-	fs, err := os.Stat(pbfFileName)
-	if err != nil {
-		log.Fatal(err)
-	}
+	//fs, err := os.Stat(pbfFileName)
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
 
-	fmt.Printf("\nStarting processing of %s (%d KB)\n\n", pbfFileName, fs.Size()/1000)
+	//fmt.Printf("\nStarting processing of %s (%d KB)\n\n", pbfFileName, fs.Size()/1000)
+	fmt.Printf("\nStarting processing of %s\n\n", pbfFileName)
 
 	f, err := os.Open(pbfFileName)
 	if err != nil {
@@ -166,17 +171,18 @@ func main() {
 	// use more memory from the start, it is faster
 	d.SetBufferSize(osmpbf.MaxBlobSize)
 
+	//var coastlineMap map[int64]*osmpbf.Way
+	//var nodeMap map[int64]*osmpbf.Node
+	var coastlineMap = make(map[int64]*osmpbf.Way)
+	var nodeMap = make(map[int64]*osmpbf.Node)
+
 	// start decoding with several goroutines, it is faster
-	err = d.Start(runtime.GOMAXPROCS(-1))
+	//err = d.Start(runtime.GOMAXPROCS(-1))
+	//print(runtime.NumCPU())
+	err = d.Start(runtime.GOMAXPROCS(runtime.NumCPU()))
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	var coastlineMap map[int64]*osmpbf.Way
-	coastlineMap = make(map[int64]*osmpbf.Way)
-
-	var nodeMap map[int64]*osmpbf.Node
-	nodeMap = make(map[int64]*osmpbf.Node)
 
 	for {
 		if v, err := d.Decode(); err == io.EOF {
@@ -194,132 +200,126 @@ func main() {
 					}
 				}
 			case *osmpbf.Relation:
-				continue 
+				continue
 			default:
 				log.Fatalf("unknown type %T\n", v)
 			}
 		}
 	}
+
 	t := time.Now()
 	elapsed := t.Sub(start)
 	fmt.Printf("Done Reading file after: %s\n", elapsed)
 
-	//var allPolygonsID [][]int64
-	var allPolygonsCoord [][][]float64
-
-	var allPolygonsBounding []map[string]float64
-
-	//var coastlineID []int64
-	var coastlineCoord [][]float64
+	var allCoastlines [][][]float64
+	var allBoundingBoxes []map[string]float64
+	var coastline [][]float64
 
 	for len(coastlineMap) > 0 {
-		var key = get_some_key(coastlineMap)
-		var nodeids = coastlineMap[key].NodeIDs
-		//coastlineID = nodeids[:len(nodeids)-1]
-		coastlineCoord = nil
-		for _, x := range nodeids {
-			var coord []float64
-			coord = append(coord, nodeMap[x].Lon)
-			coord = append(coord, nodeMap[x].Lat)
-			coastlineCoord = append(coastlineCoord, coord)
+		var key = getSomeKey(coastlineMap)
+		var nodeIDs = coastlineMap[key].NodeIDs
+		coastline = nil
+		for _, x := range nodeIDs {
+			//var coord []float64
+			//coord = append(coord, nodeMap[x].Lon)
+			//coord = append(coord, nodeMap[x].Lat)
+			coastline = append(coastline, []float64{nodeMap[x].Lon, nodeMap[x].Lat})
 		}
 		delete(coastlineMap, key)
-		key = nodeids[len(nodeids)-1]
-		//fmt.Printf("1")
+		key = nodeIDs[len(nodeIDs)-1]
 		for {
-			//fmt.Printf("2")
 			if val, ok := coastlineMap[key]; ok {
-				var nodeids = val.NodeIDs
-				//coastlineID = append(coastlineID, nodeids[:len(nodeids)-1]...)
-				for _, x := range nodeids {
-					var coord []float64
-					coord = append(coord, nodeMap[x].Lon)
-					coord = append(coord, nodeMap[x].Lat)
-					coastlineCoord = append(coastlineCoord, coord)
+				var nodeIDs = val.NodeIDs
+				for _, x := range nodeIDs {
+					//var coord []float64
+					//coord = append(coord, nodeMap[x].Lon)
+					//coord = append(coord, nodeMap[x].Lat)
+					coastline = append(coastline, []float64{nodeMap[x].Lon, nodeMap[x].Lat})
 				}
 				delete(coastlineMap, key)
-				key = nodeids[len(nodeids)-1]
+				key = nodeIDs[len(nodeIDs)-1]
 			} else {
 				break
 			}
 
 		}
-		//allPolygonsID = append(allPolygonsID, coastlineID)
-		allPolygonsCoord = append(allPolygonsCoord, coastlineCoord)
+		allCoastlines = append(allCoastlines, coastline)
 	}
 	t = time.Now()
 	elapsed = t.Sub(start)
 	fmt.Printf("Made all polygons: %s\n", elapsed)
 
-	for _, i := range allPolygonsCoord {
-		bounding_Box := create_bounding_Box(i)
-		allPolygonsBounding = append(allPolygonsBounding, bounding_Box)
+	for _, i := range allCoastlines {
+		//boundingBox := createBoundingBox(i)
+		allBoundingBoxes = append(allBoundingBoxes, createBoundingBox(i))
 	}
 	fmt.Printf("\n")
 
-	//var allTestPolygon [][][]float64
-	//var testPolygon [][]float64
-	//var landCount int64
-
-	fmt.Printf("Creating Meshgrid:\n")
-	var Meshgrid [360][360]bool
+	fmt.Printf("Creating meshgrid:\n")
+	var testGeoJSON [][]float64
+	var meshgrid [360][360]bool
 	for x := 0.0; x < 360; x++ {
 		for y := 0.0; y < 360; y++ {
+			var xs = x - 180
+			var ys = (y/2) -90
 			isWater := true
-			for i, j := range allPolygonsBounding {
-				//var printString = ""
-				if bounding_contains(j, []float64{x-180, (y/2)-90}) {
-					//printString = "in bounding"
-					if polygon_contains(allPolygonsCoord[i], []float64{x-180, (y/2)-90}) {
+			for i, j := range allBoundingBoxes {
+				if boundingContains(j, []float64{xs, ys}) {
+					if polygonContains(allCoastlines[i], []float64{xs, ys}) {
 
-						// For test polygon
+						// For test geojson
 						//var coord []float64
 						//coord = append(coord, x-180)
-						//coord = append(coord, y-180)
-						// fmt.Printf("%f/%f", x, y)
-						//testPolygon = append(testPolygon, coord)
-						// End for test polygon
+						//coord = append(coord, (y/2)-90)
+						testGeoJSON = append(testGeoJSON, []float64{xs, ys})
+
+						//testGeoJSON = append(testGeoJSON, coord)
+						// End for test geojson
 
 						isWater = false
-						//landCount++
-						//printString = "in poly"
+						break
 					}
 				}
-				//if len(printString) > 0 {fmt.Printf("%s\n", printString)}
 			}
-			Meshgrid[int(x)][int(y)] = isWater
+			meshgrid[int(x)][int(y)] = isWater
+		}
 	}
 
+	t = time.Now()
+	elapsed = t.Sub(start)
+	fmt.Printf("Meshrid finished after: %s\n", elapsed)
+
 	// Save meshgrid to disk
-	var meshgrid_bytes []byte
-	meshgrid_bytes, err1 := json.Marshal(Meshgrid)
+	var meshgridBytes []byte
+	meshgridBytes, err1 := json.Marshal(meshgrid)
 	check(err1)
 	var filename = fmt.Sprintf("tmp/meshgrid.json")
 	f, err2 := os.Create(filename)
 	check(err2)
-	_, err3 := f.Write(meshgrid_bytes)
+	_, err3 := f.Write(meshgridBytes)
 	check(err3)
 	f.Sync()
 
-	//fmt.Printf("\nNot water: %d\n", landCount)
-	/*
-	fmt.Printf("creating test polygon\n")
+	t = time.Now()
+	elapsed = t.Sub(start)
+	fmt.Printf("Saved Meshrid to disc after: %s\n", elapsed)
+
+	//fmt.Printf("Points in test geojson: %d\n", len(testGeoJSON))
+	fmt.Printf("creating test geojson\n")
 	var rawJson []byte
-	testPolygon = append(testPolygon, testPolygon[0])
-	allTestPolygon = append(allTestPolygon, testPolygon)
-	g := geojson.NewPolygonGeometry(allTestPolygon)
-	rawJson, err = g.MarshalJSON()
-	var filename = fmt.Sprintf("tmp/dataTestPolygon.geojson")
-	f, err2 := os.Create(filename)
-	check(err2)
-	_, err3 := f.Write(rawJson)
-	check(err3)
+	g := geojson.NewMultiPointGeometry(testGeoJSON...)
+	rawJson, err4 := g.MarshalJSON()
+	check(err4)
+	var testgeojsonFilename = fmt.Sprintf("tmp/datatestgeojson.geojson")
+	f, err5 := os.Create(testgeojsonFilename)
+	check(err5)
+	_, err6 := f.Write(rawJson)
+	check(err6)
 	f.Sync()
-	*/
 
-	// Create GeoJSON file
+	// Create coastline geojson file
 	/*var rawJson []byte
-	for j, i := range allPolygonsCoord {
+	for j, i := range allCoastlines {
 		var polygon [][][]float64
 		polygon = append(polygon, i)
 		g := geojson.NewPolygonGeometry(polygon)
@@ -331,7 +331,7 @@ func main() {
 		check(err1)
 		f.Sync()
 	}
-	fmt.Printf("Created polygons in   : %s\n\n", elapsed)
+	fmt.Printf("Created coastline geojson in   : %s\n\n", elapsed)
 	*/
 
 	//fmt.Printf("\nNumber of:\n")
@@ -339,6 +339,7 @@ func main() {
 	//fmt.Printf("Ways                  : %d\n", wc)
 	//fmt.Printf("Relations             : %d\n", rc)
 	//fmt.Printf("Coastline Polygons    : %d\n\n", len(allPolygonsID))
+
 	t = time.Now()
 	elapsed = t.Sub(start)
 	fmt.Printf("Program finished after: %s\n", elapsed)
