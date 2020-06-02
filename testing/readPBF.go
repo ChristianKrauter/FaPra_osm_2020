@@ -10,7 +10,7 @@ import (
 	"runtime"
 	"time"
 	"encoding/json"
-	"github.com/paulmach/go.geojson"
+	//"github.com/paulmach/go.geojson"
 )
 
 func check(e error) {
@@ -193,6 +193,8 @@ func main() {
 						coastlineMap[v.NodeIDs[0]] = v
 					}
 				}
+			case *osmpbf.Relation:
+				continue 
 			default:
 				log.Fatalf("unknown type %T\n", v)
 			}
@@ -261,7 +263,6 @@ func main() {
 
 	fmt.Printf("Creating Meshgrid:\n")
 	var Meshgrid [360][360]bool
-	var MeshgridString = ""
 	for x := 0.0; x < 360; x++ {
 		for y := 0.0; y < 360; y++ {
 			isWater := true
@@ -287,26 +288,20 @@ func main() {
 				//if len(printString) > 0 {fmt.Printf("%s\n", printString)}
 			}
 			Meshgrid[int(x)][int(y)] = isWater
-			if isWater {
-				MeshgridString = MeshgridString + "w"
-			} else {
-				MeshgridString = MeshgridString + "o"
-			}
-		}
-		MeshgridString = MeshgridString + "\n"
 	}
 
 	// Save meshgrid to disk
 	var meshgrid_bytes []byte
-	meshgrid_bytes, err := json.Marshal(m)
-	var filename = fmt.SPrintf("tmp/meshgrid.json")
+	meshgrid_bytes, err1 := json.Marshal(Meshgrid)
+	check(err1)
+	var filename = fmt.Sprintf("tmp/meshgrid.json")
 	f, err2 := os.Create(filename)
 	check(err2)
 	_, err3 := f.Write(meshgrid_bytes)
 	check(err3)
 	f.Sync()
 
-	fmt.Printf("\nNot water: %d\n", landCount)
+	//fmt.Printf("\nNot water: %d\n", landCount)
 	/*
 	fmt.Printf("creating test polygon\n")
 	var rawJson []byte
