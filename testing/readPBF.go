@@ -10,8 +10,8 @@ import (
 	"runtime"
 	"time"
 	"encoding/json"
-	"github.com/paulmach/go.geojson"
-	"sort"
+	//"github.com/paulmach/go.geojson"
+	//"sort"
 )
 
 // Sorting arrays by length
@@ -35,8 +35,8 @@ func check(e error) {
 	}
 }
 
-func getSomeKey(m map[int64][]int64) int64 {
-	for k := range m {
+func getSomeKey(m *map[int64][]int64) int64 {
+	for k := range *m {
 		return k
 	}
 	return 0
@@ -104,14 +104,14 @@ func rayCast(point, s, e []float64) (bool, bool) {
 }
 
 // https://github.com/paulmach/orb
-func polygonContains(polygon [][]float64, point []float64) bool {
-	b, on := rayCast(point, polygon[0], polygon[len(polygon)-1])
+func polygonContains(polygon *[][]float64, point []float64) bool {
+	b, on := rayCast(point, (*polygon)[0], (*polygon)[len(*polygon)-1])
 	if on {
 		return true
 	}
 
-	for i := 0; i < len(polygon)-1; i++ {
-		inter, on := rayCast(point, polygon[i], polygon[i+1])
+	for i := 0; i < len(*polygon)-1; i++ {
+		inter, on := rayCast(point, (*polygon)[i], (*polygon)[i+1])
 		if on {
 			return true
 		}
@@ -122,21 +122,21 @@ func polygonContains(polygon [][]float64, point []float64) bool {
 	return b
 }
 
-func boundingContains(bounding map[string]float64, point []float64) bool{
-	if (bounding["minX"] <= point[0] && point[0] <= bounding["maxX"]) {
-		if (bounding["minY"] <= point[1] && point[1] <= bounding["maxY"]) {
+func boundingContains(bounding *map[string]float64, point []float64) bool{
+	if ((*bounding)["minX"] <= point[0] && point[0] <= (*bounding)["maxX"]) {
+		if ((*bounding)["minY"] <= point[1] && point[1] <= (*bounding)["maxY"]) {
 			return true
 		}
 	}
 	return false
 }
 
-func createBoundingBox(polygon [][]float64) map[string]float64 {
+func createBoundingBox(polygon *[][]float64) map[string]float64 {
 	minX := math.Inf(1)
 	maxX := math.Inf(-1)
 	minY := math.Inf(1)
 	maxY := math.Inf(-1)
-	for _, coord := range polygon {
+	for _, coord := range *polygon {
 		if coord[0] < minX {
 			minX = coord[0]
 		} else if coord[0] > maxX {
@@ -155,8 +155,8 @@ func createBoundingBox(polygon [][]float64) map[string]float64 {
 func main() {
 	start := time.Now()
 
-	//var pbfFileName = "../data/antarctica-latest.osm.pbf"
-	var pbfFileName = "../data/planet-coastlines.pbf"
+	var pbfFileName = "../data/antarctica-latest.osm.pbf"
+	//var pbfFileName = "../data/planet-coastlines.pbf"
 
 	fmt.Printf("\nStarting processing of %s\n\n", pbfFileName)
 
@@ -210,7 +210,7 @@ func main() {
 	var coastline = make([][]float64, 5500000)
 
 	for len(coastlineMap) > 0 {
-		var key = getSomeKey(coastlineMap)
+		var key = getSomeKey(&coastlineMap)
 		var nodeIDs = coastlineMap[key]
 		coastline = nil
 		for _, x := range nodeIDs {
@@ -231,33 +231,36 @@ func main() {
 		}
 		allCoastlines = append(allCoastlines, coastline)
 	}
-	t = time.Now()
-	elapsed = t.Sub(start)
 
-	sort.Sort(arrayOfArrays(allCoastlines))
+	//sort.Sort(arrayOfArrays(allCoastlines))
 	//var allBoundingBoxes = make ([]map[string]float64, len(allCoastlines))
 	var allBoundingBoxes []map[string]float64
+
+	t = time.Now()
+	elapsed = t.Sub(start)
 	fmt.Printf("Made all polygons after    : %s\n", elapsed)
 
 	for _, i := range allCoastlines {
-		allBoundingBoxes = append(allBoundingBoxes, createBoundingBox(i))
+		allBoundingBoxes = append(allBoundingBoxes, createBoundingBox(&i))
 	}
+
+	t = time.Now()
+	elapsed = t.Sub(start)
+	fmt.Printf("All bounding boxes after   : %s\n", elapsed)
 
 	// Creating meshgrid
 	//var testGeoJSON [][]float64
 	var meshgrid [360][360]bool // inits with false!
 	for x := 0.0; x < 360; x++ {
-		var xs = x - 180
 		for y := 0.0; y < 360; y++ {
+			var xs = x - 180
 			var ys = (y/2) -90
 			//isWater := true
 			for i, j := range allBoundingBoxes {
-				if boundingContains(j, []float64{xs, ys}) {
-					if polygonContains(allCoastlines[i], []float64{xs, ys}) {
+				if boundingContains(&j, []float64{xs, ys}) {
+					if polygonContains(&allCoastlines[i], []float64{xs, ys}) {
 
 						//testGeoJSON = append(testGeoJSON, []float64{xs, ys})
-
-						//isWater = false
 
 						// Everything is false (= water), set true if inside one polygon
 						// Skip other polygons for same point
@@ -266,8 +269,13 @@ func main() {
 					}
 				}
 			}
-			//meshgrid[int(x)][int(y)] = isWater
+			//t = time.Now()
+			//elapsed = t.Sub(start)
+			//fmt.Printf("%d, %d: %s\n", int(x), int(y), elapsed)
 		}
+		t = time.Now()
+		elapsed = t.Sub(start)
+		fmt.Printf("%d: %s\n", int(x), elapsed)
 	}
 
 	t = time.Now()
