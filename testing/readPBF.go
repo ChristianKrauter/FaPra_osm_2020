@@ -149,16 +149,6 @@ func createBoundingBox(polygon [][]float64) map[string]float64 {
 		}
 	}
 
-	//boundingBox := map[string]float64{"minX":minX, "maxX":maxX, "minY":minY, "maxY":maxY}
-	/*var boundingBox map[string]float64
-	boundingBox = make(map[string]float64)
-	boundingBox["minX"]=minX
-	boundingBox["maxX"]=maxX
-	boundingBox["minY"]=minY
-	boundingBox["maxY"]=maxY
-
-	return boundingBox
-	*/
 	return map[string]float64{"minX":minX, "maxX":maxX, "minY":minY, "maxY":maxY}
 }
 
@@ -168,12 +158,6 @@ func main() {
 	//var pbfFileName = "../data/antarctica-latest.osm.pbf"
 	var pbfFileName = "../data/planet-coastlines.pbf"
 
-	//fs, err := os.Stat(pbfFileName)
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-
-	//fmt.Printf("\nStarting processing of %s (%d KB)\n\n", pbfFileName, fs.Size()/1000)
 	fmt.Printf("\nStarting processing of %s\n\n", pbfFileName)
 
 	f, err := os.Open(pbfFileName)
@@ -186,9 +170,8 @@ func main() {
 	// use more memory from the start, it is faster
 	d.SetBufferSize(osmpbf.MaxBlobSize)
 
-
-	var coastlineMap = make(map[int64][]int64)
-	var nodeMap = make(map[int64][]float64)
+	var coastlineMap = make(map[int64][]int64, 1000000)
+	var nodeMap = make(map[int64][]float64, 63000000)
 
 	// start decoding with several goroutines, it is faster
 	err = d.Start(runtime.GOMAXPROCS(runtime.NumCPU()))
@@ -223,9 +206,8 @@ func main() {
 	elapsed := t.Sub(start)
 	fmt.Printf("Read file after            : %s\n", elapsed)
 
-	var allCoastlines [][][]float64
-	var allBoundingBoxes []map[string]float64
-	var coastline [][]float64
+	var allCoastlines = make([][][]float64, 3000000)
+	var coastline = make([][]float64, 5500000)
 
 	for len(coastlineMap) > 0 {
 		var key = getSomeKey(coastlineMap)
@@ -238,7 +220,6 @@ func main() {
 		key = nodeIDs[len(nodeIDs)-1]
 		for {
 			if val, ok := coastlineMap[key]; ok {
-				//var nodeIDs = val
 				for _, x := range val {
 					coastline = append(coastline, []float64{nodeMap[x][0], nodeMap[x][1]})
 				}
@@ -247,56 +228,45 @@ func main() {
 			} else {
 				break
 			}
-
 		}
 		allCoastlines = append(allCoastlines, coastline)
 	}
 	t = time.Now()
 	elapsed = t.Sub(start)
-	/*var lenBefore []int
-	for i := 0; i < len(allCoastlines); i++ {
-		lenBefore = append(lenBefore, len(allCoastlines[i]))
-	}
-	fmt.Printf("%v\n\n",lenBefore)*/
+
 	sort.Sort(arrayOfArrays(allCoastlines))
-	/*var lenAfter []int
-	for i := 0; i < len(allCoastlines); i++ {
-		lenAfter = append(lenAfter, len(allCoastlines[i]))
-	}
-	fmt.Printf("%v",lenAfter)*/
+	//var allBoundingBoxes = make ([]map[string]float64, len(allCoastlines))
+	var allBoundingBoxes []map[string]float64
 	fmt.Printf("Made all polygons after    : %s\n", elapsed)
 
 	for _, i := range allCoastlines {
 		allBoundingBoxes = append(allBoundingBoxes, createBoundingBox(i))
 	}
 
-	//fmt.Printf("Creating meshgrid:\n")
-	var testGeoJSON [][]float64
-	var meshgrid [360][360]bool
+	// Creating meshgrid
+	//var testGeoJSON [][]float64
+	var meshgrid [360][360]bool // inits with false!
 	for x := 0.0; x < 360; x++ {
+		var xs = x - 180
 		for y := 0.0; y < 360; y++ {
-			var xs = x - 180
 			var ys = (y/2) -90
-			isWater := true
+			//isWater := true
 			for i, j := range allBoundingBoxes {
 				if boundingContains(j, []float64{xs, ys}) {
 					if polygonContains(allCoastlines[i], []float64{xs, ys}) {
 
-						// For test geojson
-						//var coord []float64
-						//coord = append(coord, x-180)
-						//coord = append(coord, (y/2)-90)
-						testGeoJSON = append(testGeoJSON, []float64{xs, ys})
+						//testGeoJSON = append(testGeoJSON, []float64{xs, ys})
 
-						//testGeoJSON = append(testGeoJSON, coord)
-						// End for test geojson
+						//isWater = false
 
-						isWater = false
+						// Everything is false (= water), set true if inside one polygon
+						// Skip other polygons for same point
+						meshgrid[int(x)][int(y)] = true
 						break
 					}
 				}
 			}
-			meshgrid[int(x)][int(y)] = isWater
+			//meshgrid[int(x)][int(y)] = isWater
 		}
 	}
 
@@ -321,7 +291,7 @@ func main() {
 
 	//fmt.Printf("Points in test geojson: %d\n", len(testGeoJSON))
 	//fmt.Printf("creating test geojson\n")
-	var rawJson []byte
+	/*var rawJson []byte
 	g := geojson.NewMultiPointGeometry(testGeoJSON...)
 	rawJson, err4 := g.MarshalJSON()
 	check(err4)
@@ -330,7 +300,7 @@ func main() {
 	check(err5)
 	_, err6 := f.Write(rawJson)
 	check(err6)
-	f.Sync()
+	f.Sync()*/
 
 	// Create coastline geojson file
 	/*var rawJson []byte
