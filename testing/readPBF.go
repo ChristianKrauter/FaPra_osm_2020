@@ -11,7 +11,23 @@ import (
 	"time"
 	"encoding/json"
 	"github.com/paulmach/go.geojson"
+	"sort"
 )
+
+// Sorting arrays by length
+type arrayOfArrays [][][]float64
+
+func (p arrayOfArrays) Len() int {
+	return len(p)
+}
+
+func (p arrayOfArrays) Swap(i, j int) {
+	p[i], p[j] = p[j], p[i]
+}
+
+func (p arrayOfArrays) Less(i, j int) bool {
+	return len(p[i]) > len(p[j])
+}
 
 func check(e error) {
 	if e != nil {
@@ -19,7 +35,7 @@ func check(e error) {
 	}
 }
 
-func getSomeKey(m map[int64]*osmpbf.Way) int64 {
+func getSomeKey(m map[int64][]int64) int64 {
 	for k := range m {
 		return k
 	}
@@ -133,7 +149,6 @@ func createBoundingBox(polygon [][]float64) map[string]float64 {
 		}
 	}
 
-
 	//boundingBox := map[string]float64{"minX":minX, "maxX":maxX, "minY":minY, "maxY":maxY}
 	/*var boundingBox map[string]float64
 	boundingBox = make(map[string]float64)
@@ -150,8 +165,8 @@ func createBoundingBox(polygon [][]float64) map[string]float64 {
 func main() {
 	start := time.Now()
 
-	var pbfFileName = "../data/antarctica-latest.osm.pbf"
-	//var pbfFileName = "../data/planet-coastlines.pbf"
+	//var pbfFileName = "../data/antarctica-latest.osm.pbf"
+	var pbfFileName = "../data/planet-coastlines.pbf"
 
 	//fs, err := os.Stat(pbfFileName)
 	//if err != nil {
@@ -171,14 +186,11 @@ func main() {
 	// use more memory from the start, it is faster
 	d.SetBufferSize(osmpbf.MaxBlobSize)
 
-	//var coastlineMap map[int64]*osmpbf.Way
-	//var nodeMap map[int64]*osmpbf.Node
-	var coastlineMap = make(map[int64]*osmpbf.Way)
-	var nodeMap = make(map[int64]*osmpbf.Node)
+
+	var coastlineMap = make(map[int64][]int64)
+	var nodeMap = make(map[int64][]float64)
 
 	// start decoding with several goroutines, it is faster
-	//err = d.Start(runtime.GOMAXPROCS(-1))
-	//print(runtime.NumCPU())
 	err = d.Start(runtime.GOMAXPROCS(runtime.NumCPU()))
 	if err != nil {
 		log.Fatal(err)
@@ -192,11 +204,11 @@ func main() {
 		} else {
 			switch v := v.(type) {
 			case *osmpbf.Node:
-				nodeMap[v.ID] = v
+				nodeMap[v.ID] = []float64{v.Lon, v.Lat}
 			case *osmpbf.Way:
 				for _, value := range v.Tags {
 					if value == "coastline" {
-						coastlineMap[v.NodeIDs[0]] = v
+						coastlineMap[v.NodeIDs[0]] = v.NodeIDs
 					}
 				}
 			case *osmpbf.Relation:
@@ -209,7 +221,7 @@ func main() {
 
 	t := time.Now()
 	elapsed := t.Sub(start)
-	fmt.Printf("Done Reading file after: %s\n", elapsed)
+	fmt.Printf("Read file after            : %s\n", elapsed)
 
 	var allCoastlines [][][]float64
 	var allBoundingBoxes []map[string]float64
@@ -217,27 +229,21 @@ func main() {
 
 	for len(coastlineMap) > 0 {
 		var key = getSomeKey(coastlineMap)
-		var nodeIDs = coastlineMap[key].NodeIDs
+		var nodeIDs = coastlineMap[key]
 		coastline = nil
 		for _, x := range nodeIDs {
-			//var coord []float64
-			//coord = append(coord, nodeMap[x].Lon)
-			//coord = append(coord, nodeMap[x].Lat)
-			coastline = append(coastline, []float64{nodeMap[x].Lon, nodeMap[x].Lat})
+			coastline = append(coastline, []float64{nodeMap[x][0], nodeMap[x][1]})
 		}
 		delete(coastlineMap, key)
 		key = nodeIDs[len(nodeIDs)-1]
 		for {
 			if val, ok := coastlineMap[key]; ok {
-				var nodeIDs = val.NodeIDs
-				for _, x := range nodeIDs {
-					//var coord []float64
-					//coord = append(coord, nodeMap[x].Lon)
-					//coord = append(coord, nodeMap[x].Lat)
-					coastline = append(coastline, []float64{nodeMap[x].Lon, nodeMap[x].Lat})
+				//var nodeIDs = val
+				for _, x := range val {
+					coastline = append(coastline, []float64{nodeMap[x][0], nodeMap[x][1]})
 				}
 				delete(coastlineMap, key)
-				key = nodeIDs[len(nodeIDs)-1]
+				key = val[len(val)-1]
 			} else {
 				break
 			}
@@ -247,15 +253,24 @@ func main() {
 	}
 	t = time.Now()
 	elapsed = t.Sub(start)
-	fmt.Printf("Made all polygons: %s\n", elapsed)
+	/*var lenBefore []int
+	for i := 0; i < len(allCoastlines); i++ {
+		lenBefore = append(lenBefore, len(allCoastlines[i]))
+	}
+	fmt.Printf("%v\n\n",lenBefore)*/
+	sort.Sort(arrayOfArrays(allCoastlines))
+	/*var lenAfter []int
+	for i := 0; i < len(allCoastlines); i++ {
+		lenAfter = append(lenAfter, len(allCoastlines[i]))
+	}
+	fmt.Printf("%v",lenAfter)*/
+	fmt.Printf("Made all polygons after    : %s\n", elapsed)
 
 	for _, i := range allCoastlines {
-		//boundingBox := createBoundingBox(i)
 		allBoundingBoxes = append(allBoundingBoxes, createBoundingBox(i))
 	}
-	fmt.Printf("\n")
 
-	fmt.Printf("Creating meshgrid:\n")
+	//fmt.Printf("Creating meshgrid:\n")
 	var testGeoJSON [][]float64
 	var meshgrid [360][360]bool
 	for x := 0.0; x < 360; x++ {
@@ -287,7 +302,7 @@ func main() {
 
 	t = time.Now()
 	elapsed = t.Sub(start)
-	fmt.Printf("Meshrid finished after: %s\n", elapsed)
+	fmt.Printf("Created Meshrid after      : %s\n", elapsed)
 
 	// Save meshgrid to disk
 	var meshgridBytes []byte
@@ -305,7 +320,7 @@ func main() {
 	fmt.Printf("Saved Meshrid to disc after: %s\n", elapsed)
 
 	//fmt.Printf("Points in test geojson: %d\n", len(testGeoJSON))
-	fmt.Printf("creating test geojson\n")
+	//fmt.Printf("creating test geojson\n")
 	var rawJson []byte
 	g := geojson.NewMultiPointGeometry(testGeoJSON...)
 	rawJson, err4 := g.MarshalJSON()
@@ -342,5 +357,5 @@ func main() {
 
 	t = time.Now()
 	elapsed = t.Sub(start)
-	fmt.Printf("Program finished after: %s\n", elapsed)
+	fmt.Printf("Program finished after     : %s\n", elapsed)
 }
