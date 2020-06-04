@@ -155,8 +155,8 @@ func createBoundingBox(polygon *[][]float64) map[string]float64 {
 func main() {
 	start := time.Now()
 
-	var pbfFileName = "../data/antarctica-latest.osm.pbf"
-	//var pbfFileName = "../data/planet-coastlines.pbf"
+	//var pbfFileName = "../data/antarctica-latest.osm.pbf"
+	var pbfFileName = "../data/planet-coastlines.pbf"
 
 	fmt.Printf("\nStarting processing of %s\n\n", pbfFileName)
 
