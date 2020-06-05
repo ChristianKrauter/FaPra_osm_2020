@@ -11,7 +11,7 @@ import (
 	"time"
 	"encoding/json"
 	"github.com/paulmach/go.geojson"
-	//"sort"
+	"sort"
 )
 
 // Sorting arrays by length
@@ -152,11 +152,71 @@ func createBoundingBox(polygon *[][]float64) map[string]float64 {
 	return map[string]float64{"minX":minX, "maxX":maxX, "minY":minY, "maxY":maxY}
 }
 
+type BoundingTree struct{
+
+	boundingBox map[string]float64 
+	id int
+	children []BoundingTree
+}
+
+//Check if a bounding Box is inside another bounding Box
+func checkBoundingBoxes(bb1 map[string]float64,bb2 map[string]float64) bool{
+	return  bb1["minX"] >= bb2["minX"] && bb1["maxX"] <= bb2["maxX"] && bb1["minY"] >= bb2["minY"] && bb1["maxY"] <= bb2["maxY"]
+}
+
+func addBoundingTree(tree BoundingTree, boundingBox map[string]float64, id int) BoundingTree {
+ if(checkBoundingBoxes(boundingBox, tree.boundingBox)){
+ 	for i,child := range tree.children{
+ 		if(checkBoundingBoxes(boundingBox,child.boundingBox)){
+ 			child = addBoundingTree(child, boundingBox, id)
+ 			tree.children[i] = child
+ 			return tree
+ 		}
+ 	}
+ 	tree.children = append(tree.children, BoundingTree{boundingBox,id,make([]BoundingTree,0)})
+ 	return tree
+ }
+ 	log.Fatalf("This should not have happened. Error while inserting bounding box.")
+	return tree 
+}
+
+func countBoundingTree(bt BoundingTree) int {
+	count := 1
+	for _,j := range bt.children{
+		count = count + countBoundingTree(j)
+	}
+	return count
+}
+
+func isLand (tree *BoundingTree, point []float64, allCoastlines *[][][]float64) bool {
+	land := false
+	if(boundingContains(&tree.boundingBox,point)){
+		if((*tree).id >= 0){
+			land = polygonContains(&(*allCoastlines)[(*tree).id],point)
+			//fmt.Printf("%v\n", land)
+		}
+		if(land){
+			return land
+		} else {
+			for _,child := range (*tree).children{
+				land = isLand(&child, point, allCoastlines)
+				if(land){
+					return land
+				}
+			}
+		}
+		
+	} 
+	return land
+}
+
+
+
 func main() {
 	start := time.Now()
 
-	//var pbfFileName = "../data/antarctica-latest.osm.pbf"
-	var pbfFileName = "../data/planet-coastlines.pbf"
+	var pbfFileName = "../data/antarctica-latest.osm.pbf"
+	//var pbfFileName = "../data/planet-coastlines.pbf"
 
 	fmt.Printf("\nStarting processing of %s\n\n", pbfFileName)
 
@@ -232,7 +292,7 @@ func main() {
 		allCoastlines = append(allCoastlines, coastline)
 	}
 
-	//sort.Sort(arrayOfArrays(allCoastlines))
+	sort.Sort(arrayOfArrays(allCoastlines))
 	//var allBoundingBoxes = make ([]map[string]float64, len(allCoastlines))
 	var allBoundingBoxes []map[string]float64
 
@@ -242,6 +302,11 @@ func main() {
 
 	for _, i := range allCoastlines {
 		allBoundingBoxes = append(allBoundingBoxes, createBoundingBox(&i))
+	}
+	root := BoundingTree{map[string]float64{"minX": math.Inf(-1), "maxX":math.Inf(1), "minY":math.Inf(-1), "maxY":math.Inf(1)},-1,make([]BoundingTree,0)}
+
+	for i,j := range allBoundingBoxes {
+		root = addBoundingTree(root,j,i)
 	}
 
 	t = time.Now()
@@ -256,7 +321,12 @@ func main() {
 			var xs = x - 180
 			var ys = (y/2) -90
 			//isWater := true
-			for i, j := range allBoundingBoxes {
+			if(isLand(&root,[]float64{xs, ys},&allCoastlines)){
+				meshgrid[int(x)][int(y)] = true
+				testGeoJSON = append(testGeoJSON, []float64{xs, ys})	
+			}
+			
+			/*for i, j := range allBoundingBoxes {
 				if boundingContains(&j, []float64{xs, ys}) {
 					if polygonContains(&allCoastlines[i], []float64{xs, ys}) {
 
@@ -268,7 +338,7 @@ func main() {
 						break
 					}
 				}
-			}
+			}*/
 			//t = time.Now()
 			//elapsed = t.Sub(start)
 			//fmt.Printf("%d, %d: %s\n", int(x), int(y), elapsed)
