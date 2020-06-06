@@ -1,4 +1,6 @@
 <!DOCTYPE html>
+<meta charset="UTF-8">
+
 <html>
 
 <head>
@@ -73,6 +75,10 @@
         endLng: ""
     }
 
+    function showRoute(route) {
+		L.geoJSON(route).addTo(mymap).bindPopup("I am a line.");
+    }
+
     function onMapClick(e) {
 
         /*popup
@@ -104,6 +110,7 @@
                 url: "/point",
                 data: data
             }).done(function(data) {
+            	showRoute(JSON.parse(data))
                 console.log(JSON.stringify(data))
                 // Do whatever with returned data
             });

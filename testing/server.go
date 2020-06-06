@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/paulmach/go.geojson"
 	"log"
 	"net/http"
 	"strconv"
@@ -11,17 +12,32 @@ import (
 
 var port int = 8081
 
+func check(e error) {
+	if e != nil {
+		panic(e)
+	}
+}
+
+func toGeojson(route [][]float64) []byte {
+	var rawJson []byte
+	g := geojson.NewLineStringGeometry(route)
+	rawJson, err4 := g.MarshalJSON()
+	check(err4)
+	return rawJson
+}
+
+func dijkstra(startLng float64, startLat float64, endLng float64, endLat float64) [][]float64 {
+	var route [][]float64
+	route = append(route, []float64{startLng, startLat})
+	route = append(route, []float64{endLng, endLat})
+
+	return route
+}
+
 func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		//fmt.Printf("loaded something\n")
-		// Save a copy of this request for debugging.
-		if strings.Contains(r.URL.Path, "/point") {
-			/*requestDump, err := httputil.DumpRequest(r, true)
-			if err != nil {
-			  fmt.Println(err)
-			}
-			fmt.Println(string(requestDump))*/
 
+		if strings.Contains(r.URL.Path, "/point") {
 			query := r.URL.Query()
 			var startLat, err = strconv.ParseFloat(query.Get("startLat"), 10)
 			if err != nil {
@@ -43,12 +59,15 @@ func main() {
 			fmt.Printf("start: %d / %d ", int(startLat), int(startLng))
 			fmt.Printf("end: %d / %d\n", int(endLat), int(endLng))
 
-			w.Write([]byte("test response"))
+			var route = dijkstra(startLng, startLat, endLng, endLat)
+			var result = toGeojson(route)
 
+			w.Write(result)
 		} else {
 			http.ServeFile(w, r, r.URL.Path[1:])
 		}
 	})
+
 	var portStr = fmt.Sprintf(":%d", port)
 	fmt.Printf("Starting server on %s\n", portStr)
 	log.Fatal(http.ListenAndServe(portStr, nil))
