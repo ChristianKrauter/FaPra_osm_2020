@@ -11,6 +11,7 @@
 </head>
 
 <body>
+	<body oncontextmenu="return false;">
     <input type="file" id="file-input" />
     <h3>Contents of the file:</h3>
     <pre id="file-content"></pre>
@@ -38,7 +39,7 @@
 
     document.getElementById('file-input').addEventListener('change', readSingleFile, false);
 
-    var mymap = L.map('mapid').setView([51.505, -0.09], 13);
+    var mymap = L.map('mapid', {worldCopyJump: false}).setView([51.505, -0.09], 13);
 
     L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
         maxZoom: 18,
@@ -49,22 +50,6 @@
         tileSize: 512,
         zoomOffset: -1
     }).addTo(mymap);
-
-    /*
-    L.marker([51.5, -0.09]).addTo(mymap)
-        .bindPopup("<b>Hello world!</b><br />I am a popup.").openPopup();
-
-    L.circle([51.508, -0.11], 500, {
-        color: 'red',
-        fillColor: '#f03',
-        fillOpacity: 0.5
-    }).addTo(mymap).bindPopup("I am a circle.");
-
-    L.polygon([
-        [51.509, -0.08],
-        [51.503, -0.06],
-        [51.51, -0.047]
-    ]).addTo(mymap).bindPopup("I am a polygon.");*/
 
     var popup = L.popup();
 
@@ -81,14 +66,9 @@
 
     function onMapClick(e) {
 
-        /*popup
-            .setLatLng(e.latlng)
-            .setContent("You clicked the map at lat: " + e.latlng.lat + " lon: " + e.latlng.lng)
-            .openOn(mymap);*/
-
         if (data["startLat"] == "") {
-            data["startLat"] = e.latlng.lat.toString()
-            data["startLng"] = e.latlng.lng.toString()
+            data["startLat"] = e.latlng.wrap().lat.toString()
+            data["startLng"] = e.latlng.wrap().lng.toString()
             console.log(JSON.stringify(data))
 
             popup
@@ -97,8 +77,8 @@
                 .openOn(mymap);
 
         } else {
-            data["endLat"] = e.latlng.lat.toString()
-            data["endLng"] = e.latlng.lng.toString()
+            data["endLat"] = e.latlng.wrap().lat.toString()
+            data["endLng"] = e.latlng.wrap().lng.toString()
             console.log(JSON.stringify(data))
 
             popup
