@@ -90,11 +90,16 @@
                 url: "/point",
                 data: data
             }).done(function(data) {
+            	if (data == "false") {
+            		popup
+						.setLatLng(e.latlng)
+						.setContent("Please select start- and end-points in water.")
+						.openOn(mymap);
+            	}
             	showRoute(JSON.parse(data))
                 console.log(JSON.stringify(data))
-                // Do whatever with returned data
             });
-            data = data = {
+            data = {
                 startLat: "",
                 startLng: "",
                 endLat: "",
