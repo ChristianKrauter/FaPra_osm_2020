@@ -290,7 +290,6 @@ func main() {
 	}
 
 	sort.Sort(arrayOfArrays(allCoastlines))
-	//var allBoundingBoxes = make ([]map[string]float64, len(allCoastlines))
 	var allBoundingBoxes []map[string]float64
 
 	t = time.Now()
@@ -312,37 +311,21 @@ func main() {
 
 	// Creating meshgrid
 	var testGeoJSON [][]float64
-	var meshgrid [360][360]bool // inits with false!
-	for x := 0.0; x < 360; x++ {
-		for y := 0.0; y < 360; y++ {
+	var meshgrid [3600][3600]bool // inits with false!
+	for x := 0.0; x < 360; x += 0.1 {
+		for y := 0.0; y < 360; y += 0.1 {
 			var xs = x - 180
 			var ys = (y / 2) - 90
-			//isWater := true
 			if isLand(&root, []float64{xs, ys}, &allCoastlines) {
-				meshgrid[int(x)][int(y)] = true
+				meshgrid[int(x*10)][int(y*10)] = true
 				testGeoJSON = append(testGeoJSON, []float64{xs, ys})
 			}
-
-			/*for i, j := range allBoundingBoxes {
-				if boundingContains(&j, []float64{xs, ys}) {
-					if polygonContains(&allCoastlines[i], []float64{xs, ys}) {
-
-						testGeoJSON = append(testGeoJSON, []float64{xs, ys})
-
-						// Everything is false (= water), set true if inside one polygon
-						// Skip other polygons for same point
-						meshgrid[int(x)][int(y)] = true
-						break
-					}
-				}
-			}*/
-			//t = time.Now()
-			//elapsed = t.Sub(start)
-			//fmt.Printf("%d, %d: %s\n", int(x), int(y), elapsed)
 		}
 		t = time.Now()
 		elapsed = t.Sub(start)
-		//fmt.Printf("%d: %s\n", int(x), elapsed)
+		if x % 10 == 0 {
+			fmt.Printf("%d: %s\n", int(x), elapsed)
+		}
 	}
 
 	t = time.Now()
@@ -353,7 +336,7 @@ func main() {
 	var meshgridBytes []byte
 	meshgridBytes, err1 := json.Marshal(meshgrid)
 	check(err1)
-	var filename = fmt.Sprintf("tmp/meshgrid.json")
+	var filename = fmt.Sprintf("tmp/meshgrid_big.json")
 	f, err2 := os.Create(filename)
 	check(err2)
 	_, err3 := f.Write(meshgridBytes)
