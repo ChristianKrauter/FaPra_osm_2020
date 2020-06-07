@@ -12,6 +12,7 @@ import (
 	"runtime"
 	"sort"
 	"time"
+	"sync"
 )
 
 // Sorting arrays by length
@@ -261,7 +262,7 @@ func main() {
 
 	t := time.Now()
 	elapsed := t.Sub(start)
-	fmt.Printf("Read file after            : %s\n", elapsed)
+	fmt.Printf("Read file after                     : %s\n", elapsed)
 
 	var allCoastlines [][][]float64
 	var coastline [][]float64
@@ -294,7 +295,7 @@ func main() {
 
 	t = time.Now()
 	elapsed = t.Sub(start)
-	fmt.Printf("Made all polygons after    : %s\n", elapsed)
+	fmt.Printf("Made all polygons after             : %s\n", elapsed)
 
 	for _, i := range allCoastlines {
 		allBoundingBoxes = append(allBoundingBoxes, createBoundingBox(&i))
@@ -307,30 +308,37 @@ func main() {
 
 	t = time.Now()
 	elapsed = t.Sub(start)
-	fmt.Printf("All bounding boxes after   : %s\n", elapsed)
+	fmt.Printf("All bounding boxes after            : %s\n", elapsed)
 
 	// Creating meshgrid
 	var testGeoJSON [][]float64
 	var meshgrid [3600][3600]bool // inits with false!
+	var wg sync.WaitGroup
+
 	for x := 0.0; x < 360; x += 0.1 {
 		for y := 0.0; y < 360; y += 0.1 {
-			var xs = x - 180
-			var ys = (y / 2) - 90
-			if isLand(&root, []float64{xs, ys}, &allCoastlines) {
-				meshgrid[int(x*10)][int(y*10)] = true
-				testGeoJSON = append(testGeoJSON, []float64{xs, ys})
-			}
-		}
-		t = time.Now()
-		elapsed = t.Sub(start)
-		if x % 10 == 0 {
-			fmt.Printf("%d: %s\n", int(x), elapsed)
+			wg.Add(1)
+			go func(x float64, y float64) {
+				defer wg.Done()
+				var xs = x - 180
+				var ys = (y / 2) - 90
+				if isLand(&root, []float64{xs, ys}, &allCoastlines) {
+					meshgrid[int(x*10)][int(y*10)] = true
+					testGeoJSON = append(testGeoJSON, []float64{xs, ys})
+				}
+			}(x, y)
 		}
 	}
 
 	t = time.Now()
 	elapsed = t.Sub(start)
-	fmt.Printf("Created Meshrid after      : %s\n", elapsed)
+	fmt.Printf("Waiting for grid to finish          : %s\n", elapsed)
+
+	wg.Wait()
+
+	t = time.Now()
+	elapsed = t.Sub(start)
+	fmt.Printf("Created Meshrid after               : %s\n", elapsed)
 
 	// Save meshgrid to disk
 	var meshgridBytes []byte
@@ -345,10 +353,9 @@ func main() {
 
 	t = time.Now()
 	elapsed = t.Sub(start)
-	fmt.Printf("Saved Meshrid to disc after: %s\n", elapsed)
+	fmt.Printf("Wrote Meshrid to disc after         : %s\n", elapsed)
 
-	fmt.Printf("Points in test geojson: %d\n", len(testGeoJSON))
-	fmt.Printf("creating test geojson\n")
+	//fmt.Printf("Points in test geojson: %d\n", len(testGeoJSON))
 	var rawJson []byte
 	g := geojson.NewMultiPointGeometry(testGeoJSON...)
 	rawJson, err4 := g.MarshalJSON()
@@ -359,6 +366,10 @@ func main() {
 	_, err6 := f.Write(rawJson)
 	check(err6)
 	f.Sync()
+
+	t = time.Now()
+	elapsed = t.Sub(start)
+	fmt.Printf("Created & wrote test-geojson after  : %s\n",  elapsed)
 
 	// Create coastline geojson file
 	/*var rawJson []byte
@@ -385,5 +396,5 @@ func main() {
 
 	t = time.Now()
 	elapsed = t.Sub(start)
-	fmt.Printf("Program finished after     : %s\n", elapsed)
+	fmt.Printf("Program finished after              : %s\n", elapsed)
 }
