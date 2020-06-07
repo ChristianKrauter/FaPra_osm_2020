@@ -12,12 +12,12 @@
 
 <body>
 	<body oncontextmenu="return false;">
-    <input type="file" id="file-input" />
+    <!--input type="file" id="file-input" />
     <h3>Contents of the file:</h3>
-    <pre id="file-content"></pre>
+    <pre id="file-content"></pre-->
     <div id="mapid"></div>
     <script>
-    function readSingleFile(e) {
+    /*function readSingleFile(e) {
         var file = e.target.files[0];
         if (!file) {
             return;
@@ -36,10 +36,10 @@
         L.geoJSON([JSON.parse(contents)]).addTo(mymap).bindPopup("HERE!.").setContent("You clicked thes map at " + e.latlng.toString()).openPopup()
     }
 
-
     document.getElementById('file-input').addEventListener('change', readSingleFile, false);
+	*/
 
-    var mymap = L.map('mapid', {worldCopyJump: false}).setView([51.505, -0.09], 13);
+    var mymap = L.map('mapid', {worldCopyJump: false}).setView([51.505, -0.09], 3);
 
     L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
         maxZoom: 18,
