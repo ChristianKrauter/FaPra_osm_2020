@@ -55,7 +55,7 @@ func neighbours(point []int64) [][]int64 {
 func neighbours1d(point int64) []int64 {
 	var neighbours []int64
 	var temp []int64
-	
+
 	if !meshgrid[point-meshWidth-1] {
 		neighbours = append(neighbours, point-meshWidth-1) // top left
 	}
@@ -254,7 +254,7 @@ func main() {
 
 	meshWidth = int64(len(meshgrid2d[0]))
 	for i := 0; i < len(meshgrid2d[0]); i++ {
-		for j :=0; j< len(meshgrid2d);j++{
+		for j := 0; j < len(meshgrid2d); j++ {
 			meshgrid = append(meshgrid, meshgrid2d[j][i])
 		}
 	}
