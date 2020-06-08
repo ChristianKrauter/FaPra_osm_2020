@@ -33,53 +33,62 @@ func toGeojson(route [][]float64) []byte {
 	return rawJson
 }
 
-func neigbourghs(point []int64) [][]int64 {
-	var neigbourghs [][]int64
+func neighbours(point []int64) [][]int64 {
+	var neighbours [][]int64
 
 	var xPlus1 = int64(math.Mod(float64(point[0]+1), 360.0))
 	var xMinus1 = int64(math.Mod(float64(point[0]-1), 360.0))
 	var yPlus1 = int64(math.Mod(float64(point[1]+1), 360.0))
 	var yMinus1 = int64(math.Mod(float64(point[1]-1), 360.0))
 
-	neigbourghs = append(neigbourghs, []int64{xPlus1, point[1]})
-	neigbourghs = append(neigbourghs, []int64{xPlus1, yPlus1})
-	neigbourghs = append(neigbourghs, []int64{xPlus1, yMinus1})
-	neigbourghs = append(neigbourghs, []int64{xMinus1, point[1]})
-	neigbourghs = append(neigbourghs, []int64{xMinus1, yPlus1})
-	neigbourghs = append(neigbourghs, []int64{xMinus1, yMinus1})
-	neigbourghs = append(neigbourghs, []int64{point[0], yPlus1})
-	neigbourghs = append(neigbourghs, []int64{point[0], yMinus1})
-	return neigbourghs
+	neighbours = append(neighbours, []int64{xPlus1, point[1]})
+	neighbours = append(neighbours, []int64{xPlus1, yPlus1})
+	neighbours = append(neighbours, []int64{xPlus1, yMinus1})
+	neighbours = append(neighbours, []int64{xMinus1, point[1]})
+	neighbours = append(neighbours, []int64{xMinus1, yPlus1})
+	neighbours = append(neighbours, []int64{xMinus1, yMinus1})
+	neighbours = append(neighbours, []int64{point[0], yPlus1})
+	neighbours = append(neighbours, []int64{point[0], yMinus1})
+	return neighbours
 }
 
-func neigbourghs1d(point int64) []int64 {
-	var neigbourghs []int64
-
+func neighbours1d(point int64) []int64 {
+	var neighbours []int64
+	var temp []int64
+	
 	if !meshgrid[point-meshWidth-1] {
-		neigbourghs = append(neigbourghs, point-meshWidth-1) // top left
+		neighbours = append(neighbours, point-meshWidth-1) // top left
 	}
 	if !meshgrid[point-meshWidth] {
-		neigbourghs = append(neigbourghs, point-meshWidth)   // top
+		neighbours = append(neighbours, point-meshWidth) // top
 	}
 	if !meshgrid[point-meshWidth+1] {
-		neigbourghs = append(neigbourghs, point-meshWidth+1) // top right
+		neighbours = append(neighbours, point-meshWidth+1) // top right
 	}
 	if !meshgrid[point-1] {
-		neigbourghs = append(neigbourghs, point-1)           // left
+		neighbours = append(neighbours, point-1) // left
 	}
 	if !meshgrid[point+1] {
-		neigbourghs = append(neigbourghs, point+1)           // right
+		neighbours = append(neighbours, point+1) // right
 	}
 	if !meshgrid[point+meshWidth-1] {
-		neigbourghs = append(neigbourghs, point+meshWidth-1) // bottom left
+		neighbours = append(neighbours, point+meshWidth-1) // bottom left
 	}
 	if !meshgrid[point+meshWidth] {
-		neigbourghs = append(neigbourghs, point+meshWidth)   // bottom
+		neighbours = append(neighbours, point+meshWidth) // bottom
 	}
 	if !meshgrid[point+meshWidth+1] {
-		neigbourghs = append(neigbourghs, point+meshWidth+1) // bottom right
+		neighbours = append(neighbours, point+meshWidth+1) // bottom right
 	}
-	return neigbourghs
+
+	for _, j := range neighbours {
+		if j >= 0 && j < 360.0*360.0 {
+			//fmt.Printf("neighbours: %v\n", j)
+			temp = append(temp, j)
+		}
+		//fmt.Printf("id: %v, vool: %v\n", j, meshgrid[j])
+	}
+	return neighbours
 }
 
 func gridToCoord(in []int64) []float64 {
@@ -91,8 +100,13 @@ func gridToCoord(in []int64) []float64 {
 
 func coordToGrid(in []float64) []int64 {
 	var out []int64
+	// big grid
+	//out = append(out, int64(((math.Round(in[0]*10)/10)+180)*10))
+	//out = append(out, int64(((math.Round(in[1]*10)/10)+90)*2*10))
+	// small grid
 	out = append(out, int64(math.Round(in[0]))+180)
 	out = append(out, (int64(math.Round(in[1]))+90)*2)
+
 	return out
 }
 
@@ -118,11 +132,11 @@ func min(dist *[]float64, vertices *[]int64) []int64 {
 
 	for j, i := range *vertices {
 		//if !meshgrid[i] {
-			if (*dist)[i] < min {
-				min = (*dist)[i]
-				argmin = i
-				argminIndx = int64(j)
-			}
+		if (*dist)[i] < min {
+			min = (*dist)[i]
+			argmin = i
+			argminIndx = int64(j)
+		}
 		//}
 	}
 	return []int64{argmin, argminIndx}
@@ -134,8 +148,8 @@ func haversin(theta float64) float64 {
 
 func distance(start, end []float64) float64 {
 	var fLat, fLng, fLat2, fLng2, radius float64
-	fLat  = start[0] * math.Pi / 100
-	fLng  = start[1] * math.Pi / 100
+	fLat = start[0] * math.Pi / 100
+	fLng = start[1] * math.Pi / 100
 	fLat2 = end[0] * math.Pi / 100
 	fLng2 = end[1] * math.Pi / 100
 
@@ -145,11 +159,11 @@ func distance(start, end []float64) float64 {
 	return (2 * radius * math.Asin(math.Sqrt(h)))
 }
 
-func extractRoute(prev *[]int64, end int64) [][]float64{
+func extractRoute(prev *[]int64, end int64) [][]float64 {
 	print("started extracting route\n")
 	var route [][]float64
 
-	for{
+	for {
 		x := expandIndx(end)
 		route = append(route, gridToCoord([]int64{int64(x[1]), int64(x[0])}))
 		if (*prev)[end] == -1 {
@@ -174,7 +188,7 @@ func dijkstra(startLng, startLat, endLng, endLat float64, startLngInt, startLatI
 	//var start_mesh []int64 = []int64{int64(math.Round(startLng)) + 180, (int64(math.Round(startLat)) + 90) * 2}
 	//var end_mesh []int64 = []int64{int64(math.Round(endLng)) + 180, (int64(math.Round(endLat)) + 90) * 2}
 
-	//for _,k := range neigbourghs(coordToGrid([]float64{startLng, startLat})) {
+	//for _,k := range neighbours(coordToGrid([]float64{startLng, startLat})) {
 	//	route = append(route, gridToCoord(k))
 	//}
 
@@ -207,19 +221,19 @@ func dijkstra(startLng, startLat, endLng, endLat float64, startLngInt, startLatI
 			var u = whatever[0]
 			//fmt.Printf("u: %v\n", u)
 			remove(vertices, whatever[1])
-
-			for _, j := range neigbourghs1d(u) {
+			print("running")
+			for _, j := range neighbours1d(u) {
 				//fmt.Printf("j: %v, land:%v\n", j, meshgrid[j])
 				//if !meshgrid[j] {
-					if j == flattenIndx(endLatInt, endLngInt) {
-						prev[j] = u
-						return extractRoute(&prev, flattenIndx(endLatInt, endLngInt))
-					}
-					var alt = dist[u] + distance(expandIndx(u), expandIndx(j))
-					if alt < dist[j] {
-						dist[j] = alt
-						prev[j] = u
-					}
+				if j == flattenIndx(endLatInt, endLngInt) {
+					prev[j] = u
+					return extractRoute(&prev, flattenIndx(endLatInt, endLngInt))
+				}
+				var alt = dist[u] + distance(expandIndx(u), expandIndx(j))
+				if alt < dist[j] {
+					dist[j] = alt
+					prev[j] = u
+				}
 				//}
 			}
 		}
@@ -239,8 +253,10 @@ func main() {
 	json.Unmarshal(byteValue, &meshgrid2d)
 
 	meshWidth = int64(len(meshgrid2d[0]))
-	for i := 0; i < len(meshgrid2d); i++ {
-		meshgrid = append(meshgrid, meshgrid2d[i]...)
+	for i := 0; i < len(meshgrid2d[0]); i++ {
+		for j :=0; j< len(meshgrid2d);j++{
+			meshgrid = append(meshgrid, meshgrid2d[j][i])
+		}
 	}
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -275,7 +291,7 @@ func main() {
 			fmt.Printf("\n%v/%v, %v/%v\n", startLngInt, startLatInt, endLngInt, endLatInt)
 			fmt.Printf("%v/%v\n", meshgrid2d[startLngInt][startLatInt], meshgrid2d[endLngInt][endLatInt])
 
-			if (!meshgrid2d[startLngInt][startLatInt] && !meshgrid2d[endLngInt][endLatInt]) {
+			if !meshgrid2d[startLngInt][startLatInt] && !meshgrid2d[endLngInt][endLatInt] {
 				fmt.Printf("start: %d / %d ", int64(math.Round(startLat)), int64(math.Round(startLng)))
 				fmt.Printf("end: %d / %d\n", int64(math.Round(endLat)), int64(math.Round(endLng)))
 

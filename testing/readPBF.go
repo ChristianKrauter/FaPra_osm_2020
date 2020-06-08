@@ -11,8 +11,8 @@ import (
 	"os"
 	"runtime"
 	"sort"
-	"time"
 	"sync"
+	"time"
 )
 
 // Sorting arrays by length
@@ -164,20 +164,20 @@ func checkBoundingBoxes(bb1 map[string]float64, bb2 map[string]float64) bool {
 	return bb1["minX"] >= bb2["minX"] && bb1["maxX"] <= bb2["maxX"] && bb1["minY"] >= bb2["minY"] && bb1["maxY"] <= bb2["maxY"]
 }
 
-func addBoundingTree(tree BoundingTree, boundingBox map[string]float64, id int) BoundingTree {
-	if checkBoundingBoxes(boundingBox, tree.boundingBox) {
-		for i, child := range tree.children {
-			if checkBoundingBoxes(boundingBox, child.boundingBox) {
-				child = addBoundingTree(child, boundingBox, id)
-				tree.children[i] = child
-				return tree
-			}
+func addBoundingTree(tree *BoundingTree, boundingBox *map[string]float64, id int) BoundingTree {
+	//if checkBoundingBoxes(*boundingBox, (*tree).boundingBox) {
+	for i, child := range (*tree).children {
+		if checkBoundingBoxes(*boundingBox, child.boundingBox) {
+			child = addBoundingTree(&child, boundingBox, id)
+			(*tree).children[i] = child
+			return *tree
 		}
-		tree.children = append(tree.children, BoundingTree{boundingBox, id, make([]BoundingTree, 0)})
-		return tree
 	}
-	log.Fatalf("This should not have happened. Error while inserting bounding box.")
-	return tree
+	(*tree).children = append((*tree).children, BoundingTree{*boundingBox, id, make([]BoundingTree, 0)})
+	return *tree
+	//}
+	//log.Fatalf("This should not have happened. Error while inserting bounding box.")
+	//return *tree
 }
 
 func countBoundingTree(bt BoundingTree) int {
@@ -191,21 +191,15 @@ func countBoundingTree(bt BoundingTree) int {
 func isLand(tree *BoundingTree, point []float64, allCoastlines *[][][]float64) bool {
 	land := false
 	if boundingContains(&tree.boundingBox, point) {
-		if (*tree).id >= 0 {
-			land = polygonContains(&(*allCoastlines)[(*tree).id], point)
-			//fmt.Printf("%v\n", land)
-		}
-		if land {
-			return land
-		} else {
-			for _, child := range (*tree).children {
-				land = isLand(&child, point, allCoastlines)
-				if land {
-					return land
-				}
+		for _, child := range (*tree).children {
+			land = isLand(&child, point, allCoastlines)
+			if land {
+				return land
 			}
 		}
-
+		if (*tree).id >= 0 {
+			land = polygonContains(&(*allCoastlines)[(*tree).id], point)
+		}
 	}
 	return land
 }
@@ -291,20 +285,23 @@ func main() {
 	}
 
 	sort.Sort(arrayOfArrays(allCoastlines))
-	var allBoundingBoxes []map[string]float64
+	//var allBoundingBoxes []map[string]float64
 
 	t = time.Now()
 	elapsed = t.Sub(start)
 	fmt.Printf("Made all polygons after             : %s\n", elapsed)
 
-	for _, i := range allCoastlines {
-		allBoundingBoxes = append(allBoundingBoxes, createBoundingBox(&i))
-	}
 	root := BoundingTree{map[string]float64{"minX": math.Inf(-1), "maxX": math.Inf(1), "minY": math.Inf(-1), "maxY": math.Inf(1)}, -1, make([]BoundingTree, 0)}
 
-	for i, j := range allBoundingBoxes {
-		root = addBoundingTree(root, j, i)
+	for j, i := range allCoastlines {
+		//allBoundingBoxes = append(allBoundingBoxes, createBoundingBox(&i))
+		bb := createBoundingBox(&i)
+		root = addBoundingTree(&root, &bb, j)
 	}
+
+	/*for i, j := range allBoundingBoxes {
+		root = addBoundingTree(root, j, i)
+	}*/
 
 	t = time.Now()
 	elapsed = t.Sub(start)
@@ -313,16 +310,19 @@ func main() {
 	// Creating meshgrid
 	var testGeoJSON [][]float64
 	var meshgrid [3600][3600]bool // inits with false!
+	//var meshgrid [360][360]bool // inits with false!
 	var wg sync.WaitGroup
-
 	for x := 0.0; x < 360; x += 0.1 {
 		for y := 0.0; y < 360; y += 0.1 {
+			/*for x := 0.0; x < 360; x += 1 {
+			for y := 0.0; y < 360; y += 1 {*/
 			wg.Add(1)
 			go func(x float64, y float64) {
 				defer wg.Done()
 				var xs = x - 180
 				var ys = (y / 2) - 90
 				if isLand(&root, []float64{xs, ys}, &allCoastlines) {
+					//meshgrid[int(x)][int(y)] = true
 					meshgrid[int(x*10)][int(y*10)] = true
 					testGeoJSON = append(testGeoJSON, []float64{xs, ys})
 				}
@@ -369,7 +369,7 @@ func main() {
 
 	t = time.Now()
 	elapsed = t.Sub(start)
-	fmt.Printf("Created & wrote test-geojson after  : %s\n",  elapsed)
+	fmt.Printf("Created & wrote test-geojson after  : %s\n", elapsed)
 
 	// Create coastline geojson file
 	/*var rawJson []byte
