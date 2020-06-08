@@ -25,10 +25,16 @@ func check(e error) {
 	}
 }
 
-func toGeojson(route [][]float64) []byte {
+func toGeojson(route [][][]float64) []byte {
 	var rawJson []byte
-	g := geojson.NewLineStringGeometry(route)
-	rawJson, err4 := g.MarshalJSON()
+	//fmt.Printf("%v\n", route)
+	routes := geojson.NewFeatureCollection()
+	for _, x := range route {
+		//fmt.Printf("%v\n", geojson.NewFeature(geojson.NewLineStringGeometry(x)))
+		routes = routes.AddFeature(geojson.NewFeature(geojson.NewLineStringGeometry(x)))
+	}
+	//fmt.Printf("%v\n", routes)
+	rawJson, err4 := routes.MarshalJSON()
 	check(err4)
 	return rawJson
 }
@@ -56,39 +62,26 @@ func neighbours1d(point int64) []int64 {
 	var neighbours []int64
 	var temp []int64
 
-	if !meshgrid[point-meshWidth-1] {
-		neighbours = append(neighbours, point-meshWidth-1) // top left
-	}
-	if !meshgrid[point-meshWidth] {
-		neighbours = append(neighbours, point-meshWidth) // top
-	}
-	if !meshgrid[point-meshWidth+1] {
-		neighbours = append(neighbours, point-meshWidth+1) // top right
-	}
-	if !meshgrid[point-1] {
-		neighbours = append(neighbours, point-1) // left
-	}
-	if !meshgrid[point+1] {
-		neighbours = append(neighbours, point+1) // right
-	}
-	if !meshgrid[point+meshWidth-1] {
-		neighbours = append(neighbours, point+meshWidth-1) // bottom left
-	}
-	if !meshgrid[point+meshWidth] {
-		neighbours = append(neighbours, point+meshWidth) // bottom
-	}
-	if !meshgrid[point+meshWidth+1] {
-		neighbours = append(neighbours, point+meshWidth+1) // bottom right
-	}
+	neighbours = append(neighbours, point-meshWidth-1) // top left
+	neighbours = append(neighbours, point-meshWidth)   // top
+	neighbours = append(neighbours, point-meshWidth+1) // top right
+	neighbours = append(neighbours, point-1)           // left
+	neighbours = append(neighbours, point+1)           // right
+	neighbours = append(neighbours, point+meshWidth-1) // bottom left
+	neighbours = append(neighbours, point+meshWidth)   // bottom
+	neighbours = append(neighbours, point+meshWidth+1) // bottom right
 
 	for _, j := range neighbours {
-		if j >= 0 && j < 360.0*360.0 {
+		if j >= 0 && j < int64(len(meshgrid)) {
 			//fmt.Printf("neighbours: %v\n", j)
-			temp = append(temp, j)
+			if !meshgrid[j] {
+				temp = append(temp, j)
+			}
+
 		}
 		//fmt.Printf("id: %v, vool: %v\n", j, meshgrid[j])
 	}
-	return neighbours
+	return temp
 }
 
 func gridToCoord(in []int64) []float64 {
@@ -125,17 +118,17 @@ func remove(s []int64, i int64) []int64 {
 	return s[:len(s)-1]
 }
 
-func min(dist *[]float64, vertices *[]int64) []int64 {
+func min(dist *[]float64, vertices *map[int64]bool) []int64 {
 	var min = math.Inf(1)
 	var argmin int64
 	var argminIndx int64
 
-	for j, i := range *vertices {
+	for i := range *vertices {
 		//if !meshgrid[i] {
 		if (*dist)[i] < min {
 			min = (*dist)[i]
 			argmin = i
-			argminIndx = int64(j)
+			argminIndx = i
 		}
 		//}
 	}
@@ -148,38 +141,61 @@ func haversin(theta float64) float64 {
 
 func distance(start, end []float64) float64 {
 	var fLat, fLng, fLat2, fLng2, radius float64
-	fLat = start[0] * math.Pi / 100
-	fLng = start[1] * math.Pi / 100
-	fLat2 = end[0] * math.Pi / 100
-	fLng2 = end[1] * math.Pi / 100
+	fLat = start[0] * math.Pi / 180.0
+	fLng = start[1] * math.Pi / 180.0
+	fLat2 = end[0] * math.Pi / 180.0
+	fLng2 = end[1] * math.Pi / 180.0
 
 	radius = 6378100
 	h := haversin(fLat2-fLat) + math.Cos(fLat)*math.Cos(fLat2)*haversin(fLng2-fLng)
-
-	return (2 * radius * math.Asin(math.Sqrt(h)))
+	c := 2 * math.Atan2(math.Sqrt(h), math.Sqrt(1-h))
+	return (c * radius)
 }
 
-func extractRoute(prev *[]int64, end int64) [][]float64 {
+func extractRoute(prev *[]int64, end int64) [][][]float64 {
 	print("started extracting route\n")
-	var route [][]float64
-
+	var route [][][]float64
+	var tempRoute [][]float64
+	temp := expandIndx(end)
 	for {
 		x := expandIndx(end)
-		route = append(route, gridToCoord([]int64{int64(x[1]), int64(x[0])}))
+		if math.Abs(temp[1]-x[1]) > 1 {
+			route = append(route, tempRoute)
+			tempRoute = make([][]float64, 0)
+		}
+		tempRoute = append(tempRoute, gridToCoord([]int64{int64(x[1]), int64(x[0])}))
+
 		if (*prev)[end] == -1 {
 			break
 		}
 		end = (*prev)[end]
+		temp = x
 	}
-	fmt.Printf("%v\n", route)
+	route = append(route, tempRoute)
+	//fmt.Printf("%v\n", route)
+	return route
+}
+func testExtractRoute(points *[][]int64) [][][]float64 {
+	print("started extracting route\n")
+	var route [][][]float64
+
+	for _, x := range *points {
+		coordPoints := make([][]float64, 0)
+		for _, y := range x {
+			point := expandIndx(int64(y))
+			coordPoints = append(coordPoints, gridToCoord([]int64{int64(point[1]), int64(point[0])}))
+		}
+		route = append(route, coordPoints)
+	}
 	return route
 }
 
-func dijkstra(startLng, startLat, endLng, endLat float64, startLngInt, startLatInt, endLngInt, endLatInt int64) [][]float64 {
+func dijkstra(startLng, startLat, endLng, endLat float64, startLngInt, startLatInt, endLngInt, endLatInt int64) [][][]float64 {
 
 	var dist []float64
 	var prev []int64
-	var vertices []int64
+	//var expansions [][]int64
+	var vertices = make(map[int64]bool)
 	print("started Dijkstra\n")
 	//var route [][]float64
 	//route = append(route, []float64{math.Round(startLng), math.Round(startLat)})
@@ -195,12 +211,12 @@ func dijkstra(startLng, startLat, endLng, endLat float64, startLngInt, startLatI
 	//fmt.Printf("%v/", meshgrid2d[int64(math.Round(startLng))+180][(int64(math.Round(startLat))+90)*2])
 	//fmt.Printf("%v\n", meshgrid2d[int64(math.Round(endLng))+180][(int64(math.Round(endLat))+90)*2])
 
-	for i, j := range meshgrid {
+	for i := 0; i < len(meshgrid); i++ {
 		dist = append(dist, math.Inf(1))
 		prev = append(prev, -1)
-		if !j {
+		/*if !j {
 			vertices = append(vertices, int64(i))
-		}
+		}*/
 	}
 
 	//// Flatten / expand test
@@ -212,38 +228,60 @@ func dijkstra(startLng, startLat, endLng, endLat float64, startLngInt, startLatI
 	//os.Exit(-1)
 
 	dist[flattenIndx(startLatInt, startLngInt)] = 0
+	vertices[flattenIndx(startLatInt, startLngInt)] = true
 	print("starting loop\n")
 	for {
 		if len(vertices) == 0 {
 			break
 		} else {
+			//var expansion = make([]int64,0)
 			var whatever = min(&dist, &vertices)
 			var u = whatever[0]
-			//fmt.Printf("u: %v\n", u)
-			remove(vertices, whatever[1])
-			print("running")
-			for _, j := range neighbours1d(u) {
+			
+			neighbours := neighbours1d(u)
+			//fmt.Printf("u: %v\n", len(vertices))
+			delete(vertices, whatever[1])
+
+			for _, j := range neighbours {
 				//fmt.Printf("j: %v, land:%v\n", j, meshgrid[j])
 				//if !meshgrid[j] {
 				if j == flattenIndx(endLatInt, endLngInt) {
 					prev[j] = u
 					return extractRoute(&prev, flattenIndx(endLatInt, endLngInt))
+					//return testExtractRoute(&expansions)
 				}
+				//fmt.Printf("Dist[u]: %v\n", dist[u])
+				//fmt.Printf("u/j: %v/%v\n", u,j)
+				//fmt.Printf("Distance u-j: %v\n", distance(expandIndx(u), expandIndx(j)))
+				//fmt.Printf("Summe: %v\n", (dist[u] + distance(expandIndx(u), expandIndx(j))))
+				//fmt.Scanln()
 				var alt = dist[u] + distance(expandIndx(u), expandIndx(j))
+				//fmt.Printf("Distance: %v\n",distance(expandIndx(u), expandIndx(j)))
 				if alt < dist[j] {
 					dist[j] = alt
 					prev[j] = u
+					vertices[j] = true
+					//expansion = append(expansion,j)
 				}
 				//}
 			}
+			//expansions = append(expansions,expansion)
 		}
 	}
 
 	return extractRoute(&prev, flattenIndx(endLatInt, endLngInt))
+	//return testExtractRoute(&expansions)
 }
 
 func main() {
+	fmt.Printf("%v\n", distance([]float64{45.0, 120.0}, []float64{45.0, 121.0}))
+	fmt.Printf("%v\n", distance([]float64{45.0, 120.0}, []float64{44.0, 120.0}))
+	fmt.Printf("%v\n\n", distance([]float64{45.0, 120.0}, []float64{46.0, 120.0}))
 
+	fmt.Printf("%v\n", distance([]float64{40.0, 120.0}, []float64{40.0, 121.0}))
+	fmt.Printf("%v\n", distance([]float64{40.0, 120.0}, []float64{39.0, 120.0}))
+	fmt.Printf("%v\n", distance([]float64{40.0, 120.0}, []float64{41.0, 120.0}))
+	//os.Exit(1)
 	meshgridRaw, errJson := os.Open("tmp/meshgrid.json")
 	if errJson != nil {
 		panic(errJson)
@@ -296,7 +334,7 @@ func main() {
 				fmt.Printf("end: %d / %d\n", int64(math.Round(endLat)), int64(math.Round(endLng)))
 
 				var route = dijkstra(startLng, startLat, endLng, endLat, startLngInt, startLatInt, endLngInt, endLatInt)
-				fmt.Printf("%v", route)
+				//fmt.Printf("%vöö\n", route)
 				var result = toGeojson(route)
 				w.Write(result)
 			} else {

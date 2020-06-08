@@ -61,7 +61,8 @@
     }
 
     function showRoute(route) {
-		L.geoJSON(route).addTo(mymap).bindPopup("I am a line.");
+		//L.geoJSON(route).addTo(mymap).bindPopup("I am a line.");
+        L.geoJSON(route).addTo(mymap);
     }
 
     function onMapClick(e) {
@@ -97,7 +98,7 @@
 						.openOn(mymap);
             	}
             	showRoute(JSON.parse(data))
-                console.log(JSON.stringify(data))
+                //console.log(JSON.stringify(data))
             });
             data = {
                 startLat: "",
