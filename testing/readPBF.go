@@ -104,7 +104,7 @@ func rayCast(point, s, e []float64) (bool, bool) {
 	return rs <= ds, false
 }
 
-// https://github.com/paulmach/orb
+// After https://github.com/paulmach/orb
 func polygonContains(polygon *[][]float64, point []float64) bool {
 	b, on := rayCast(point, (*polygon)[0], (*polygon)[len(*polygon)-1])
 	if on {
@@ -165,7 +165,6 @@ func checkBoundingBoxes(bb1 map[string]float64, bb2 map[string]float64) bool {
 }
 
 func addBoundingTree(tree *BoundingTree, boundingBox *map[string]float64, id int) BoundingTree {
-	//if checkBoundingBoxes(*boundingBox, (*tree).boundingBox) {
 	for i, child := range (*tree).children {
 		if checkBoundingBoxes(*boundingBox, child.boundingBox) {
 			child = addBoundingTree(&child, boundingBox, id)
@@ -175,9 +174,6 @@ func addBoundingTree(tree *BoundingTree, boundingBox *map[string]float64, id int
 	}
 	(*tree).children = append((*tree).children, BoundingTree{*boundingBox, id, make([]BoundingTree, 0)})
 	return *tree
-	//}
-	//log.Fatalf("This should not have happened. Error while inserting bounding box.")
-	//return *tree
 }
 
 func countBoundingTree(bt BoundingTree) int {
@@ -285,7 +281,6 @@ func main() {
 	}
 
 	sort.Sort(arrayOfArrays(allCoastlines))
-	//var allBoundingBoxes []map[string]float64
 
 	t = time.Now()
 	elapsed = t.Sub(start)
@@ -294,14 +289,9 @@ func main() {
 	root := BoundingTree{map[string]float64{"minX": math.Inf(-1), "maxX": math.Inf(1), "minY": math.Inf(-1), "maxY": math.Inf(1)}, -1, make([]BoundingTree, 0)}
 
 	for j, i := range allCoastlines {
-		//allBoundingBoxes = append(allBoundingBoxes, createBoundingBox(&i))
 		bb := createBoundingBox(&i)
 		root = addBoundingTree(&root, &bb, j)
 	}
-
-	/*for i, j := range allBoundingBoxes {
-		root = addBoundingTree(root, j, i)
-	}*/
 
 	t = time.Now()
 	elapsed = t.Sub(start)
@@ -322,8 +312,8 @@ func main() {
 				var xs = x - 180
 				var ys = (y / 2) - 90
 				if isLand(&root, []float64{xs, ys}, &allCoastlines) {
-					//meshgrid[int(x)][int(y)] = true
 					meshgrid[int(x*10)][int(y*10)] = true
+					//meshgrid[int(x)][int(y)] = true
 					testGeoJSON = append(testGeoJSON, []float64{xs, ys})
 				}
 			}(x, y)

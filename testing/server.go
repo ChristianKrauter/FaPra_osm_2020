@@ -11,7 +11,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	//"net/http/httputil"
+	"time"
 )
 
 var port int = 8081
@@ -27,65 +27,46 @@ func check(e error) {
 
 func toGeojson(route [][][]float64) []byte {
 	var rawJson []byte
-	//fmt.Printf("%v\n", route)
 	routes := geojson.NewFeatureCollection()
-	for _, x := range route {
-		//fmt.Printf("%v\n", geojson.NewFeature(geojson.NewLineStringGeometry(x)))
-		routes = routes.AddFeature(geojson.NewFeature(geojson.NewLineStringGeometry(x)))
+	for _, j := range route {
+		//fmt.Printf("%v\n", geojson.NewFeature(geojson.NewLineStringGeometry(j)))
+		routes = routes.AddFeature(geojson.NewFeature(geojson.NewLineStringGeometry(j)))
 	}
-	//fmt.Printf("%v\n", routes)
-	rawJson, err4 := routes.MarshalJSON()
-	check(err4)
+	rawJson, err := routes.MarshalJSON()
+	check(err)
 	return rawJson
 }
 
-func neighbours(point []int64) [][]int64 {
-	var neighbours [][]int64
-
-	var xPlus1 = int64(math.Mod(float64(point[0]+1), 360.0))
-	var xMinus1 = int64(math.Mod(float64(point[0]-1), 360.0))
-	var yPlus1 = int64(math.Mod(float64(point[1]+1), 360.0))
-	var yMinus1 = int64(math.Mod(float64(point[1]-1), 360.0))
-
-	neighbours = append(neighbours, []int64{xPlus1, point[1]})
-	neighbours = append(neighbours, []int64{xPlus1, yPlus1})
-	neighbours = append(neighbours, []int64{xPlus1, yMinus1})
-	neighbours = append(neighbours, []int64{xMinus1, point[1]})
-	neighbours = append(neighbours, []int64{xMinus1, yPlus1})
-	neighbours = append(neighbours, []int64{xMinus1, yMinus1})
-	neighbours = append(neighbours, []int64{point[0], yPlus1})
-	neighbours = append(neighbours, []int64{point[0], yMinus1})
-	return neighbours
-}
-
-func neighbours1d(point int64) []int64 {
+func neighbours1d(indx int64) []int64 {
 	var neighbours []int64
 	var temp []int64
 
-	neighbours = append(neighbours, point-meshWidth-1) // top left
-	neighbours = append(neighbours, point-meshWidth)   // top
-	neighbours = append(neighbours, point-meshWidth+1) // top right
-	neighbours = append(neighbours, point-1)           // left
-	neighbours = append(neighbours, point+1)           // right
-	neighbours = append(neighbours, point+meshWidth-1) // bottom left
-	neighbours = append(neighbours, point+meshWidth)   // bottom
-	neighbours = append(neighbours, point+meshWidth+1) // bottom right
+	neighbours = append(neighbours, indx-meshWidth-1) // top left
+	neighbours = append(neighbours, indx-meshWidth)   // top
+	neighbours = append(neighbours, indx-meshWidth+1) // top right
+	neighbours = append(neighbours, indx-1)           // left
+	neighbours = append(neighbours, indx+1)           // right
+	neighbours = append(neighbours, indx+meshWidth-1) // bottom left
+	neighbours = append(neighbours, indx+meshWidth)   // bottom
+	neighbours = append(neighbours, indx+meshWidth+1) // bottom right
 
 	for _, j := range neighbours {
 		if j >= 0 && j < int64(len(meshgrid)) {
-			//fmt.Printf("neighbours: %v\n", j)
 			if !meshgrid[j] {
 				temp = append(temp, j)
 			}
 
 		}
-		//fmt.Printf("id: %v, vool: %v\n", j, meshgrid[j])
 	}
 	return temp
 }
 
 func gridToCoord(in []int64) []float64 {
 	var out []float64
+	// big grid
+	//out = append(out, float64((float64(in[0])/10)-180))
+	//out = append(out, float64(((float64(in[1])/10)/2)-90))
+	// small grid
 	out = append(out, float64(in[0]-180))
 	out = append(out, float64((float64(in[1])/2)-90))
 	return out
@@ -99,18 +80,17 @@ func coordToGrid(in []float64) []int64 {
 	// small grid
 	out = append(out, int64(math.Round(in[0]))+180)
 	out = append(out, (int64(math.Round(in[1]))+90)*2)
-
 	return out
 }
 
-func flattenIndx(lat int64, lng int64) int64 {
-	return ((int64(meshWidth) * lat) + lng)
+func flattenIndx(x, y int64) int64 {
+	return ((int64(meshWidth) * y) + x)
 }
 
 func expandIndx(indx int64) []int64 {
-	var lat = indx / meshWidth
-	var lng = indx % meshWidth
-	return []int64{lat, lng}
+	var x = indx % meshWidth
+	var y = indx / meshWidth
+	return []int64{x, y}
 }
 
 func remove(s []int64, i int64) []int64 {
@@ -118,21 +98,17 @@ func remove(s []int64, i int64) []int64 {
 	return s[:len(s)-1]
 }
 
-func min(dist *[]float64, vertices *map[int64]bool) []int64 {
+func min(dist *[]float64, vertices *map[int64]bool) int64 {
 	var min = math.Inf(1)
 	var argmin int64
-	var argminIndx int64
 
 	for i := range *vertices {
-		//if !meshgrid[i] {
 		if (*dist)[i] < min {
 			min = (*dist)[i]
 			argmin = i
-			argminIndx = i
 		}
-		//}
 	}
-	return []int64{argmin, argminIndx}
+	return argmin
 }
 
 func haversin(theta float64) float64 {
@@ -141,10 +117,10 @@ func haversin(theta float64) float64 {
 
 func distance(start, end []float64) float64 {
 	var fLat, fLng, fLat2, fLng2, radius float64
-	fLat = start[1] * math.Pi / 180.0
 	fLng = start[0] * math.Pi / 180.0
-	fLat2 = end[1] * math.Pi / 180.0
+	fLat = start[1] * math.Pi / 180.0
 	fLng2 = end[0] * math.Pi / 180.0
+	fLat2 = end[1] * math.Pi / 180.0
 
 	radius = 6378100
 	h := haversin(fLat2-fLat) + math.Cos(fLat)*math.Cos(fLat2)*haversin(fLng2-fLng)
@@ -159,11 +135,11 @@ func extractRoute(prev *[]int64, end int64) [][][]float64 {
 	temp := expandIndx(end)
 	for {
 		x := expandIndx(end)
-		if math.Abs(float64(temp[1]-x[1])) > 1 {
+		if math.Abs(float64(temp[0]-x[0])) > 1 {
 			route = append(route, tempRoute)
 			tempRoute = make([][]float64, 0)
 		}
-		tempRoute = append(tempRoute, gridToCoord([]int64{x[1], x[0]}))
+		tempRoute = append(tempRoute, gridToCoord([]int64{x[0], x[1]}))
 
 		if (*prev)[end] == -1 {
 			break
@@ -172,82 +148,53 @@ func extractRoute(prev *[]int64, end int64) [][][]float64 {
 		temp = x
 	}
 	route = append(route, tempRoute)
-	//fmt.Printf("%v\n", route)
 	return route
 }
 func testExtractRoute(points *[][]int64) [][][]float64 {
-	print("started extracting route\n")
+	//print("started extracting route\n")
 	var route [][][]float64
 
-	for _, x := range *points {
+	for _, j := range *points {
 		coordPoints := make([][]float64, 0)
-		for _, y := range x {
-			point := expandIndx(int64(y))
-			coordPoints = append(coordPoints, gridToCoord([]int64{point[1], point[0]}))
+		for _, l := range j {
+			point := expandIndx(int64(l))
+			coordPoints = append(coordPoints, gridToCoord([]int64{point[0], point[1]}))
 		}
 		route = append(route, coordPoints)
 	}
 	return route
 }
 
-func dijkstra(startLng, startLat, endLng, endLat float64, startLngInt, startLatInt, endLngInt, endLatInt int64) [][][]float64 {
+func dijkstra(startLngInt, startLatInt, endLngInt, endLatInt int64) [][][]float64 {
 
 	var dist []float64
 	var prev []int64
 	//var expansions [][]int64
 	var vertices = make(map[int64]bool)
-	print("started Dijkstra\n")
-	//var route [][]float64
-	//route = append(route, []float64{math.Round(startLng), math.Round(startLat)})
-	//route = append(route, []float64{math.Round(endLng), math.Round(endLat)})
-
-	//var start_mesh []int64 = []int64{int64(math.Round(startLng)) + 180, (int64(math.Round(startLat)) + 90) * 2}
-	//var end_mesh []int64 = []int64{int64(math.Round(endLng)) + 180, (int64(math.Round(endLat)) + 90) * 2}
-
-	//for _,k := range neighbours(coordToGrid([]float64{startLng, startLat})) {
-	//	route = append(route, gridToCoord(k))
-	//}
-
-	//fmt.Printf("%v/", meshgrid2d[int64(math.Round(startLng))+180][(int64(math.Round(startLat))+90)*2])
-	//fmt.Printf("%v\n", meshgrid2d[int64(math.Round(endLng))+180][(int64(math.Round(endLat))+90)*2])
+	//print("started Dijkstra\n")
 
 	for i := 0; i < len(meshgrid); i++ {
 		dist = append(dist, math.Inf(1))
 		prev = append(prev, -1)
-		/*if !j {
-			vertices = append(vertices, int64(i))
-		}*/
 	}
+	dist[flattenIndx(startLngInt, startLatInt)] = 0
+	vertices[flattenIndx(startLngInt, startLatInt)] = true
 
-	//// Flatten / expand test
-	//var tempFlattened int64
-	//tempFlattened = flattenIndx(startLatInt, startLngInt)
-	//fmt.Printf("lat/lng: %v / %v\n", startLatInt, startLngInt)
-	//fmt.Printf("flatten: %v\n", tempFlattened)
-	//fmt.Printf("expand : %v\n", expandIndx(tempFlattened))
-	//os.Exit(-1)
-
-	dist[flattenIndx(startLatInt, startLngInt)] = 0
-	vertices[flattenIndx(startLatInt, startLngInt)] = true
-	print("starting loop\n")
 	for {
 		if len(vertices) == 0 {
 			break
 		} else {
 			//var expansion = make([]int64,0)
-			var whatever = min(&dist, &vertices)
-			var u = whatever[0]
-
+			var u = min(&dist, &vertices)
 			neighbours := neighbours1d(u)
-			//fmt.Printf("u: %v\n", len(vertices))
-			delete(vertices, whatever[1])
+			delete(vertices, u)
 
 			for _, j := range neighbours {
 				//fmt.Printf("j: %v, land:%v\n", j, meshgrid[j])
-				//if !meshgrid[j] {
-				if j == flattenIndx(endLatInt, endLngInt) {
+
+				if j == flattenIndx(endLngInt, endLatInt) {
 					prev[j] = u
-					return extractRoute(&prev, flattenIndx(endLatInt, endLngInt))
+					return extractRoute(&prev, flattenIndx(endLngInt, endLatInt))
 					//return testExtractRoute(&expansions)
 				}
 				//fmt.Printf("Dist[u]: %v\n", dist[u])
@@ -263,25 +210,17 @@ func dijkstra(startLng, startLat, endLng, endLat float64, startLngInt, startLatI
 					vertices[j] = true
 					//expansion = append(expansion,j)
 				}
-				//}
 			}
 			//expansions = append(expansions,expansion)
 		}
 	}
 
-	return extractRoute(&prev, flattenIndx(endLatInt, endLngInt))
+	return extractRoute(&prev, flattenIndx(endLngInt, endLatInt))
 	//return testExtractRoute(&expansions)
 }
 
 func main() {
-	fmt.Printf("%v\n", distance([]float64{45.0, 120.0}, []float64{45.0, 121.0}))
-	fmt.Printf("%v\n", distance([]float64{45.0, 120.0}, []float64{44.0, 120.0}))
-	fmt.Printf("%v\n\n", distance([]float64{45.0, 120.0}, []float64{46.0, 120.0}))
-
-	fmt.Printf("%v\n", distance([]float64{40.0, 120.0}, []float64{40.0, 121.0}))
-	fmt.Printf("%v\n", distance([]float64{40.0, 120.0}, []float64{39.0, 120.0}))
-	fmt.Printf("%v\n", distance([]float64{40.0, 120.0}, []float64{41.0, 120.0}))
-	//os.Exit(1)
+	//meshgridRaw, errJson := os.Open("tmp/meshgrid__planet_big.json")
 	meshgridRaw, errJson := os.Open("tmp/meshgrid.json")
 	if errJson != nil {
 		panic(errJson)
@@ -326,15 +265,19 @@ func main() {
 			var endLngInt = end[0]
 			var endLatInt = end[1]
 
-			fmt.Printf("\n%v/%v, %v/%v\n", startLngInt, startLatInt, endLngInt, endLatInt)
-			fmt.Printf("%v/%v\n", meshgrid2d[startLngInt][startLatInt], meshgrid2d[endLngInt][endLatInt])
+			//fmt.Printf("\n%v/%v, %v/%v\n", startLngInt, startLatInt, endLngInt, endLatInt)
+			//fmt.Printf("%v/%v\n", meshgrid2d[startLngInt][startLatInt], meshgrid2d[endLngInt][endLatInt])
 
 			if !meshgrid2d[startLngInt][startLatInt] && !meshgrid2d[endLngInt][endLatInt] {
-				fmt.Printf("start: %d / %d ", int64(math.Round(startLat)), int64(math.Round(startLng)))
-				fmt.Printf("end: %d / %d\n", int64(math.Round(endLat)), int64(math.Round(endLng)))
+				//fmt.Printf("start: %d / %d ", int64(math.Round(startLat)), int64(math.Round(startLng)))
+				//fmt.Printf("end: %d / %d\n", int64(math.Round(endLat)), int64(math.Round(endLng)))
+				var start = time.Now()
+				var route = dijkstra(startLngInt, startLatInt, endLngInt, endLatInt)
 
-				var route = dijkstra(startLng, startLat, endLng, endLat, startLngInt, startLatInt, endLngInt, endLatInt)
-				//fmt.Printf("%vöö\n", route)
+				t := time.Now()
+				elapsed := t.Sub(start)
+				fmt.Printf("time: %s\n", elapsed)
+
 				var result = toGeojson(route)
 				w.Write(result)
 			} else {
@@ -347,6 +290,6 @@ func main() {
 	})
 
 	var portStr = fmt.Sprintf(":%d", port)
-	fmt.Printf("Starting server on %s\n", portStr)
+	fmt.Printf("Starting server on localhost%s\n", portStr)
 	log.Fatal(http.ListenAndServe(portStr, nil))
 }
