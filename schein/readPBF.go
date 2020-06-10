@@ -329,7 +329,7 @@ func main() {
 	var meshgridBytes []byte
 	meshgridBytes, err1 := json.Marshal(meshgrid)
 	check(err1)
-	var filename = fmt.Sprintf("tmp/meshgrid_big.json")
+	var filename = fmt.Sprintf("tmp/meshgrid.json")
 	f, err2 := os.Create(filename)
 	check(err2)
 	_, err3 := f.Write(meshgridBytes)
