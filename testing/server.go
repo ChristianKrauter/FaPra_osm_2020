@@ -87,7 +87,7 @@ func neighbours1d(point int64) []int64 {
 func gridToCoord(in []int64) []float64 {
 	var out []float64
 	out = append(out, float64(in[0]-180))
-	out = append(out, float64((in[1]/2)-90))
+	out = append(out, float64((float64(in[1])/2)-90))
 	return out
 }
 
@@ -107,10 +107,10 @@ func flattenIndx(lat int64, lng int64) int64 {
 	return ((int64(meshWidth) * lat) + lng)
 }
 
-func expandIndx(indx int64) []float64 {
-	var lat = float64(indx / meshWidth)
-	var lng = float64(indx % meshWidth)
-	return []float64{lat, lng}
+func expandIndx(indx int64) []int64 {
+	var lat = indx / meshWidth
+	var lng = indx % meshWidth
+	return []int64{lat, lng}
 }
 
 func remove(s []int64, i int64) []int64 {
@@ -141,10 +141,10 @@ func haversin(theta float64) float64 {
 
 func distance(start, end []float64) float64 {
 	var fLat, fLng, fLat2, fLng2, radius float64
-	fLat = start[0] * math.Pi / 180.0
-	fLng = start[1] * math.Pi / 180.0
-	fLat2 = end[0] * math.Pi / 180.0
-	fLng2 = end[1] * math.Pi / 180.0
+	fLat = start[1] * math.Pi / 180.0
+	fLng = start[0] * math.Pi / 180.0
+	fLat2 = end[1] * math.Pi / 180.0
+	fLng2 = end[0] * math.Pi / 180.0
 
 	radius = 6378100
 	h := haversin(fLat2-fLat) + math.Cos(fLat)*math.Cos(fLat2)*haversin(fLng2-fLng)
@@ -159,11 +159,11 @@ func extractRoute(prev *[]int64, end int64) [][][]float64 {
 	temp := expandIndx(end)
 	for {
 		x := expandIndx(end)
-		if math.Abs(temp[1]-x[1]) > 1 {
+		if math.Abs(float64(temp[1]-x[1])) > 1 {
 			route = append(route, tempRoute)
 			tempRoute = make([][]float64, 0)
 		}
-		tempRoute = append(tempRoute, gridToCoord([]int64{int64(x[1]), int64(x[0])}))
+		tempRoute = append(tempRoute, gridToCoord([]int64{x[1], x[0]}))
 
 		if (*prev)[end] == -1 {
 			break
@@ -183,7 +183,7 @@ func testExtractRoute(points *[][]int64) [][][]float64 {
 		coordPoints := make([][]float64, 0)
 		for _, y := range x {
 			point := expandIndx(int64(y))
-			coordPoints = append(coordPoints, gridToCoord([]int64{int64(point[1]), int64(point[0])}))
+			coordPoints = append(coordPoints, gridToCoord([]int64{point[1], point[0]}))
 		}
 		route = append(route, coordPoints)
 	}
@@ -237,7 +237,7 @@ func dijkstra(startLng, startLat, endLng, endLat float64, startLngInt, startLatI
 			//var expansion = make([]int64,0)
 			var whatever = min(&dist, &vertices)
 			var u = whatever[0]
-			
+
 			neighbours := neighbours1d(u)
 			//fmt.Printf("u: %v\n", len(vertices))
 			delete(vertices, whatever[1])
@@ -255,7 +255,7 @@ func dijkstra(startLng, startLat, endLng, endLat float64, startLngInt, startLatI
 				//fmt.Printf("Distance u-j: %v\n", distance(expandIndx(u), expandIndx(j)))
 				//fmt.Printf("Summe: %v\n", (dist[u] + distance(expandIndx(u), expandIndx(j))))
 				//fmt.Scanln()
-				var alt = dist[u] + distance(expandIndx(u), expandIndx(j))
+				var alt = dist[u] + distance(gridToCoord(expandIndx(u)), gridToCoord(expandIndx(j)))
 				//fmt.Printf("Distance: %v\n",distance(expandIndx(u), expandIndx(j)))
 				if alt < dist[j] {
 					dist[j] = alt
