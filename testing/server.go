@@ -55,7 +55,6 @@ func neighbours1d(indx int64) []int64 {
 			if !meshgrid[j] {
 				temp = append(temp, j)
 			}
-
 		}
 	}
 	return temp
@@ -129,7 +128,7 @@ func distance(start, end []float64) float64 {
 }
 
 func extractRoute(prev *[]int64, end int64) [][][]float64 {
-	print("started extracting route\n")
+	//print("started extracting route\n")
 	var route [][][]float64
 	var tempRoute [][]float64
 	temp := expandIndx(end)
