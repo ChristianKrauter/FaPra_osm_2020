@@ -10,7 +10,7 @@ import (
 	"math"
 	"os"
 	//"runtime"
-	//"sort"
+	"sort"
 	//"sync"
 	//"time"
 )
@@ -22,13 +22,13 @@ func check(e error) {
 }
 
 func createPoint(theta float64, phi float64) []float64 {
-	x := 6378100 * math.Sin(theta)*math.Cos(phi)
-	y := 6378100 * math.Sin(theta)*math.Sin(phi)
-	z := 6378100 * math.Cos(theta)
-	r := math.Sqrt(math.Pow(x,2)+math.Pow(y,2)+math.Pow(z,2))
-	lat := math.Asin(z/r)
-	lon := math.Atan2(y,x)
-	return []float64{lat*180.0,lon*90.0}
+	//x := 6378100 * math.Sin(theta)*math.Cos(phi)
+	//y := 6378100 * math.Sin(theta)*math.Sin(phi)
+	//z := 6378100 * math.Cos(theta)
+	//r := math.Sqrt(math.Pow(x,2)+math.Pow(y,2)+math.Pow(z,2))
+	//lat := math.Asin(z/r)
+	//lon := math.Atan2(y,x)
+	return []float64{theta*360/math.Pi-180,(phi-math.Pi/2.0)*180/math.Pi}
 }
 
 func main(){
@@ -70,7 +70,15 @@ func main(){
 
 
 	//var newGrid [][][]float64 
-	
+	/*
+	for _,point := range points {
+		if val,ok := dict[math.Round(point[0])]; ok {
+			dict[math.Round(point[0])] = append(val,point)
+		} else{
+			dict[math.Round(point[0])] = [][]float64{point}
+		}
+	}
+	*/
 	for _,point := range points {
 		if val,ok := dict[point[0]]; ok {
 			dict[point[0]] = append(val,point)
@@ -78,11 +86,15 @@ func main(){
 			dict[point[0]] = [][]float64{point}
 		}
 	}
-
-	for _,v := range dict {
+	/*for _,v := range dict {
 		fmt.Printf("%v\n",len(v))
-	}
-		 
+	}*/
+	keys := make([]float64, 0, len(dict))
+    for k := range dict {
+        keys = append(keys, k)
+    }
+    sort.Float64s(keys)
+	fmt.Printf("%v\n",keys)	 
 	/*fmt.Printf("%v\n",len(newGrid))
 	for _,j := range newGrid{
 		fmt.Printf("%v\n",len(j))
