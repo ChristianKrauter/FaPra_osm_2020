@@ -1,7 +1,7 @@
 package main
 
 import (
-	"encoding/json"
+	//"encoding/json"
 	"fmt"
 	"github.com/paulmach/go.geojson"
 	//"github.com/qedus/osmpbf"
@@ -65,27 +65,30 @@ func main(){
 	f.Sync()
 
 
+	dict := make(map[float64][][]float64)
 
-	var newGrid [][][]float64 
-	var line  [][]float64
-	c := points[0][0]
+
+
+	//var newGrid [][][]float64 
+	
 	for _,point := range points {
-		
-		
-		if(point[0] != c){
-			newGrid = append(newGrid,line)
-			line = [][]float64{}
-			c = point[0]
+		if val,ok := dict[point[0]]; ok {
+			dict[point[0]] = append(val,point)
+		} else{
+			dict[point[0]] = [][]float64{point}
 		}
-		line = append(line,point)
+	}
+
+	for _,v := range dict {
+		fmt.Printf("%v\n",len(v))
 	}
 		 
-	fmt.Printf("%v\n",len(newGrid))
+	/*fmt.Printf("%v\n",len(newGrid))
 	for _,j := range newGrid{
 		fmt.Printf("%v\n",len(j))
-	}
+	}*/
 
-	var meshgridBytes []byte
+	/*var meshgridBytes []byte
 	meshgridBytes, err1 := json.Marshal(newGrid)
 	check(err1)
 	var filename = fmt.Sprintf("tmp/equiGridTest.json")
@@ -93,6 +96,6 @@ func main(){
 	check(err2)
 	_, err3 := f.Write(meshgridBytes)
 	check(err3)
-	f.Sync()
+	f.Sync()*/
 
 }
