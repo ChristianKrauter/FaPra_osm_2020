@@ -153,10 +153,10 @@ func createBoundingBox(polygon *[][]float64) map[string]float64 {
 	return map[string]float64{"minX": minX, "maxX": maxX, "minY": minY, "maxY": maxY}
 }
 
-type BoundingTree struct {
+type boundingTree struct {
 	boundingBox map[string]float64
 	id          int
-	children    []BoundingTree
+	children    []boundingTree
 }
 
 //Check if a bounding Box is inside another bounding Box
@@ -164,7 +164,7 @@ func checkBoundingBoxes(bb1 map[string]float64, bb2 map[string]float64) bool {
 	return bb1["minX"] >= bb2["minX"] && bb1["maxX"] <= bb2["maxX"] && bb1["minY"] >= bb2["minY"] && bb1["maxY"] <= bb2["maxY"]
 }
 
-func addBoundingTree(tree *BoundingTree, boundingBox *map[string]float64, id int) BoundingTree {
+func addBoundingTree(tree *boundingTree, boundingBox *map[string]float64, id int) boundingTree {
 	for i, child := range (*tree).children {
 		if checkBoundingBoxes(*boundingBox, child.boundingBox) {
 			child = addBoundingTree(&child, boundingBox, id)
@@ -172,11 +172,11 @@ func addBoundingTree(tree *BoundingTree, boundingBox *map[string]float64, id int
 			return *tree
 		}
 	}
-	(*tree).children = append((*tree).children, BoundingTree{*boundingBox, id, make([]BoundingTree, 0)})
+	(*tree).children = append((*tree).children, boundingTree{*boundingBox, id, make([]boundingTree, 0)})
 	return *tree
 }
 
-func countBoundingTree(bt BoundingTree) int {
+func countBoundingTree(bt boundingTree) int {
 	count := 1
 	for _, j := range bt.children {
 		count = count + countBoundingTree(j)
@@ -184,7 +184,7 @@ func countBoundingTree(bt BoundingTree) int {
 	return count
 }
 
-func isLand(tree *BoundingTree, point []float64, allCoastlines *[][][]float64) bool {
+func isLand(tree *boundingTree, point []float64, allCoastlines *[][][]float64) bool {
 	land := false
 	if boundingContains(&tree.boundingBox, point) {
 		for _, child := range (*tree).children {
@@ -286,7 +286,7 @@ func main() {
 	elapsed = t.Sub(start)
 	fmt.Printf("Made all polygons after             : %s\n", elapsed)
 
-	root := BoundingTree{map[string]float64{"minX": math.Inf(-1), "maxX": math.Inf(1), "minY": math.Inf(-1), "maxY": math.Inf(1)}, -1, make([]BoundingTree, 0)}
+	root := boundingTree{map[string]float64{"minX": math.Inf(-1), "maxX": math.Inf(1), "minY": math.Inf(-1), "maxY": math.Inf(1)}, -1, make([]boundingTree, 0)}
 
 	for j, i := range allCoastlines {
 		bb := createBoundingBox(&i)
@@ -346,14 +346,14 @@ func main() {
 	fmt.Printf("Wrote Meshrid to disc after         : %s\n", elapsed)
 
 	//fmt.Printf("Points in test geojson: %d\n", len(testGeoJSON))
-	var rawJson []byte
+	var rawJSON []byte
 	g := geojson.NewMultiPointGeometry(testGeoJSON...)
-	rawJson, err4 := g.MarshalJSON()
+	rawJSON, err4 := g.MarshalJSON()
 	check(err4)
 	var testgeojsonFilename = fmt.Sprintf("tmp/datatestgeojson.geojson")
 	f, err5 := os.Create(testgeojsonFilename)
 	check(err5)
-	_, err6 := f.Write(rawJson)
+	_, err6 := f.Write(rawJSON)
 	check(err6)
 	f.Sync()
 
@@ -362,16 +362,16 @@ func main() {
 	fmt.Printf("Created & wrote test-geojson after  : %s\n", elapsed)
 
 	// Create coastline geojson file
-	/*var rawJson []byte
+	/*var rawJSON []byte
 	for j, i := range allCoastlines {
 		var polygon [][][]float64
 		polygon = append(polygon, i)
 		g := geojson.NewPolygonGeometry(polygon)
-		rawJson, err = g.MarshalJSON()
+		rawJSON, err = g.MarshalJSON()
 		var filename = fmt.Sprintf("tmp/data%d.geojson", j)
 		f, err := os.Create(filename)
 		check(err)
-		_, err1 := f.Write(rawJson)
+		_, err1 := f.Write(rawJSON)
 		check(err1)
 		f.Sync()
 	}
