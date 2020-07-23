@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"github.com/paulmach/go.geojson"
 	"github.com/qedus/osmpbf"
@@ -294,7 +295,7 @@ func createBoundingTree(boundingTreeRoot *boundingTree, allCoastlines *[][][]flo
 	fmt.Printf("Created bounding tree            : %s\n", elapsed)
 }
 
-func createMeshgrid(xSize int32, ySize int32, boundingTreeRoot *boundingTree, allCoastlines *[][][]float64, testGeoJSON *[][]float64, meshgrid *[][]bool, createTestGeoJSON bool) {
+func createMeshgrid(xSize int, ySize int, boundingTreeRoot *boundingTree, allCoastlines *[][][]float64, testGeoJSON *[][]float64, meshgrid *[][]bool, createTestGeoJSON bool) {
 	start := time.Now()
 	var xStepSize = float64(360 / xSize)
 	var yStepSize = float64(360 / ySize)
@@ -342,7 +343,7 @@ func storeMeshgrid(meshgrid *[][]bool, filename string) {
 
 func storeTestGeoJSON(testGeoJSON *[][]float64, filename string) {
 	start := time.Now()
-	fmt.Printf("Points in test geojson: %d\n", len(testGeoJSON))
+	fmt.Printf("Points in test geojson: %d\n", len(*testGeoJSON))
 	var rawJSON []byte
 
 	g := geojson.NewMultiPointGeometry(*testGeoJSON...)
@@ -381,31 +382,34 @@ func createAndStoreCoastlineGeoJSON(allCoastlines *[][][]float64, filename strin
 }
 
 func main() {
-	start := time.Now()
-	var createTestGeoJSON = true
-	var createCoastlineGeoJSON = true
+	var xSize int
+	var ySize int
+	var pbfFileName string
+	var createTestGeoJSON bool
+	var createCoastlineGeoJSON bool
 
-	var pbfFileName = "../data/antarctica-latest.osm.pbf"
-	// var pbfFileName = "../data/planet-coastlines.pbf"
+	flag.StringVar(&pbfFileName, "f", "antarctica-latest.osm.pbf", "Name of the pbf file inside data/")
+	flag.IntVar(&xSize, "x", 360, "Meshgrid size in x direction")
+	flag.IntVar(&ySize, "y", 360, "Meshgrid size in y direction")
+	flag.BoolVar(&createTestGeoJSON, "test", false, "Create test geoJSON?")
+	flag.BoolVar(&createCoastlineGeoJSON, "coastline", false, "Create coastline geoJSON?")
+	flag.Parse()
 
+	pbfFileName = fmt.Sprintf("../data/%s", pbfFileName)
 	fmt.Printf("\nStarting processing of %s\n\n", pbfFileName)
 
-	// Read file
+	start := time.Now()
+
 	var coastlineMap = make(map[int64][]int64)
 	var nodeMap = make(map[int64][]float64)
 	readFile(pbfFileName, &coastlineMap, &nodeMap)
 
-	// Create polygons
 	var allCoastlines [][][]float64
 	createPolygons(&allCoastlines, &coastlineMap, &nodeMap)
 
-	// Create bounding tree
 	var boundingTreeRoot boundingTree
 	createBoundingTree(&boundingTreeRoot, &allCoastlines)
 
-	// Creating meshgrid
-	var xSize int32 = 360
-	var ySize int32 = 360
 	var testGeoJSON [][]float64
 	meshgrid := make([][]bool, xSize) // inits with false!
 	for i := range meshgrid {
@@ -413,7 +417,6 @@ func main() {
 	}
 
 	createMeshgrid(xSize, ySize, &boundingTreeRoot, &allCoastlines, &testGeoJSON, &meshgrid, createTestGeoJSON)
-
 	storeMeshgrid(&meshgrid, fmt.Sprintf("tmp/meshgrid_%d_%d.json", xSize, ySize))
 
 	if createTestGeoJSON {
