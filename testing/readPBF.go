@@ -149,7 +149,6 @@ func createBoundingBox(polygon *[][]float64) map[string]float64 {
 			maxY = coord[1]
 		}
 	}
-
 	return map[string]float64{"minX": minX, "maxX": maxX, "minY": minY, "maxY": maxY}
 }
 
@@ -159,7 +158,7 @@ type boundingTree struct {
 	children    []boundingTree
 }
 
-//Check if a bounding Box is inside another bounding Box
+//Check if a bounding box is inside another bounding box
 func checkBoundingBoxes(bb1 map[string]float64, bb2 map[string]float64) bool {
 	return bb1["minX"] >= bb2["minX"] && bb1["maxX"] <= bb2["maxX"] && bb1["minY"] >= bb2["minY"] && bb1["maxY"] <= bb2["maxY"]
 }
@@ -200,13 +199,8 @@ func isLand(tree *boundingTree, point []float64, allCoastlines *[][][]float64) b
 	return land
 }
 
-func main() {
+func readFile(pbfFileName string, coastlineMap *map[int64][]int64, nodeMap *map[int64][]float64) {
 	start := time.Now()
-
-	//var pbfFileName = "../data/antarctica-latest.osm.pbf"
-	var pbfFileName = "../data/planet-coastlines.pbf"
-
-	fmt.Printf("\nStarting processing of %s\n\n", pbfFileName)
 
 	f, err := os.Open(pbfFileName)
 	if err != nil {
@@ -217,10 +211,6 @@ func main() {
 	d := osmpbf.NewDecoder(f)
 	// use more memory from the start, it is faster
 	d.SetBufferSize(osmpbf.MaxBlobSize)
-
-	var coastlineMap = make(map[int64][]int64)
-	var nodeMap = make(map[int64][]float64)
-
 	// start decoding with several goroutines, it is faster
 	err = d.Start(runtime.GOMAXPROCS(runtime.NumCPU()))
 	if err != nil {
@@ -235,11 +225,11 @@ func main() {
 		} else {
 			switch v := v.(type) {
 			case *osmpbf.Node:
-				nodeMap[v.ID] = []float64{v.Lon, v.Lat}
+				(*nodeMap)[v.ID] = []float64{v.Lon, v.Lat}
 			case *osmpbf.Way:
 				for _, value := range v.Tags {
 					if value == "coastline" {
-						coastlineMap[v.NodeIDs[0]] = v.NodeIDs
+						(*coastlineMap)[v.NodeIDs[0]] = v.NodeIDs
 					}
 				}
 			case *osmpbf.Relation:
@@ -252,139 +242,189 @@ func main() {
 
 	t := time.Now()
 	elapsed := t.Sub(start)
-	fmt.Printf("Read file after                     : %s\n", elapsed)
+	fmt.Printf("Read file in                     : %s\n", elapsed)
+}
 
-	var allCoastlines [][][]float64
+func createPolygons(allCoastlines *[][][]float64, coastlineMap *map[int64][]int64, nodeMap *map[int64][]float64) {
+	start := time.Now()
 	var coastline [][]float64
 
-	for len(coastlineMap) > 0 {
-		var key = getSomeKey(&coastlineMap)
-		var nodeIDs = coastlineMap[key]
+	for len(*coastlineMap) > 0 {
+		var key = getSomeKey(coastlineMap)
+		var nodeIDs = (*coastlineMap)[key]
 		coastline = nil
 		for _, x := range nodeIDs {
-			coastline = append(coastline, []float64{nodeMap[x][0], nodeMap[x][1]})
+			coastline = append(coastline, []float64{(*nodeMap)[x][0], (*nodeMap)[x][1]})
 		}
-		delete(coastlineMap, key)
+		delete(*coastlineMap, key)
 		key = nodeIDs[len(nodeIDs)-1]
 		for {
-			if val, ok := coastlineMap[key]; ok {
+			if val, ok := (*coastlineMap)[key]; ok {
 				for _, x := range val {
-					coastline = append(coastline, []float64{nodeMap[x][0], nodeMap[x][1]})
+					coastline = append(coastline, []float64{(*nodeMap)[x][0], (*nodeMap)[x][1]})
 				}
-				delete(coastlineMap, key)
+				delete(*coastlineMap, key)
 				key = val[len(val)-1]
 			} else {
 				break
 			}
 		}
-		allCoastlines = append(allCoastlines, coastline)
+		*allCoastlines = append(*allCoastlines, coastline)
 	}
 
-	sort.Sort(arrayOfArrays(allCoastlines))
+	sort.Sort(arrayOfArrays(*allCoastlines))
 
-	t = time.Now()
-	elapsed = t.Sub(start)
-	fmt.Printf("Made all polygons after             : %s\n", elapsed)
+	t := time.Now()
+	elapsed := t.Sub(start)
+	fmt.Printf("Made all polygons in             : %s\n", elapsed)
+}
 
-	root := boundingTree{map[string]float64{"minX": math.Inf(-1), "maxX": math.Inf(1), "minY": math.Inf(-1), "maxY": math.Inf(1)}, -1, make([]boundingTree, 0)}
+func createBoundingTree(boundingTreeRoot *boundingTree, allCoastlines *[][][]float64) {
+	start := time.Now()
 
-	for j, i := range allCoastlines {
+	*boundingTreeRoot = boundingTree{map[string]float64{"minX": math.Inf(-1), "maxX": math.Inf(1), "minY": math.Inf(-1), "maxY": math.Inf(1)}, -1, make([]boundingTree, 0)}
+
+	for j, i := range *allCoastlines {
 		bb := createBoundingBox(&i)
-		root = addBoundingTree(&root, &bb, j)
+		*boundingTreeRoot = addBoundingTree(boundingTreeRoot, &bb, j)
 	}
 
-	t = time.Now()
-	elapsed = t.Sub(start)
-	fmt.Printf("All bounding boxes after            : %s\n", elapsed)
+	t := time.Now()
+	elapsed := t.Sub(start)
+	fmt.Printf("Created bounding tree            : %s\n", elapsed)
+}
 
-	// Creating meshgrid
-	var testGeoJSON [][]float64
-	var meshgrid [3600][3600]bool // inits with false!
-	//var meshgrid [360][360]bool // inits with false!
+func createMeshgrid(xSize int32, ySize int32, boundingTreeRoot *boundingTree, allCoastlines *[][][]float64, testGeoJSON *[][]float64, meshgrid *[][]bool, createTestGeoJSON bool) {
+	start := time.Now()
+	var xStepSize = float64(360 / xSize)
+	var yStepSize = float64(360 / ySize)
+
 	var wg sync.WaitGroup
-	for x := 0.0; x < 360; x += 0.1 {
-		for y := 0.0; y < 360; y += 0.1 {
-			/*for x := 0.0; x < 360; x += 1 {
-			for y := 0.0; y < 360; y += 1 {*/
+	for x := 0.0; x < 360; x += xStepSize {
+		for y := 0.0; y < 360; y += yStepSize {
 			wg.Add(1)
 			go func(x float64, y float64) {
 				defer wg.Done()
 				var xs = x - 180
 				var ys = (y / 2) - 90
-				if isLand(&root, []float64{xs, ys}, &allCoastlines) {
-					meshgrid[int(x*10)][int(y*10)] = true
-					//meshgrid[int(x)][int(y)] = true
-					testGeoJSON = append(testGeoJSON, []float64{xs, ys})
+				if isLand(boundingTreeRoot, []float64{xs, ys}, allCoastlines) {
+					(*meshgrid)[int(x/xStepSize)][int(y/yStepSize)] = true
+					if createTestGeoJSON {
+						*testGeoJSON = append(*testGeoJSON, []float64{xs, ys})
+					}
 				}
 			}(x, y)
 		}
 	}
 
-	t = time.Now()
-	elapsed = t.Sub(start)
-	fmt.Printf("Waiting for grid to finish          : %s\n", elapsed)
-
 	wg.Wait()
 
-	t = time.Now()
-	elapsed = t.Sub(start)
-	fmt.Printf("Created Meshrid after               : %s\n", elapsed)
+	t := time.Now()
+	elapsed := t.Sub(start)
+	fmt.Printf("Created Meshrid in               : %s\n", elapsed)
+}
 
-	// Save meshgrid to disk
+func storeMeshgrid(meshgrid *[][]bool, filename string) {
+	start := time.Now()
 	var meshgridBytes []byte
 	meshgridBytes, err1 := json.Marshal(meshgrid)
 	check(err1)
-	var filename = fmt.Sprintf("tmp/meshgrid_big.json")
 	f, err2 := os.Create(filename)
 	check(err2)
 	_, err3 := f.Write(meshgridBytes)
 	check(err3)
 	f.Sync()
 
-	t = time.Now()
-	elapsed = t.Sub(start)
-	fmt.Printf("Wrote Meshrid to disc after         : %s\n", elapsed)
+	t := time.Now()
+	elapsed := t.Sub(start)
+	fmt.Printf("Stored Meshrid to disc in        : %s\n", elapsed)
+}
 
-	//fmt.Printf("Points in test geojson: %d\n", len(testGeoJSON))
+func storeTestGeoJSON(testGeoJSON *[][]float64, filename string) {
+	start := time.Now()
+	fmt.Printf("Points in test geojson: %d\n", len(testGeoJSON))
 	var rawJSON []byte
-	g := geojson.NewMultiPointGeometry(testGeoJSON...)
+
+	g := geojson.NewMultiPointGeometry(*testGeoJSON...)
 	rawJSON, err4 := g.MarshalJSON()
 	check(err4)
-	var testgeojsonFilename = fmt.Sprintf("tmp/datatestgeojson.geojson")
-	f, err5 := os.Create(testgeojsonFilename)
+
+	f, err5 := os.Create(filename)
 	check(err5)
+
 	_, err6 := f.Write(rawJSON)
 	check(err6)
 	f.Sync()
 
-	t = time.Now()
-	elapsed = t.Sub(start)
-	fmt.Printf("Created & wrote test-geojson after  : %s\n", elapsed)
+	t := time.Now()
+	elapsed := t.Sub(start)
+	fmt.Printf("Stored test geojson in           : %s\n", elapsed)
+}
 
-	// Create coastline geojson file
-	/*var rawJSON []byte
-	for j, i := range allCoastlines {
+func createAndStoreCoastlineGeoJSON(allCoastlines *[][][]float64, filename string) {
+	start := time.Now()
+	for _, i := range *allCoastlines {
 		var polygon [][][]float64
 		polygon = append(polygon, i)
 		g := geojson.NewPolygonGeometry(polygon)
-		rawJSON, err = g.MarshalJSON()
-		var filename = fmt.Sprintf("tmp/data%d.geojson", j)
+		rawJSON, err := g.MarshalJSON()
 		f, err := os.Create(filename)
 		check(err)
+
 		_, err1 := f.Write(rawJSON)
 		check(err1)
 		f.Sync()
 	}
-	fmt.Printf("Created coastline geojson in   : %s\n\n", elapsed)
-	*/
+	t := time.Now()
+	elapsed := t.Sub(start)
+	fmt.Printf("Created and stored coastlines in : %s\n", elapsed)
+}
 
-	//fmt.Printf("\nNumber of:\n")
-	//fmt.Printf("Nodes                 : %d\n", nc)
-	//fmt.Printf("Ways                  : %d\n", wc)
-	//fmt.Printf("Relations             : %d\n", rc)
-	//fmt.Printf("Coastline Polygons    : %d\n\n", len(allPolygonsID))
+func main() {
+	start := time.Now()
+	var createTestGeoJSON = true
+	var createCoastlineGeoJSON = true
 
-	t = time.Now()
-	elapsed = t.Sub(start)
-	fmt.Printf("Program finished after              : %s\n", elapsed)
+	var pbfFileName = "../data/antarctica-latest.osm.pbf"
+	// var pbfFileName = "../data/planet-coastlines.pbf"
+
+	fmt.Printf("\nStarting processing of %s\n\n", pbfFileName)
+
+	// Read file
+	var coastlineMap = make(map[int64][]int64)
+	var nodeMap = make(map[int64][]float64)
+	readFile(pbfFileName, &coastlineMap, &nodeMap)
+
+	// Create polygons
+	var allCoastlines [][][]float64
+	createPolygons(&allCoastlines, &coastlineMap, &nodeMap)
+
+	// Create bounding tree
+	var boundingTreeRoot boundingTree
+	createBoundingTree(&boundingTreeRoot, &allCoastlines)
+
+	// Creating meshgrid
+	var xSize int32 = 360
+	var ySize int32 = 360
+	var testGeoJSON [][]float64
+	meshgrid := make([][]bool, xSize) // inits with false!
+	for i := range meshgrid {
+		meshgrid[i] = make([]bool, ySize)
+	}
+
+	createMeshgrid(xSize, ySize, &boundingTreeRoot, &allCoastlines, &testGeoJSON, &meshgrid, createTestGeoJSON)
+
+	storeMeshgrid(&meshgrid, fmt.Sprintf("tmp/meshgrid_%d_%d.json", xSize, ySize))
+
+	if createTestGeoJSON {
+		storeTestGeoJSON(&testGeoJSON, fmt.Sprintf("tmp/test_for_%d_%d.geojson", xSize, ySize))
+	}
+
+	if createCoastlineGeoJSON {
+		createAndStoreCoastlineGeoJSON(&allCoastlines, fmt.Sprintf("tmp/coastlines_for_%d_%d.geojson", xSize, ySize))
+	}
+
+	t := time.Now()
+	elapsed := t.Sub(start)
+	fmt.Printf("\nProgram finished after           : %s\n", elapsed)
 }
