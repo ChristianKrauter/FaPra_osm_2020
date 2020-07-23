@@ -283,7 +283,19 @@ func main() {
 				w.Write([]byte("false"))
 			}
 
-		} else {
+		} else if strings.Contains(r.URL.Path, "/grid") {
+			gridRaw, errJson := os.Open("tmp/gridTest.geojson")
+			if errJson != nil {
+				panic(errJson)
+			}
+			defer gridRaw.Close()
+			byteValue, _ := ioutil.ReadAll(meshgridRaw)
+			fc1, errJson1 := geojson.UnmarshalFeatureCollection(byteValue)
+			if errJson1 != nil {
+				panic(errJson1)
+			}
+			fmt.Printf("%v\n",fc1)
+		}else {
 			http.ServeFile(w, r, r.URL.Path[1:])
 		}
 	})
