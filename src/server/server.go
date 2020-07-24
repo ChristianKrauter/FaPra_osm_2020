@@ -221,7 +221,7 @@ func dijkstra(startLngInt, startLatInt, endLngInt, endLatInt int64) [][][]float6
 // Run ...
 func Run() {
 	//meshgridRaw, errJSON := os.Open("tmp/meshgrid__planet_big.json")
-	meshgridRaw, errJSON := os.Open("tmp/meshgrid.json")
+	meshgridRaw, errJSON := os.Open("data/output/meshgrid.json")
 	if errJSON != nil {
 		panic(errJSON)
 	}
