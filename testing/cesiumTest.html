@@ -8,7 +8,6 @@
 </head>
 <body>
  <div id="cesiumContainer" class="fullSize"></div>
- <div id="toolbar"></div>
 <script type="text/javascript">
   var data = {
     startLat: "",
@@ -16,6 +15,11 @@
     endLat: "",
     endLng: ""
   }
+
+  var osm = new Cesium.OpenStreetMapImageryProvider({
+      url : 'https://a.tile.openstreetmap.org/'
+  });
+
   var viewer = new Cesium.Viewer("cesiumContainer", {
     selectionIndicator: false,
     infoBox: false,
@@ -94,13 +98,14 @@
                 data: data
             }).done(function(data) {
                 if (data == "false") {
-                    var shapeEditMenu = document.getElementById("toolbar");
-                    shapeEditMenu.textContent = 'Testing';
-                    shapeEditMenu.style.display = "block";
-                    shapeEditMenu.style.left = event.position.x + 'px';
-                    shapeEditMenu.style.top = event.position.y + 'px';
-                    shapeEditMenu.style.background = 'rgba(42, 42, 42, 0.8)';
-                    shapeEditMenu.style.border = '1px solid #888';
+                  b = Cesium.Billboard();
+                   viewer.entities.add({
+                     position: Cesium.Cartesian3.fromDegrees(earthPosition),
+                     billboard: {
+                     text: "test"
+                 }
+             });
+
                 }
                 //showRoute(JSON.parse(data))
                 
@@ -194,7 +199,18 @@ viewer.camera.lookAt(
   new Cesium.Cartesian3(0.0,0.0, 42000000.0)
   );
 viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
-
+viewer.timeline.destroy()
+viewer.sceneModePicker.destroy()
+viewer.navigationHelpButton.destroy()
+//viewer.baseLayerPicker.destroy()
+viewer.homeButton.destroy()
+viewer.geocoder.destroy()
+viewer.animation.destroy()
 </script>
+<style type="text/css">
+    .cesium-viewer-bottom{
+      display: none!important
+    }
+  </style>
 </body>
 </html>
