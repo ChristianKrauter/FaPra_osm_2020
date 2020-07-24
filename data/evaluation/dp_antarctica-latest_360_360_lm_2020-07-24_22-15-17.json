@@ -1,0 +1,15 @@
+{
+    "filename": "_lm",
+    "note": "",
+    "numCPU": "4",
+    "pbfFileName": "antarctica-latest.osm.pbf",
+    "time_boundingTree": "348.5818ms",
+    "time_meshgrid": "15.0390369s",
+    "time_meshgrid_store": "16.9541ms",
+    "time_poly": "155.1198ms",
+    "time_read": "2.3701859s",
+    "time_total": "17.9298785s",
+    "totalAlloc": "4775",
+    "xSize": "360",
+    "ySize": "360"
+}
