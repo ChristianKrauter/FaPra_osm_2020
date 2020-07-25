@@ -2,13 +2,52 @@ package dijkstra
 
 import(
 	"math"
-	"fmt"
+	//"fmt"
+	"container/heap"
 )
 
 var meshWidth int64
 var meshgrid []bool
 
+type Item struct {
+	value    int64 // The value of the item; arbitrary.
+	priority float64    // The priority of the item in the queue.
+	// The index is needed by update and is maintained by the heap.Interface methods.
+	index int // The index of the item in the heap.
+}
 
+// A PriorityQueue implements heap.Interface and holds Items.
+type PriorityQueue []*Item
+
+func (pq PriorityQueue) Len() int { return len(pq) }
+
+func (pq PriorityQueue) Less(i, j int) bool {
+	// We want Pop to give us the highest, not lowest, priority so we use greater than here.
+	return pq[i].priority > pq[j].priority
+}
+
+func (pq PriorityQueue) Swap(i, j int) {
+	pq[i], pq[j] = pq[j], pq[i]
+	pq[i].index = i
+	pq[j].index = j
+}
+
+func (pq *PriorityQueue) Push(x interface{}) {
+	n := len(*pq)
+	item := x.(*Item)
+	item.index = n
+	*pq = append(*pq, item)
+}
+
+func (pq *PriorityQueue) Pop() interface{} {
+	old := *pq
+	n := len(old)
+	item := old[n-1]
+	old[n-1] = nil  // avoid memory leak
+	item.index = -1 // for safety
+	*pq = old[0 : n-1]
+	return item
+}
 
 func check(e error) {
 	if e != nil {
@@ -139,22 +178,30 @@ func Dijkstra(startLngInt, startLatInt, endLngInt, endLatInt,mWidth int64, meshg
 	var prev []int64
 	//var expansions [][]int64
 	var vertices = make(map[int64]bool)
+	pq := make(PriorityQueue,1) 
 	//print("started Dijkstra\n")
-	fmt.Printf("%v\n","1")
+	
 	for i := 0; i < len(meshgrid); i++ {
 		dist = append(dist, math.Inf(1))
 		prev = append(prev, -1)
 	}
-	fmt.Printf("%v\n","2")
+	
 	dist[flattenIndx(startLngInt, startLatInt)] = 0
 	vertices[flattenIndx(startLngInt, startLatInt)] = true
-	fmt.Printf("%v\n","3")
+	pq[0] = &Item{
+		value: flattenIndx(startLngInt, startLatInt),
+		priority:0,
+		index: 0,
+	}
+	heap.Init(&pq)
+
 	for {
 		if len(vertices) == 0 {
 			break
 		} else {
 			//var expansion = make([]int64,0)
-			var u = min(&dist, &vertices)
+			u := heap.Pop(&pq).(*Item).value
+			//var u = min(&dist, &vertices)
 			neighbours := neighbours1d(u)
 			delete(vertices, u)
 
@@ -177,6 +224,11 @@ func Dijkstra(startLngInt, startLatInt, endLngInt, endLatInt,mWidth int64, meshg
 					dist[j] = alt
 					prev[j] = u
 					vertices[j] = true
+					item := &Item {
+						value: j,
+						priority:-dist[j],
+					}
+					heap.Push(&pq,item)
 					//expansion = append(expansion,j)
 				}
 			}
