@@ -283,19 +283,13 @@ func Run() {
 				w.Write([]byte("false"))
 			}
 
-		} else if(len(r.URL.Path[1:])<5){
-
-			//fmt.Printf("%v\n", "default")
-			http.ServeFile(w, r, "src/server/globe.html")
-
-		} else if(r.URL.Path[1:][len(r.URL.Path[1:])-3:] == ".js" || r.URL.Path[1:][len(r.URL.Path[1:])-5:] == ".html"){
-			//fmt.Printf("%v\n", "js or html")
+		} else if(strings.Contains(r.URL.Path[1:],".") && (strings.Split(r.URL.Path[1:],".")[len(strings.Split(r.URL.Path[1:],"."))-1] == "js" || strings.Split(r.URL.Path[1:],".")[len(strings.Split(r.URL.Path[1:],"."))-1] == "html")) {
 			http.ServeFile(w, r, r.URL.Path[1:])
-
 		} else {
 			//fmt.Printf("%v\n", "default")
 			http.ServeFile(w, r, "src/server/globe.html")
 		}
+		
 	})
 
 	var portStr = fmt.Sprintf(":%d", port)
