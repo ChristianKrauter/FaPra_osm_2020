@@ -196,23 +196,23 @@ func Dijkstra(startLngInt, startLatInt, endLngInt, endLatInt,mWidth int64, meshg
 	heap.Init(&pq)
 
 	for {
-		if len(vertices) == 0 {
+		if len(pq) == 0 {
 			break
 		} else {
 			//var expansion = make([]int64,0)
 			u := heap.Pop(&pq).(*Item).value
 			//var u = min(&dist, &vertices)
+
+			if u == flattenIndx(endLngInt, endLatInt) {
+					return extractRoute(&prev, flattenIndx(endLngInt, endLatInt))
+				}
+				
 			neighbours := neighbours1d(u)
 			delete(vertices, u)
 
 			for _, j := range neighbours {
 				//fmt.Printf("j: %v, land:%v\n", j, meshgrid[j])
 
-				if j == flattenIndx(endLngInt, endLatInt) {
-					prev[j] = u
-					return extractRoute(&prev, flattenIndx(endLngInt, endLatInt))
-					//return testExtractRoute(&expansions)
-				}
 				//fmt.Printf("Dist[u]: %v\n", dist[u])
 				//fmt.Printf("u/j: %v/%v\n", u,j)
 				//fmt.Printf("Distance u-j: %v\n", distance(expandIndx(u), expandIndx(j)))
