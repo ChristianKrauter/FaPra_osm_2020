@@ -219,9 +219,10 @@ func dijkstra(startLngInt, startLatInt, endLngInt, endLatInt int64) [][][]float6
 }
 
 // Run ...
-func Run() {
+func Run(xSize,ySize int) {
 	//meshgridRaw, errJSON := os.Open("tmp/meshgrid__planet_big.json")
-	meshgridRaw, errJSON := os.Open("data/output/meshgrid.json")
+	filename := fmt.Sprintf("data/output/meshgrid_%v_%v.json",xSize,ySize)
+	meshgridRaw, errJSON := os.Open(filename)
 	if errJSON != nil {
 		panic(errJSON)
 	}
@@ -289,7 +290,7 @@ func Run() {
 			//fmt.Printf("%v\n", "default")
 			http.ServeFile(w, r, "src/server/globe.html")
 		}
-		
+
 	})
 
 	var portStr = fmt.Sprintf(":%d", port)
