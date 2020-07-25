@@ -237,7 +237,6 @@ func Run() {
 	}
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-
 		if strings.Contains(r.URL.Path, "/point") {
 			query := r.URL.Query()
 			var startLat, err = strconv.ParseFloat(query.Get("startLat"), 10)
@@ -284,12 +283,24 @@ func Run() {
 				w.Write([]byte("false"))
 			}
 
-		} else {
+		} else if(len(r.URL.Path[1:])<5){
+
+			//fmt.Printf("%v\n", "default")
+			http.ServeFile(w, r, "src/server/globe.html")
+
+		} else if(r.URL.Path[1:][len(r.URL.Path[1:])-3:] == ".js" || r.URL.Path[1:][len(r.URL.Path[1:])-5:] == ".html"){
+			//fmt.Printf("%v\n", "js or html")
 			http.ServeFile(w, r, r.URL.Path[1:])
+
+		} else {
+			//fmt.Printf("%v\n", "default")
+			http.ServeFile(w, r, "src/server/globe.html")
 		}
 	})
 
 	var portStr = fmt.Sprintf(":%d", port)
 	fmt.Printf("Starting server on localhost%s\n", portStr)
 	log.Fatal(http.ListenAndServe(portStr, nil))
+	//log.Fatal(http.ListenAndServe(portStr, http.FileServer(http.Dir("src/server"))))
+	//http.FileServer(http.Dir("/Users/sergiotapia/go"))
 }
