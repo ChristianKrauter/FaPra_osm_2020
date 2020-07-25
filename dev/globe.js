@@ -1,20 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <script src="https://cesium.com/downloads/cesiumjs/releases/1.71/Build/Cesium/Cesium.js"></script>
-  <link href="https://cesium.com/downloads/cesiumjs/releases/1.71/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
-  <script src="jquery-3.5.1.min.js"></script>
-</head>
-<body>
- <div id="cesiumContainer" class="fullSize"></div>
-<script type="text/javascript">
-  var data = {
+
+var data = {
     startLat: "",
     startLng: "",
     endLat: "",
     endLng: ""
   }
+
+  var drawingMode = "line";
 
   var osm = new Cesium.OpenStreetMapImageryProvider({
       url : 'https://a.tile.openstreetmap.org/'
@@ -46,7 +38,25 @@
     return point;
   }
 
-  var drawingMode = "line";
+  function drawLine(viewer,coords){
+    viewer.entities.add({
+      polyline: {
+        positions: Cesium.Cartesian3.fromDegreesArray(coords),
+        width: 1,
+        material: Cesium.Color.DEEPSKYBLUE,
+      },
+      label : {
+        position : coords.slice(0,2),
+        text : 'Select points on water',
+        font : '14pt monospace',
+        style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+        outlineWidth : 2,
+        verticalOrigin : Cesium.VerticalOrigin.BOTTOM,
+      },
+    })
+  }
+
+  
 
   function drawShape(positionData) {
     var shape;
@@ -70,6 +80,7 @@
     }
     return shape;
   }
+  
   function onLeftMouseClick (event) {
   // We use `viewer.scene.pickPosition` here instead of `viewer.camera.pickEllipsoid` so that
   // we get the correct point when mousing over terrain.
@@ -81,52 +92,33 @@
     const cartographic = viewer.scene.globe.ellipsoid.cartesianToCartographic(earthPosition);
     const longitudeString = Cesium.Math.toDegrees(cartographic.longitude).toFixed(15);
     const latitudeString = Cesium.Math.toDegrees(cartographic.latitude).toFixed(15);
+
     if (data["startLat"] == "") {
             data["startLat"] = latitudeString
             data["startLng"] = longitudeString
-
-            //popup.setLatLng(e.latlng).setContent("Start").openOn(map);
-
+            createPoint(earthPosition);
         } else {
+
             data["endLat"] = latitudeString
             data["endLng"] = longitudeString
-
-            //popup.setLatLng(e.latlng).setContent("End").openOn(map);
 
             $.ajax({
                 url: "/point",
                 data: data
             }).done(function(data) {
                 if (data == "false") {
-                  b = Cesium.Billboard();
-                   viewer.entities.add({
-                     position: Cesium.Cartesian3.fromDegrees(earthPosition),
-                     billboard: {
-                     text: "test"
-                 }
-             });
-
+                  
+                } else {
+                  createPoint(earthPosition);
+                  var features = JSON.parse(data).features
+                  var coord1d = []
+                  for (i=0; i< features.length;i++){
+                    var coordinates = features[i].geometry.coordinates;
+                    coordinates.forEach(element => coord1d.push(element[0],element[1]))  
+                  }
+                  drawLine(viewer,coord1d)  
                 }
-                //showRoute(JSON.parse(data))
-                
-                var coordinates = JSON.parse(data).features[0].geometry.coordinates;
-                var cord1d = []
-                coordinates.forEach(element => cord1d.push(element[0],element[1]))
-                console.log(cord1d)
-                viewer.entities.add({
-                  name:"test",
-                  polyline: {
-                    positions: Cesium.Cartesian3.fromDegreesArray(cord1d),
-                    width: 1,
-                    material: Cesium.Color.DEEPSKYBLUE,
-                  },
-                })
-                //var last = c.length - 1; 
-                //if (crd[0][0] !== crd[last][0] || crd[0][1] !== crd[last][1]) {
-                //    crd.push(crd[0]);
-                //}
-                //line.geometry.type = 'Polygon';
-                //line.geometry.coordinates = [crd];
+
             });
 
             data = {
@@ -136,17 +128,7 @@
                 endLng: ""
             }
         }
-    if (activeShapePoints.length === 0) {
-      floatingPoint = createPoint(earthPosition);
-      //activeShapePoints.push(earthPosition);
-      var dynamicPositions = new Cesium.CallbackProperty(function () {
     
-        return activeShapePoints;
-      }, false);
-      activeShape = drawShape(dynamicPositions);
-    }
-    //activeShapePoints.push(earthPosition);
-    createPoint(earthPosition);
   }
 }
 
@@ -206,11 +188,3 @@ viewer.navigationHelpButton.destroy()
 viewer.homeButton.destroy()
 viewer.geocoder.destroy()
 viewer.animation.destroy()
-</script>
-<style type="text/css">
-    .cesium-viewer-bottom{
-      display: none!important
-    }
-  </style>
-</body>
-</html>
