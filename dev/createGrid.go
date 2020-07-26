@@ -22,18 +22,17 @@ func check(e error) {
 }
 
 func createPoint(theta float64, phi float64) []float64 {
-	//x := 6378100 * math.Sin(theta)*math.Cos(phi)
-	//y := 6378100 * math.Sin(theta)*math.Sin(phi)
-	//z := 6378100 * math.Cos(theta)
-	//r := math.Sqrt(math.Pow(x,2)+math.Pow(y,2)+math.Pow(z,2))
-	//lat := math.Asin(z/r)
-	//lon := math.Atan2(y,x)
-	return []float64{theta*360/math.Pi-180,(phi-math.Pi/2.0)*180/math.Pi}
+	//x := 57.296 * math.Sin(theta)*math.Cos(phi)
+	//y := 57.296 * math.Sin(theta)*math.Sin(phi)
+	//z := 57.296 * math.Cos(theta)
+	return []float64{phi/math.Pi*180,theta/math.Pi*180-90}
 }
 
 func main(){
 	var points [][]float64
-	N := 5000.0
+	var grid [][][]float64
+
+	N := 10.0*500.0
 	nCount := 0
 	a := 4.0*math.Pi/N 
 	d := math.Sqrt(a)
@@ -44,14 +43,17 @@ func main(){
 	for m :=0.0; m < M_theta ; m += 1.0{
 		theta := math.Pi*(m+0.5)/M_theta
 		M_phi := math.Round(2.0*math.Pi*math.Sin(theta)/d_phi)
-		
+		var gridRow [][]float64	
 		for n := 0.0; n < M_phi;n+=1.0{
 			phi := 2*math.Pi *n / M_phi
 			nCount +=1
 			points = append(points,createPoint(theta,phi))
+			gridRow = append(gridRow,createPoint(theta,phi))
 		}
+		fmt.Printf("%v\n", gridRow)	
+		grid = append(grid,gridRow)
 	}
-
+	
 	fmt.Printf("Points created: %v\n",nCount)
 	var rawJson []byte
 	g := geojson.NewMultiPointGeometry(points...)
@@ -81,9 +83,9 @@ func main(){
 	*/
 	for _,point := range points {
 		if val,ok := dict[point[0]]; ok {
-			dict[point[0]] = append(val,point)
+			dict[point[1]] = append(val,point)
 		} else{
-			dict[point[0]] = [][]float64{point}
+			dict[point[1]] = [][]float64{point}
 		}
 	}
 	/*for _,v := range dict {
@@ -94,7 +96,7 @@ func main(){
         keys = append(keys, k)
     }
     sort.Float64s(keys)
-	fmt.Printf("%v\n",keys)	 
+	//fmt.Printf("%v\n",keys)	 
 	/*fmt.Printf("%v\n",len(newGrid))
 	for _,j := range newGrid{
 		fmt.Printf("%v\n",len(j))

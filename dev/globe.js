@@ -1,4 +1,22 @@
 
+$.ajax({
+                url: "/grid",
+                data: data
+            }).done(function(data) {
+                if (data == "false") {
+                  
+                } else {
+                  points = JSON.parse(data).coordinates
+                  for (i=0; i<points.length; i++){
+                    point = points[i]
+                    createPoint(Cesium.Cartesian3.fromDegrees(point[0],point[1]))
+                    //createPoint(point[0],point[1])
+                  }
+                }
+
+            });
+
+
 var data = {
     startLat: "",
     startLng: "",

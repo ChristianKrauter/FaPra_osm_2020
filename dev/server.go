@@ -289,12 +289,8 @@ func main() {
 				panic(errJson)
 			}
 			defer gridRaw.Close()
-			byteValue, _ := ioutil.ReadAll(meshgridRaw)
-			fc1, errJson1 := geojson.UnmarshalFeatureCollection(byteValue)
-			if errJson1 != nil {
-				panic(errJson1)
-			}
-			fmt.Printf("%v\n",fc1)
+			byteValue, _ := ioutil.ReadAll(gridRaw)
+			w.Write(byteValue)
 		}else {
 			http.ServeFile(w, r, r.URL.Path[1:])
 		}
