@@ -1,4 +1,8 @@
 
+$( "#clearButton" ).click(function() {
+  viewer.entities.removeAll();
+});
+
 var data = {
     startLat: "",
     startLng: "",
@@ -26,8 +30,19 @@ var data = {
     Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK
     );
 
-  function createPoint(worldPosition) {
-    var point = viewer.entities.add({
+  function createPoint(worldPosition, processed = false) {
+    var point
+    if(processed){
+      point = viewer.entities.add({
+      position: worldPosition,
+      point: {
+        color: Cesium.Color.RED,
+        pixelSize: 4,
+        heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+      },
+    });
+    } else {
+      point = viewer.entities.add({
       position: worldPosition,
       point: {
         color: Cesium.Color.WHITE,
@@ -35,6 +50,8 @@ var data = {
         heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
       },
     });
+    }
+    
     return point;
   }
 
@@ -80,6 +97,46 @@ var data = {
     }
     return shape;
   }
+
+  function  dijkstraProcessing (data){
+    if (data == "false") {
+      //Todo 
+    } else {
+      createPoint(this.earthPosition.ep);
+      var features = JSON.parse(data).features
+      var coord1d = []
+      for (i=0; i< features.length;i++){
+        var coordinates = features[i].geometry.coordinates;
+        coordinates.forEach(element => coord1d.push(element[0],element[1]))  
+      }
+      drawLine(viewer,coord1d)  
+    }
+
+  }
+
+  function  dijkstraAllNodesProcessing (jsonData) {
+    if (jsonData == "false") {
+      //Todo 
+    } else {
+      tempData = JSON.parse(jsonData)
+      route = tempData.Route
+      processedNodes = tempData.AllNodes
+      createPoint(this.earthPosition.ep);
+      var features = route.features
+      var coord1d = []
+      for (i=0; i< features.length;i++){
+        var coordinates = features[i].geometry.coordinates;
+        coordinates.forEach(element => coord1d.push(element[0],element[1]))  
+      }
+      drawLine(viewer,coord1d)  
+      for (i=0; i< processedNodes.length;i++){
+        point = processedNodes[i]
+        createPoint(Cesium.Cartesian3.fromDegrees(point[0],point[1]), true)
+      }
+    }
+
+  }
+
   
   function onLeftMouseClick (event) {
   // We use `viewer.scene.pickPosition` here instead of `viewer.camera.pickEllipsoid` so that
@@ -98,29 +155,22 @@ var data = {
             data["startLng"] = longitudeString
             createPoint(earthPosition);
         } else {
-
             data["endLat"] = latitudeString
             data["endLng"] = longitudeString
 
-            $.ajax({
-                url: "/point",
-                data: data
-            }).done(function(data) {
-                if (data == "false") {
-                  
-                } else {
-                  createPoint(earthPosition);
-                  var features = JSON.parse(data).features
-                  var coord1d = []
-                  for (i=0; i< features.length;i++){
-                    var coordinates = features[i].geometry.coordinates;
-                    coordinates.forEach(element => coord1d.push(element[0],element[1]))  
-                  }
-                  drawLine(viewer,coord1d)  
-                }
-
-            });
-
+            if(document.getElementById("processedNodes").checked){
+              $.ajax({
+                url: "/dijkstraAllNodes",
+                data: data,
+                earthPosition: {ep:earthPosition}
+            }).done(dijkstraAllNodesProcessing);
+            } else {
+              $.ajax({
+                url: "/dijkstra",
+                data: data,
+                earthPosition: {ep:earthPosition}
+              }).done(dijkstraProcessing);
+            }
             data = {
                 startLat: "",
                 startLng: "",
