@@ -157,8 +157,22 @@ var data = {
         } else {
             data["endLat"] = latitudeString
             data["endLng"] = longitudeString
-
-            if(document.getElementById("processedNodes").checked){
+            if(document.getElementById("astern").checked){
+              if(document.getElementById("processedNodes").checked){
+              $.ajax({
+                url: "/asternAllNodes",
+                data: data,
+                earthPosition: {ep:earthPosition}
+            }).done(dijkstraAllNodesProcessing);
+            } else {
+              $.ajax({
+                url: "/astern",
+                data: data,
+                earthPosition: {ep:earthPosition}
+              }).done(dijkstraProcessing);
+            }
+            } else {
+              if(document.getElementById("processedNodes").checked){
               $.ajax({
                 url: "/dijkstraAllNodes",
                 data: data,
@@ -170,7 +184,9 @@ var data = {
                 data: data,
                 earthPosition: {ep:earthPosition}
               }).done(dijkstraProcessing);
+            }  
             }
+            
             data = {
                 startLat: "",
                 startLng: "",
