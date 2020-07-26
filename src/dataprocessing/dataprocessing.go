@@ -124,6 +124,31 @@ func polygonContains(polygon *[][]float64, point []float64) bool {
 	return b
 }
 
+func rayCastSphere(point, s, e []float64) (bool,bool) {
+	if s[0] > e[0] {
+		s, e = e, s
+	}
+	return true,true
+}
+
+func polygonContainsSphere(polygon *[][]float64, point []float64) bool{
+	b, on := rayCastSphere(point, (*polygon)[0], (*polygon)[len(*polygon)-1])
+	if on {
+		return true
+	}
+
+	for i := 0; i < len(*polygon)-1; i++ {
+		inter, on := rayCastSphere(point, (*polygon)[i], (*polygon)[i+1])
+		if on {
+			return true
+		}
+		if inter {
+			b = !b
+		}
+	}
+	return b
+}
+
 func boundingContains(bounding *map[string]float64, point []float64) bool {
 	if (*bounding)["minX"] <= point[0] && point[0] <= (*bounding)["maxX"] {
 		if (*bounding)["minY"] <= point[1] && point[1] <= (*bounding)["maxY"] {
