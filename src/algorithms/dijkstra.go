@@ -170,6 +170,16 @@ func extractRoute(prev *[]int64, end int64) [][][]float64 {
 	return route
 }
 
+func extractNodes(nodesProcessed *[]int64) [][]float64 {
+	var nodesExtended [][]float64
+	for _,node := range *nodesProcessed {
+  	 x := expandIndx(node)
+  	 coord := gridToCoord([]int64{x[0], x[1]})
+  	 nodesExtended = append(nodesExtended,coord)
+	}
+	return nodesExtended
+}
+
 func Dijkstra(startLngInt, startLatInt, endLngInt, endLatInt,mWidth int64, meshgridPointer *[]bool) [][][]float64 {
 
 	meshgrid = *meshgridPointer
@@ -238,4 +248,64 @@ func Dijkstra(startLngInt, startLatInt, endLngInt, endLatInt,mWidth int64, meshg
 
 	return extractRoute(&prev, flattenIndx(endLngInt, endLatInt))
 	//return testExtractRoute(&expansions)
+}
+
+func DijkstraAllNodes(startLngInt, startLatInt, endLngInt, endLatInt,mWidth int64, meshgridPointer *[]bool) ([][][]float64,[][]float64) {
+	meshgrid = *meshgridPointer
+	meshWidth = mWidth
+	var dist []float64
+	var prev []int64
+	var nodesProcessed []int64
+	var vertices = make(map[int64]bool)
+	pq := make(PriorityQueue,1)
+	
+	for i := 0; i < len(meshgrid); i++ {
+		dist = append(dist, math.Inf(1))
+		prev = append(prev, -1)
+	}
+	
+	dist[flattenIndx(startLngInt, startLatInt)] = 0
+	vertices[flattenIndx(startLngInt, startLatInt)] = true
+	pq[0] = &Item{
+		value: flattenIndx(startLngInt, startLatInt),
+		priority:0,
+		index: 0,
+	}
+	heap.Init(&pq)
+
+	for {
+		if len(pq) == 0 {
+			break
+		} else {
+
+			u := heap.Pop(&pq).(*Item).value
+			nodesProcessed = append(nodesProcessed,u)
+
+			if u == flattenIndx(endLngInt, endLatInt) {
+					var route = extractRoute(&prev, flattenIndx(endLngInt, endLatInt))
+					var processedNodes = extractNodes(&nodesProcessed)
+					return route, processedNodes
+				}
+				
+			neighbours := neighbours1d(u)
+			delete(vertices, u)
+
+			for _, j := range neighbours {
+				var alt = dist[u] + distance(gridToCoord(expandIndx(u)), gridToCoord(expandIndx(j)))
+				if alt < dist[j] {
+					dist[j] = alt
+					prev[j] = u
+					vertices[j] = true
+					item := &Item {
+						value: j,
+						priority:-dist[j],
+					}
+					heap.Push(&pq,item)
+				}
+			}
+		}
+	}
+	var route = extractRoute(&prev, flattenIndx(endLngInt, endLatInt))
+	var processedNodes = extractNodes(&nodesProcessed)
+	return route, processedNodes
 }

@@ -20,6 +20,11 @@ var meshWidth int64
 var meshgrid []bool
 var meshgrid2d [][]bool
 
+type dijkstraData struct {
+	Route    *geojson.FeatureCollection
+	AllNodes [][]float64
+}
+
 func check(e error) {
 	if e != nil {
 		panic(e)
@@ -104,7 +109,7 @@ func Run(xSize,ySize int) {
 	}
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		if strings.Contains(r.URL.Path, "/point") {
+		if strings.Contains(r.URL.Path, "/dijkstra") {
 			query := r.URL.Query()
 			var startLat, err = strconv.ParseFloat(query.Get("startLat"), 10)
 			if err != nil {
@@ -137,20 +142,47 @@ func Run(xSize,ySize int) {
 			if !meshgrid2d[startLngInt][startLatInt] && !meshgrid2d[endLngInt][endLatInt] {
 				//fmt.Printf("start: %d / %d ", int64(math.Round(startLat)), int64(math.Round(startLng)))
 				//fmt.Printf("end: %d / %d\n", int64(math.Round(endLat)), int64(math.Round(endLng)))
-				var start = time.Now()
-				var route = dijkstra.Dijkstra(startLngInt, startLatInt, endLngInt, endLatInt, meshWidth, &meshgrid)
+				
+				//
+				if strings.Contains(r.URL.Path, "/dijkstraAllNodes") {
+					var start = time.Now()
+					var route,nodesProcessed = dijkstra.DijkstraAllNodes(startLngInt, startLatInt, endLngInt, endLatInt, meshWidth, &meshgrid)
+					t := time.Now()
+					elapsed := t.Sub(start)
+					fmt.Printf("time: %s\n", elapsed)
 
-				t := time.Now()
-				elapsed := t.Sub(start)
-				fmt.Printf("time: %s\n", elapsed)
+					var result,errUnmarsch = geojson.UnmarshalFeatureCollection(toGeojson(route))
+					if errUnmarsch != nil {
+						panic(errUnmarsch)
+					}
 
-				var result = toGeojson(route)
-				w.Write(result)
+					data := dijkstraData{
+						Route: result,
+						AllNodes: nodesProcessed,
+					}
+					
+					var jsonData,errJd = json.Marshal(data)
+					if errJd != nil {
+						panic(errJd)
+					}
+					
+					w.Write(jsonData)
+				} else {
+					var start = time.Now()
+					var route = dijkstra.Dijkstra(startLngInt, startLatInt, endLngInt, endLatInt, meshWidth, &meshgrid)
+					t := time.Now()
+					elapsed := t.Sub(start)
+					fmt.Printf("time: %s\n", elapsed)
+					var result = toGeojson(route)
+					w.Write(result)
+				}
+				
+
 			} else {
 				w.Write([]byte("false"))
 			}
 
-		} else if(strings.Contains(r.URL.Path[1:],".") && (strings.Split(r.URL.Path[1:],".")[len(strings.Split(r.URL.Path[1:],"."))-1] == "js" || strings.Split(r.URL.Path[1:],".")[len(strings.Split(r.URL.Path[1:],"."))-1] == "html")) {
+		} else if(strings.Contains(r.URL.Path[1:],".") && (strings.Split(r.URL.Path[1:],".")[len(strings.Split(r.URL.Path[1:],"."))-1] == "js" || strings.Split(r.URL.Path[1:],".")[len(strings.Split(r.URL.Path[1:],"."))-1] == "html" || strings.Split(r.URL.Path[1:],".")[len(strings.Split(r.URL.Path[1:],"."))-1] == "css")) {
 			http.ServeFile(w, r, r.URL.Path[1:])
 		} else {
 			//fmt.Printf("%v\n", "default")
