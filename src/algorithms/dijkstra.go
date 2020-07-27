@@ -56,25 +56,25 @@ func check(e error) {
 	}
 }
 
-func gridToCoord(in []int64) []float64 {
+// GridToCoord transforms a grid index to lat lon coordinates
+func GridToCoord(in []int64, xSize, ySize int64) []float64 {
 	var out []float64
-	// big grid
-	//out = append(out, float64((float64(in[0])/10)-180))
-	//out = append(out, float64(((float64(in[1])/10)/2)-90))
-	// small grid
-	out = append(out, float64(in[0]-180))
-	out = append(out, float64((float64(in[1])/2)-90))
+	var xFactor = xSize / 360
+	var yFactor = ySize / 360
+	out = append(out, float64(in[0]/xFactor-180))
+	out = append(out, float64((in[1]/yFactor)/2-90))
 	return out
 }
 
-func coordToGrid(in []float64) []int64 {
+// CoordToGrid transforms lat lon coordinates to a grid index
+func CoordToGrid(in []float64, xSize, ySize int64) []int64 {
 	var out []int64
-	// big grid
-	//out = append(out, int64(((math.Round(in[0]*10)/10)+180)*10))
-	//out = append(out, int64(((math.Round(in[1]*10)/10)+90)*2*10))
-	// small grid
-	out = append(out, int64(math.Round(in[0]))+180)
-	out = append(out, (int64(math.Round(in[1]))+90)*2)
+	var xFactor, yFactor float64
+	xFactor = float64(xSize / 360)
+	yFactor = float64(ySize / 360)
+	// TODO check
+	out = append(out, int64(((math.Round(in[0]*xFactor)/xFactor)+180)*xFactor))
+	out = append(out, int64(((math.Round(in[1]*yFactor)/yFactor)+90)*2*yFactor))
 	return out
 }
 
@@ -138,7 +138,7 @@ func extractRoute(prev *[]int64, end, xSize, ySize int64) [][][]float64 {
 			route = append(route, tempRoute)
 			tempRoute = make([][]float64, 0)
 		}
-		tempRoute = append(tempRoute, gridToCoord([]int64{x[0], x[1]}))
+		tempRoute = append(tempRoute, GridToCoord([]int64{x[0], x[1]}, xSize, ySize))
 
 		if (*prev)[end] == -1 {
 			break
@@ -153,8 +153,8 @@ func extractRoute(prev *[]int64, end, xSize, ySize int64) [][][]float64 {
 func extractNodes(nodesProcessed *[]int64, xSize, ySize int64) [][]float64 {
 	var nodesExtended [][]float64
 	for _, node := range *nodesProcessed {
-		coord := gridToCoord([]int64{x[0], x[1]})
 		x := expandIndx(node, xSize)
+		coord := GridToCoord([]int64{x[0], x[1]}, xSize, ySize)
 		nodesExtended = append(nodesExtended, coord)
 	}
 	return nodesExtended
@@ -194,7 +194,7 @@ func Dijkstra(startLngInt, startLatInt, endLngInt, endLatInt, xSize, ySize int64
 			neighbours := neighbours1d(u, xSize)
 
 			for _, j := range neighbours {
-				var alt = dist[u] + distance(gridToCoord(expandIndx(u)), gridToCoord(expandIndx(j)))
+				var alt = dist[u] + distance(GridToCoord(expandIndx(u, xSize), xSize, ySize), GridToCoord(expandIndx(j, xSize), xSize, ySize))
 				if alt < dist[j] {
 					dist[j] = alt
 					prev[j] = u
@@ -249,7 +249,7 @@ func DijkstraAllNodes(startLngInt, startLatInt, endLngInt, endLatInt, xSize, ySi
 			neighbours := neighbours1d(u, xSize)
 
 			for _, j := range neighbours {
-				var alt = dist[u] + distance(gridToCoord(expandIndx(u)), gridToCoord(expandIndx(j)))
+				var alt = dist[u] + distance(GridToCoord(expandIndx(u, xSize), xSize, ySize), GridToCoord(expandIndx(j, xSize), xSize, ySize))
 				if alt < dist[j] {
 					dist[j] = alt
 					prev[j] = u

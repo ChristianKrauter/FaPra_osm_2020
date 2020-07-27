@@ -7,7 +7,6 @@ import (
 	"github.com/paulmach/go.geojson"
 	"io/ioutil"
 	"log"
-	"math"
 	"net/http"
 	"os"
 	"strconv"
@@ -31,34 +30,6 @@ func check(e error) {
 	}
 }
 
-func gridToCoord(in []int64) []float64 {
-	var out []float64
-	// big grid
-	//out = append(out, float64((float64(in[0])/10)-180))
-	//out = append(out, float64(((float64(in[1])/10)/2)-90))
-	// small grid
-	out = append(out, float64(in[0]-180))
-	out = append(out, float64((float64(in[1])/2)-90))
-	return out
-}
-
-func coordToGrid(in []float64) []int64 {
-	var out []int64
-	// big grid
-	//out = append(out, int64(((math.Round(in[0]*10)/10)+180)*10))
-	//out = append(out, int64(((math.Round(in[1]*10)/10)+90)*2*10))
-	// small grid
-	out = append(out, int64(math.Round(in[0]))+180)
-	out = append(out, (int64(math.Round(in[1]))+90)*2)
-	return out
-}
-
-func expandIndx(indx int64) []int64 {
-	var x = indx % meshWidth
-	var y = indx / meshWidth
-	return []int64{x, y}
-}
-
 func toGeojson(route [][][]float64) *geojson.FeatureCollection {
 	routes := geojson.NewFeatureCollection()
 	for _, j := range route {
@@ -67,15 +38,14 @@ func toGeojson(route [][][]float64) *geojson.FeatureCollection {
 	return routes
 }
 
-func testExtractRoute(points *[][]int64) [][][]float64 {
-	//print("started extracting route\n")
+func testExtractRoute(points *[][]int64, xSize, ySize int64) [][][]float64 {
 	var route [][][]float64
 
 	for _, j := range *points {
 		coordPoints := make([][]float64, 0)
 		for _, l := range j {
-			point := expandIndx(int64(l))
-			coordPoints = append(coordPoints, gridToCoord([]int64{point[0], point[1]}))
+			point := algorithms.expandIndx(int64(l))
+			coordPoints = append(coordPoints, algorithms.GridToCoord([]int64{point[0], point[1]}, xSize, ySize))
 		}
 		route = append(route, coordPoints)
 	}
@@ -94,7 +64,6 @@ func Run(xSize, ySize int) {
 	byteValue, _ := ioutil.ReadAll(meshgridRaw)
 	json.Unmarshal(byteValue, &meshgrid2d)
 
-	meshWidth = int64(len(meshgrid2d[0]))
 	for i := 0; i < len(meshgrid2d[0]); i++ {
 		for j := 0; j < len(meshgrid2d); j++ {
 			meshgrid = append(meshgrid, meshgrid2d[j][i])
@@ -124,11 +93,11 @@ func Run(xSize, ySize int) {
 				panic(err3)
 			}
 
-			var start = coordToGrid([]float64{startLng, startLat})
+			var start = algorithms.CoordToGrid([]float64{startLng, startLat}, int64(xSize), int64(ySize))
 			var startLngInt = start[0]
 			var startLatInt = start[1]
 
-			var end = coordToGrid([]float64{endLng, endLat})
+			var end = algorithms.CoordToGrid([]float64{endLng, endLat}, int64(xSize), int64(ySize))
 			var endLngInt = end[0]
 			var endLatInt = end[1]
 
