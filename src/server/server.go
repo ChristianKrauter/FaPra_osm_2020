@@ -59,16 +59,12 @@ func expandIndx(indx int64) []int64 {
 	return []int64{x, y}
 }
 
-func toGeojson(route [][][]float64) []byte {
-	var rawJSON []byte
+func toGeojson(route [][][]float64) *geojson.FeatureCollection {
 	routes := geojson.NewFeatureCollection()
 	for _, j := range route {
-		//fmt.Printf("%v\n", geojson.NewFeature(geojson.NewLineStringGeometry(j)))
 		routes = routes.AddFeature(geojson.NewFeature(geojson.NewLineStringGeometry(j)))
 	}
-	rawJSON, err := routes.MarshalJSON()
-	check(err)
-	return rawJSON
+	return routes
 }
 
 func testExtractRoute(points *[][]int64) [][][]float64 {
@@ -150,11 +146,7 @@ func Run(xSize, ySize int) {
 					elapsed := t.Sub(start)
 					fmt.Printf("time: %s\n", elapsed)
 
-					var result,errUnmarsch = geojson.UnmarshalFeatureCollection(toGeojson(route))
-					if errUnmarsch != nil {
-						panic(errUnmarsch)
-					}
-
+					var result = toGeojson(route)
 					data := dijkstraData{
 						Route:    result,
 						AllNodes: nodesProcessed,
@@ -173,7 +165,9 @@ func Run(xSize, ySize int) {
 					elapsed := t.Sub(start)
 					fmt.Printf("time: %s\n", elapsed)
 					var result = toGeojson(route)
-					w.Write(result)
+					rawJSON, err := result.MarshalJSON()
+					check(err)
+					w.Write(rawJSON)
 				}
 
 			} else {
