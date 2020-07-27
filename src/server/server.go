@@ -150,6 +150,6 @@ func Run(xSize, ySize int) {
 	})
 
 	var portStr = fmt.Sprintf(":%d", port)
-	fmt.Printf("Starting server on localhost%s\n", portStr)
+	fmt.Printf(" on localhost%s\n", portStr)
 	log.Fatal(http.ListenAndServe(portStr, nil))
 }
