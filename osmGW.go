@@ -43,7 +43,7 @@ func main() {
 		dataprocessing.Start(pbfFileName, xSize, ySize, createTestGeoJSON, createCoastlineGeoJSON, lessMemory, noBoundingTree)
 	case 3:
 		fmt.Printf("Starting server osmGW\n")
-		server.Run(xSize,ySize)
+		server.Run(xSize, ySize)
 	default:
 		fmt.Printf("Error: No mode %d specified", mode)
 	}

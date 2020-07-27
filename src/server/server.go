@@ -52,9 +52,8 @@ func testExtractRoute(points *[][]int64, xSize, ySize int64) [][][]float64 {
 	return route
 }
 
-// Run ...
+// Run the server
 func Run(xSize, ySize int) {
-	//meshgridRaw, errJSON := os.Open("tmp/meshgrid__planet_big.json")
 	filename := fmt.Sprintf("data/output/meshgrid_%v_%v.json", xSize, ySize)
 	meshgridRaw, errJSON := os.Open(filename)
 	if errJSON != nil {
