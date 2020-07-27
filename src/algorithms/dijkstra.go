@@ -89,11 +89,6 @@ func expandIndx(indx int64) []int64 {
 	return []int64{x, y}
 }
 
-func remove(s []int64, i int64) []int64 {
-	s[i] = s[len(s)-1]
-	return s[:len(s)-1]
-}
-
 func haversin(theta float64) float64 {
 	return math.Pow(math.Sin(theta/2), 2)
 }
@@ -119,19 +114,6 @@ func neighbours1d(indx int64) []int64 {
 		}
 	}
 	return temp
-}
-
-func min(dist *[]float64, vertices *map[int64]bool) int64 {
-	var min = math.Inf(1)
-	var argmin int64
-
-	for i := range *vertices {
-		if (*dist)[i] < min {
-			min = (*dist)[i]
-			argmin = i
-		}
-	}
-	return argmin
 }
 
 func distance(start, end []float64) float64 {
