@@ -106,6 +106,9 @@ func Run(xSize, ySize int) {
 	}
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+
+		var fileEnding = strings.Split(r.URL.Path[1:], ".")[len(strings.Split(r.URL.Path[1:], "."))-1]
+
 		if strings.Contains(r.URL.Path, "/dijkstra") {
 			query := r.URL.Query()
 			var startLat, err = strconv.ParseFloat(query.Get("startLat"), 10)
@@ -177,7 +180,7 @@ func Run(xSize, ySize int) {
 				w.Write([]byte("false"))
 			}
 
-		} else if(strings.Contains(r.URL.Path[1:],".") && (strings.Split(r.URL.Path[1:],".")[len(strings.Split(r.URL.Path[1:],"."))-1] == "js" || strings.Split(r.URL.Path[1:],".")[len(strings.Split(r.URL.Path[1:],"."))-1] == "html" || strings.Split(r.URL.Path[1:],".")[len(strings.Split(r.URL.Path[1:],"."))-1] == "css")) {
+		} else if fileEnding == "js" || fileEnding == "html" || fileEnding == "css" {
 			http.ServeFile(w, r, r.URL.Path[1:])
 		} else {
 			http.ServeFile(w, r, "src/server/globe.html")
