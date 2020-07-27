@@ -1,4 +1,4 @@
-package dijkstra
+package algorithms
 
 import (
 	"container/heap"
