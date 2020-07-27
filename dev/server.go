@@ -26,15 +26,15 @@ func check(e error) {
 }
 
 func toGeojson(route [][][]float64) []byte {
-	var rawJson []byte
+	var rawJSON []byte
 	routes := geojson.NewFeatureCollection()
 	for _, j := range route {
 		//fmt.Printf("%v\n", geojson.NewFeature(geojson.NewLineStringGeometry(j)))
 		routes = routes.AddFeature(geojson.NewFeature(geojson.NewLineStringGeometry(j)))
 	}
-	rawJson, err := routes.MarshalJSON()
+	rawJSON, err := routes.MarshalJSON()
 	check(err)
-	return rawJson
+	return rawJSON
 }
 
 func neighbours1d(indx int64) []int64 {
@@ -219,10 +219,10 @@ func dijkstra(startLngInt, startLatInt, endLngInt, endLatInt int64) [][][]float6
 }
 
 func main() {
-	if errJson != nil {
-		panic(errJson)
 	//meshgridRaw, errJSON := os.Open("data/output/meshgrid__planet_big.json")
 	meshgridRaw, errJSON := os.Open("../data/output/meshgrid.json")
+	if errJSON != nil {
+		panic(errJSON)
 	}
 	defer meshgridRaw.Close()
 	byteValue, _ := ioutil.ReadAll(meshgridRaw)
@@ -284,14 +284,14 @@ func main() {
 			}
 
 		} else if strings.Contains(r.URL.Path, "/grid") {
-			if errJson != nil {
-				panic(errJson)
 			gridRaw, errJSON := os.Open("../data/output/gridTest.geojson")
+			if errJSON != nil {
+				panic(errJSON)
 			}
 			defer gridRaw.Close()
 			byteValue, _ := ioutil.ReadAll(gridRaw)
 			w.Write(byteValue)
-		}else {
+		} else {
 			http.ServeFile(w, r, r.URL.Path[1:])
 		}
 	})
