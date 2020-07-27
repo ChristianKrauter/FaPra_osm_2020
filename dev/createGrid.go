@@ -59,7 +59,7 @@ func main(){
 	g := geojson.NewMultiPointGeometry(points...)
 	rawJson, err4 := g.MarshalJSON()
 	check(err4)
-	var testgeojsonFilename = fmt.Sprintf("tmp/gridTest.geojson")
+	var testgeojsonFilename = fmt.Sprintf("../data/output/gridTest.geojson")
 	f, err5 := os.Create(testgeojsonFilename)
 	check(err5)
 	_, err6 := f.Write(rawJson)
@@ -105,7 +105,7 @@ func main(){
 	/*var meshgridBytes []byte
 	meshgridBytes, err1 := json.Marshal(newGrid)
 	check(err1)
-	var filename = fmt.Sprintf("tmp/equiGridTest.json")
+	var filename = fmt.Sprintf("data/output/equiGridTest.json")
 	f, err2 := os.Create(filename)
 	check(err2)
 	_, err3 := f.Write(meshgridBytes)

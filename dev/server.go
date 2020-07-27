@@ -219,10 +219,10 @@ func dijkstra(startLngInt, startLatInt, endLngInt, endLatInt int64) [][][]float6
 }
 
 func main() {
-	//meshgridRaw, errJson := os.Open("tmp/meshgrid__planet_big.json")
-	meshgridRaw, errJson := os.Open("tmp/meshgrid.json")
 	if errJson != nil {
 		panic(errJson)
+	//meshgridRaw, errJSON := os.Open("data/output/meshgrid__planet_big.json")
+	meshgridRaw, errJSON := os.Open("../data/output/meshgrid.json")
 	}
 	defer meshgridRaw.Close()
 	byteValue, _ := ioutil.ReadAll(meshgridRaw)
@@ -284,9 +284,9 @@ func main() {
 			}
 
 		} else if strings.Contains(r.URL.Path, "/grid") {
-			gridRaw, errJson := os.Open("tmp/gridTest.geojson")
 			if errJson != nil {
 				panic(errJson)
+			gridRaw, errJSON := os.Open("../data/output/gridTest.geojson")
 			}
 			defer gridRaw.Close()
 			byteValue, _ := ioutil.ReadAll(gridRaw)
