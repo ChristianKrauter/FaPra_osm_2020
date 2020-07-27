@@ -124,14 +124,14 @@ func polygonContains(polygon *[][]float64, point []float64) bool {
 	return b
 }
 
-func rayCastSphere(point, s, e []float64) (bool,bool) {
+func rayCastSphere(point, s, e []float64) (bool, bool) {
 	if s[0] > e[0] {
 		s, e = e, s
 	}
-	return true,true
+	return true, true
 }
 
-func polygonContainsSphere(polygon *[][]float64, point []float64) bool{
+func polygonContainsSphere(polygon *[][]float64, point []float64) bool {
 	b, on := rayCastSphere(point, (*polygon)[0], (*polygon)[len(*polygon)-1])
 	if on {
 		return true

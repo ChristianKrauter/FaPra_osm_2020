@@ -1,18 +1,18 @@
 package server
 
 import (
+	"../algorithms"
 	"encoding/json"
 	"fmt"
 	"github.com/paulmach/go.geojson"
 	"io/ioutil"
 	"log"
+	"math"
 	"net/http"
 	"os"
-	"math"
 	"strconv"
 	"strings"
 	"time"
-	"../algorithms"
 )
 
 var port int = 8081
@@ -71,7 +71,6 @@ func toGeojson(route [][][]float64) []byte {
 	return rawJSON
 }
 
-
 func testExtractRoute(points *[][]int64) [][][]float64 {
 	//print("started extracting route\n")
 	var route [][][]float64
@@ -87,12 +86,10 @@ func testExtractRoute(points *[][]int64) [][][]float64 {
 	return route
 }
 
-
-
 // Run ...
-func Run(xSize,ySize int) {
+func Run(xSize, ySize int) {
 	//meshgridRaw, errJSON := os.Open("tmp/meshgrid__planet_big.json")
-	filename := fmt.Sprintf("data/output/meshgrid_%v_%v.json",xSize,ySize)
+	filename := fmt.Sprintf("data/output/meshgrid_%v_%v.json", xSize, ySize)
 	meshgridRaw, errJSON := os.Open(filename)
 	if errJSON != nil {
 		panic(errJSON)
@@ -142,11 +139,10 @@ func Run(xSize,ySize int) {
 			if !meshgrid2d[startLngInt][startLatInt] && !meshgrid2d[endLngInt][endLatInt] {
 				//fmt.Printf("start: %d / %d ", int64(math.Round(startLat)), int64(math.Round(startLng)))
 				//fmt.Printf("end: %d / %d\n", int64(math.Round(endLat)), int64(math.Round(endLng)))
-				
-				//
+
 				if strings.Contains(r.URL.Path, "/dijkstraAllNodes") {
 					var start = time.Now()
-					var route,nodesProcessed = dijkstra.DijkstraAllNodes(startLngInt, startLatInt, endLngInt, endLatInt, meshWidth, &meshgrid)
+					var route, nodesProcessed = algorithms.DijkstraAllNodes(startLngInt, startLatInt, endLngInt, endLatInt, meshWidth, &meshgrid)
 					t := time.Now()
 					elapsed := t.Sub(start)
 					fmt.Printf("time: %s\n", elapsed)
@@ -157,26 +153,25 @@ func Run(xSize,ySize int) {
 					}
 
 					data := dijkstraData{
-						Route: result,
+						Route:    result,
 						AllNodes: nodesProcessed,
 					}
-					
-					var jsonData,errJd = json.Marshal(data)
+
+					var jsonData, errJd = json.Marshal(data)
 					if errJd != nil {
 						panic(errJd)
 					}
-					
+
 					w.Write(jsonData)
 				} else {
 					var start = time.Now()
-					var route = dijkstra.Dijkstra(startLngInt, startLatInt, endLngInt, endLatInt, meshWidth, &meshgrid)
+					var route = algorithms.Dijkstra(startLngInt, startLatInt, endLngInt, endLatInt, meshWidth, &meshgrid)
 					t := time.Now()
 					elapsed := t.Sub(start)
 					fmt.Printf("time: %s\n", elapsed)
 					var result = toGeojson(route)
 					w.Write(result)
 				}
-				
 
 			} else {
 				w.Write([]byte("false"))
@@ -185,15 +180,11 @@ func Run(xSize,ySize int) {
 		} else if(strings.Contains(r.URL.Path[1:],".") && (strings.Split(r.URL.Path[1:],".")[len(strings.Split(r.URL.Path[1:],"."))-1] == "js" || strings.Split(r.URL.Path[1:],".")[len(strings.Split(r.URL.Path[1:],"."))-1] == "html" || strings.Split(r.URL.Path[1:],".")[len(strings.Split(r.URL.Path[1:],"."))-1] == "css")) {
 			http.ServeFile(w, r, r.URL.Path[1:])
 		} else {
-			//fmt.Printf("%v\n", "default")
 			http.ServeFile(w, r, "src/server/globe.html")
 		}
-
 	})
 
 	var portStr = fmt.Sprintf(":%d", port)
 	fmt.Printf("Starting server on localhost%s\n", portStr)
 	log.Fatal(http.ListenAndServe(portStr, nil))
-	//log.Fatal(http.ListenAndServe(portStr, http.FileServer(http.Dir("src/server"))))
-	//http.FileServer(http.Dir("/Users/sergiotapia/go"))
 }
