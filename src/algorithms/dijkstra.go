@@ -5,7 +5,6 @@ import (
 	"math"
 )
 
-var meshWidth int64
 var meshgrid []bool
 
 // Item of priority queue
@@ -79,13 +78,13 @@ func coordToGrid(in []float64) []int64 {
 	return out
 }
 
-func flattenIndx(x, y int64) int64 {
-	return ((int64(meshWidth) * y) + x)
+func flattenIndx(x, y, xSize int64) int64 {
+	return ((xSize * y) + x)
 }
 
-func expandIndx(indx int64) []int64 {
-	var x = indx % meshWidth
-	var y = indx / meshWidth
+func expandIndx(indx, xSize int64) []int64 {
+	var x = indx % xSize
+	var y = indx / xSize
 	return []int64{x, y}
 }
 
@@ -93,18 +92,18 @@ func haversin(theta float64) float64 {
 	return math.Pow(math.Sin(theta/2), 2)
 }
 
-func neighbours1d(indx int64) []int64 {
+func neighbours1d(indx, xSize int64) []int64 {
 	var neighbours []int64
 	var temp []int64
 
-	neighbours = append(neighbours, indx-meshWidth-1) // top left
-	neighbours = append(neighbours, indx-meshWidth)   // top
-	neighbours = append(neighbours, indx-meshWidth+1) // top right
-	neighbours = append(neighbours, indx-1)           // left
-	neighbours = append(neighbours, indx+1)           // right
-	neighbours = append(neighbours, indx+meshWidth-1) // bottom left
-	neighbours = append(neighbours, indx+meshWidth)   // bottom
-	neighbours = append(neighbours, indx+meshWidth+1) // bottom right
+	neighbours = append(neighbours, indx-xSize-1) // top left
+	neighbours = append(neighbours, indx-xSize)   // top
+	neighbours = append(neighbours, indx-xSize+1) // top right
+	neighbours = append(neighbours, indx-1)       // left
+	neighbours = append(neighbours, indx+1)       // right
+	neighbours = append(neighbours, indx+xSize-1) // bottom left
+	neighbours = append(neighbours, indx+xSize)   // bottom
+	neighbours = append(neighbours, indx+xSize+1) // bottom right
 
 	for _, j := range neighbours {
 		if j >= 0 && j < int64(len(meshgrid)) {
@@ -129,12 +128,12 @@ func distance(start, end []float64) float64 {
 	return (c * radius)
 }
 
-func extractRoute(prev *[]int64, end int64) [][][]float64 {
+func extractRoute(prev *[]int64, end, xSize, ySize int64) [][][]float64 {
 	var route [][][]float64
 	var tempRoute [][]float64
-	temp := expandIndx(end)
+	temp := expandIndx(end, xSize)
 	for {
-		x := expandIndx(end)
+		x := expandIndx(end, xSize)
 		if math.Abs(float64(temp[0]-x[0])) > 1 {
 			route = append(route, tempRoute)
 			tempRoute = make([][]float64, 0)
@@ -151,21 +150,20 @@ func extractRoute(prev *[]int64, end int64) [][][]float64 {
 	return route
 }
 
-func extractNodes(nodesProcessed *[]int64) [][]float64 {
+func extractNodes(nodesProcessed *[]int64, xSize, ySize int64) [][]float64 {
 	var nodesExtended [][]float64
 	for _, node := range *nodesProcessed {
-		x := expandIndx(node)
 		coord := gridToCoord([]int64{x[0], x[1]})
+		x := expandIndx(node, xSize)
 		nodesExtended = append(nodesExtended, coord)
 	}
 	return nodesExtended
 }
 
 // Dijkstra implementation
-func Dijkstra(startLngInt, startLatInt, endLngInt, endLatInt, mWidth int64, meshgridPointer *[]bool) [][][]float64 {
+func Dijkstra(startLngInt, startLatInt, endLngInt, endLatInt, xSize, ySize int64, meshgridPointer *[]bool) [][][]float64 {
 
 	meshgrid = *meshgridPointer
-	meshWidth = mWidth
 	var dist []float64
 	var prev []int64
 	pq := make(PriorityQueue, 1)
@@ -175,9 +173,9 @@ func Dijkstra(startLngInt, startLatInt, endLngInt, endLatInt, mWidth int64, mesh
 		prev = append(prev, -1)
 	}
 
-	dist[flattenIndx(startLngInt, startLatInt)] = 0
+	dist[flattenIndx(startLngInt, startLatInt, xSize)] = 0
 	pq[0] = &Item{
-		value:    flattenIndx(startLngInt, startLatInt),
+		value:    flattenIndx(startLngInt, startLatInt, xSize),
 		priority: 0,
 		index:    0,
 	}
@@ -189,11 +187,11 @@ func Dijkstra(startLngInt, startLatInt, endLngInt, endLatInt, mWidth int64, mesh
 		} else {
 			u := heap.Pop(&pq).(*Item).value
 
-			if u == flattenIndx(endLngInt, endLatInt) {
-				return extractRoute(&prev, flattenIndx(endLngInt, endLatInt))
+			if u == flattenIndx(endLngInt, endLatInt, xSize) {
+				return extractRoute(&prev, flattenIndx(endLngInt, endLatInt, xSize), xSize, ySize)
 			}
 
-			neighbours := neighbours1d(u)
+			neighbours := neighbours1d(u, xSize)
 
 			for _, j := range neighbours {
 				var alt = dist[u] + distance(gridToCoord(expandIndx(u)), gridToCoord(expandIndx(j)))
@@ -209,13 +207,13 @@ func Dijkstra(startLngInt, startLatInt, endLngInt, endLatInt, mWidth int64, mesh
 			}
 		}
 	}
-	return extractRoute(&prev, flattenIndx(endLngInt, endLatInt))
+	return extractRoute(&prev, flattenIndx(endLngInt, endLatInt, xSize), xSize, ySize)
 }
 
 // DijkstraAllNodes additionally returns all visited nodes
-func DijkstraAllNodes(startLngInt, startLatInt, endLngInt, endLatInt, mWidth int64, meshgridPointer *[]bool) ([][][]float64, [][]float64) {
+func DijkstraAllNodes(startLngInt, startLatInt, endLngInt, endLatInt, xSize, ySize int64, meshgridPointer *[]bool) ([][][]float64, [][]float64) {
+
 	meshgrid = *meshgridPointer
-	meshWidth = mWidth
 	var dist []float64
 	var prev []int64
 	var nodesProcessed []int64
@@ -226,9 +224,9 @@ func DijkstraAllNodes(startLngInt, startLatInt, endLngInt, endLatInt, mWidth int
 		prev = append(prev, -1)
 	}
 
-	dist[flattenIndx(startLngInt, startLatInt)] = 0
+	dist[flattenIndx(startLngInt, startLatInt, xSize)] = 0
 	pq[0] = &Item{
-		value:    flattenIndx(startLngInt, startLatInt),
+		value:    flattenIndx(startLngInt, startLatInt, xSize),
 		priority: 0,
 		index:    0,
 	}
@@ -242,13 +240,13 @@ func DijkstraAllNodes(startLngInt, startLatInt, endLngInt, endLatInt, mWidth int
 			u := heap.Pop(&pq).(*Item).value
 			nodesProcessed = append(nodesProcessed, u)
 
-			if u == flattenIndx(endLngInt, endLatInt) {
-				var route = extractRoute(&prev, flattenIndx(endLngInt, endLatInt))
-				var processedNodes = extractNodes(&nodesProcessed)
+			if u == flattenIndx(endLngInt, endLatInt, xSize) {
+				var route = extractRoute(&prev, flattenIndx(endLngInt, endLatInt, xSize), xSize, ySize)
+				var processedNodes = extractNodes(&nodesProcessed, xSize, ySize)
 				return route, processedNodes
 			}
 
-			neighbours := neighbours1d(u)
+			neighbours := neighbours1d(u, xSize)
 
 			for _, j := range neighbours {
 				var alt = dist[u] + distance(gridToCoord(expandIndx(u)), gridToCoord(expandIndx(j)))
@@ -264,7 +262,7 @@ func DijkstraAllNodes(startLngInt, startLatInt, endLngInt, endLatInt, mWidth int
 			}
 		}
 	}
-	var route = extractRoute(&prev, flattenIndx(endLngInt, endLatInt))
-	var processedNodes = extractNodes(&nodesProcessed)
+	var route = extractRoute(&prev, flattenIndx(endLngInt, endLatInt, xSize), xSize, ySize)
+	var processedNodes = extractNodes(&nodesProcessed, xSize, ySize)
 	return route, processedNodes
 }

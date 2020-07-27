@@ -141,7 +141,7 @@ func Run(xSize, ySize int) {
 
 				if strings.Contains(r.URL.Path, "/dijkstraAllNodes") {
 					var start = time.Now()
-					var route, nodesProcessed = algorithms.DijkstraAllNodes(startLngInt, startLatInt, endLngInt, endLatInt, meshWidth, &meshgrid)
+					var route, nodesProcessed = algorithms.DijkstraAllNodes(startLngInt, startLatInt, endLngInt, endLatInt, int64(xSize), int64(ySize), &meshgrid)
 					t := time.Now()
 					elapsed := t.Sub(start)
 					fmt.Printf("time: %s\n", elapsed)
@@ -160,7 +160,7 @@ func Run(xSize, ySize int) {
 					w.Write(jsonData)
 				} else {
 					var start = time.Now()
-					var route = algorithms.Dijkstra(startLngInt, startLatInt, endLngInt, endLatInt, meshWidth, &meshgrid)
+					var route = algorithms.Dijkstra(startLngInt, startLatInt, endLngInt, endLatInt, int64(xSize), int64(ySize), &meshgrid)
 					t := time.Now()
 					elapsed := t.Sub(start)
 					fmt.Printf("time: %s\n", elapsed)
