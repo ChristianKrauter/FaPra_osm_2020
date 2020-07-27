@@ -44,7 +44,7 @@ func testExtractRoute(points *[][]int64, xSize, ySize int64) [][][]float64 {
 	for _, j := range *points {
 		coordPoints := make([][]float64, 0)
 		for _, l := range j {
-			point := algorithms.expandIndx(int64(l))
+			point := algorithms.ExpandIndex(int64(l), xSize)
 			coordPoints = append(coordPoints, algorithms.GridToCoord([]int64{point[0], point[1]}, xSize, ySize))
 		}
 		route = append(route, coordPoints)
