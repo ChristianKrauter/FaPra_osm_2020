@@ -29,7 +29,7 @@ viewer.cesiumWidget.screenSpaceEventHandler.removeInputAction(
     Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK
 );
 
-function createPoint(worldPosition, processed = false) {
+function createPoint(worldPosition, processed = false, start = false) {
     var point
     if (processed) {
         point = viewer.entities.add({
@@ -41,6 +41,8 @@ function createPoint(worldPosition, processed = false) {
             },
         });
     } else {
+        var text = "End"
+        console.log(worldPosition)
         point = viewer.entities.add({
             position: worldPosition,
             point: {
@@ -49,29 +51,42 @@ function createPoint(worldPosition, processed = false) {
                 heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
             },
         });
+
+        if (start == true) {
+            text = "Start"
+
+        }
+        point = viewer.entities.add({
+            position: worldPosition,
+            label: {
+                height: 20000000,
+                text: text,
+                font: '14pt monospace',
+                style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+                outlineWidth: 2,
+                verticalOrigin: Cesium.VerticalOrigin.TOP,
+                pixelOffset: new Cesium.Cartesian2(0, 32),
+                eyeOffset: new Cesium.Cartesian3(0, 0, -3000000)
+            }
+        });
     }
 
     return point;
 }
 
 function drawLine(viewer, coords) {
+
     viewer.entities.add({
+        positions: coords.slice(0, 2),
         polyline: {
             positions: Cesium.Cartesian3.fromDegreesArray(coords),
-            width: 1,
+            width: 2,
             material: Cesium.Color.DEEPSKYBLUE,
-        },
-        label: {
-            position: coords.slice(0, 2),
-            text: 'Select points on water',
-            font: '14pt monospace',
-            style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-            outlineWidth: 2,
-            verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-        },
+            // granularity: Cesium.Math.toRadians(0.001)
+            // distanceDisplayCondition: Cesium.Cartesian3(0, 0, 100000000)
+        }
     })
 }
-
 
 
 function drawShape(positionData) {
@@ -97,12 +112,12 @@ function drawShape(positionData) {
     return shape;
 }
 
-function dijkstraProcessing(data) {
-    if (data == "false") {
+function dijkstraProcessing(jsonData) {
+    if (jsonData == "false") {
         //Todo
     } else {
         createPoint(this.earthPosition.ep);
-        var features = JSON.parse(data).features
+        var features = JSON.parse(jsonData).features
         var coord1d = []
         for (i = 0; i < features.length; i++) {
             var coordinates = features[i].geometry.coordinates;
@@ -152,7 +167,7 @@ function onLeftMouseClick(event) {
         if (data["startLat"] == "") {
             data["startLat"] = latitudeString
             data["startLng"] = longitudeString
-            createPoint(earthPosition);
+            createPoint(earthPosition, false, true);
         } else {
             data["endLat"] = latitudeString
             data["endLng"] = longitudeString
