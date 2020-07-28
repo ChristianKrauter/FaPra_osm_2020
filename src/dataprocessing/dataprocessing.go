@@ -353,6 +353,10 @@ func Start(pbfFileName string, xSize, ySize int, createTestGeoJSON, createCoastl
 		meshgrid[i] = make([]bool, ySize)
 	}
 
+	var uniformGrid SphereGrid
+	var uniformGridTime = createUniformGrid(xSize, ySize, &uniformGrid, &boundingTreeRoot, &allCoastlines)
+	fmt.Printf("%v\n", uniformGridTime)
+
 	var meshgridTime = createMeshgrid(xSize, ySize, &boundingTreeRoot, &allCoastlines, &testGeoJSON, &meshgrid, createTestGeoJSON)
 	logging["time_meshgrid"] = string(meshgridTime)
 

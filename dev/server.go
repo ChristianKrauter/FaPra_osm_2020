@@ -19,11 +19,56 @@ var port int = 8081
 var meshgrid []bool
 var meshgrid2d [][]bool
 var meshWidth int64
+var sphereGrid SphereGrid
+
+type SphereGrid struct{
+	N int;
+	VertexData [][]bool;
+	FirstIndexOf []int;
+}
 
 func check(e error) {
 	if e != nil {
 		panic(e)
 	}
+}
+
+func mod(a, b int) int {
+    return (a % b + b) % b
+}
+
+func UniformGridToCoord(in []int, xSize, ySize int)  []float64 {
+	m := float64(in[0])
+	n := float64(in[1])
+	N := float64(xSize * ySize)
+	a := 4.0 * math.Pi / N
+	d := math.Sqrt(a)
+	mTheta := math.Round(math.Pi / d)
+	dTheta := math.Pi / mTheta
+	dPhi := a / dTheta
+	theta := math.Pi * (m + 0.5) / mTheta
+	mPhi := math.Round(2.0 * math.Pi * math.Sin(theta) / dPhi)
+	phi := 2 * math.Pi * n / mPhi
+	return []float64{(phi / math.Pi) * 180, (theta/math.Pi)*180 - 90}
+}
+
+func UniformCoordToGrid(in []float64, xSize, ySize int) []int {
+	N := float64(xSize * ySize)
+	a := 4.0 * math.Pi / N
+	d := math.Sqrt(a)
+	mTheta := math.Round(math.Pi / d)
+	dTheta := math.Pi / mTheta
+	dPhi := a / dTheta
+
+	theta := (in[0] + 90) * math.Pi / 180
+	m := math.Round((theta * mTheta / math.Pi) - 0.5)
+
+	theta = math.Pi * (m + 0.5) / mTheta
+
+	phi := in[1] * math.Pi / 180
+	mPhi := math.Round(2.0 * math.Pi * math.Sin(theta) / dPhi)
+	n := math.Round(phi * mPhi / (2 * math.Pi))
+	return[]int{mod(int(m),int(mTheta)),mod(int(n),int(mPhi))}
 }
 
 func toGeojson(route [][][]float64) []byte {
@@ -59,6 +104,22 @@ func neighbours1d(indx int64) []int64 {
 		}
 	}
 	return temp
+}
+
+
+func neighboursUniformGrid(in []int) []int {
+	neighbours [][]int
+	m := in[0]
+	n := in[1]
+	coord := UniformGridToCoord(in,360,360)
+
+	if(m < len(sphereGrid.VertexData)-1)
+	coordUp := UniformGridToCoord([]int{m+1,n},360,360)
+
+	coordDown
+	neighbours = append(neighbours,[]int{m,mod(n-1,len(sphereGrid.VertexData[m]))})
+	neighbours = append(neighbours,[]int{m,mod(n+1,len(sphereGrid.VertexData[m]))})
+	return []int{10}
 }
 
 func gridToCoord(in []int64) []float64 {
@@ -235,10 +296,40 @@ func main() {
 			meshgrid = append(meshgrid, meshgrid2d[j][i])
 		}
 	}
+	uniformGridRaw, errJSON2 := os.Open("../data/output/meshgrid.json")
+	if errJSON2 != nil {
+		panic(errJSON2)
+	}
+	defer uniformGridRaw.Close()
+	uniformByteValue, _ := ioutil.ReadAll(uniformGridRaw)
+	json.Unmarshal(uniformByteValue, &sphereGrid)
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 
-		if strings.Contains(r.URL.Path, "/testpoint"){
+		if strings.Contains(r.URL.Path, "/testneighbours"){
+			
+			query := r.URL.Query()
+			var lat, err = strconv.ParseFloat(query.Get("lat"), 10)
+			if err != nil {
+				panic(err)
+			}
+			var lng, err1 = strconv.ParseFloat(query.Get("lng"), 10)
+			if err1 != nil {
+				panic(err1)
+			}
+			fmt.Printf("%v,%v\n", lat,lng)
+			gridPoint := dataprocessing.UniformCoordToGrid([]float64{lat,lng},10,500)
+			
+			neighbours := neighboursUniformGrid(gridPoint) 
+			coords := neighbours
+			byteCoords, errByteCoords := json.Marshal(coords)
+			if errByteCoords != nil {
+				panic(errByteCoords)
+			}
+			w.Write(byteCoords)
+
+		} else if strings.Contains(r.URL.Path, "/testpoint"){
+
 			query := r.URL.Query()
 			var lat, err = strconv.ParseFloat(query.Get("lat"), 10)
 			if err != nil {

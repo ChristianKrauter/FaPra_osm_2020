@@ -1,11 +1,30 @@
 package dataprocessing
 
 import (
-	//"fmt"
+	"fmt"
 	//"github.com/paulmach/go.geojson"
+	"encoding/json"
 	"math"
-	//"os"
+	"os"
+	"sort"
+	"time"
 )
+type SphereGrid struct{
+	N int;
+	VertexData [][]bool;
+	FirstIndexOf []int;
+}
+
+func (sg SphereGrid) gridToId (m,n int) int {
+	return sg.FirstIndexOf[m] + n;
+}
+
+func (sg SphereGrid) id_to_grid (id int) (int,int) {
+	m := sort.Search(len(sg.FirstIndexOf), func(i int) bool { return sg.FirstIndexOf[i] >= id })
+	n := id - sg.FirstIndexOf[m]
+	return m,n
+}
+
 func mod(a, b int) int {
     return (a % b + b) % b
 }
@@ -51,11 +70,13 @@ func UniformCoordToGrid(in []float64, xSize, ySize int) []int {
 	return[]int{mod(int(m),int(mTheta)),mod(int(n),int(mPhi))}
 }
 
-func createGrid(saveToFile bool) {
-	//var points [][]float64
-	var grid [][]bool
 
-	N := 10.0 * 500.0
+func createUniformGrid(xSize,ySize int , sphereGrid *SphereGrid, boundingTreeRoot *boundingTree, allCoastlines *[][][]float64) string{
+	start := time.Now()
+	var points [][]float64
+	var grid [][]bool
+	var firstIndexOf []int;
+	N := float64(xSize * ySize)
 	nCount := 0
 	a := 4.0 * math.Pi / N
 	d := math.Sqrt(a)
@@ -67,29 +88,42 @@ func createGrid(saveToFile bool) {
 		theta := math.Pi * (m + 0.5) / mTheta
 		mPhi := math.Round(2.0 * math.Pi * math.Sin(theta) / dPhi)
 		var gridRow []bool
+		firstIndexOf = append(firstIndexOf,int(nCount))
 		for n := 0.0; n < mPhi; n += 1.0 {
-			//phi := 2 * math.Pi * n / mPhi
-			//points = append(points, createPoint(theta, phi))
+			phi := 2 * math.Pi * n / mPhi
+			points = append(points, createPoint(theta, phi))
 			nCount++
-			gridRow = append(gridRow, false)
+			coords := UniformGridToCoord([]int{int(m),int(n)}, xSize, ySize)
+				if isLand(boundingTreeRoot, []float64{coords[0], coords[1]}, allCoastlines) {
+					gridRow = append(gridRow, true)	
+				} else {
+					gridRow = append(gridRow, false)	
+				}
 		}
 		// fmt.Printf("%v\n", gridRow)
 		grid = append(grid, gridRow)
 	}
-	/*
-	if saveToFile {
-		fmt.Printf("Points created: %v\n", nCount)
-		var rawJSON []byte
-		g := geojson.NewMultiPointGeometry(points...)
-		rawJSON, err4 := g.MarshalJSON()
-		check(err4)
-		var testgeojsonFilename = fmt.Sprintf("tmp/gridTest.geojson")
-		f, err5 := os.Create(testgeojsonFilename)
-		check(err5)
-		_, err6 := f.Write(rawJSON)
-		check(err6)
-		f.Sync()
-	}
+
+	(*sphereGrid).N = nCount;
+	(*sphereGrid).FirstIndexOf = firstIndexOf;
+	(*sphereGrid). VertexData = grid;
+
+	t := time.Now()
+	elapsed := t.Sub(start)
+	fmt.Printf("Created Uniform Grid in          : %s\n", elapsed)
+	var rawJSON []byte
+	rawJSON, err4 := json.Marshal(*sphereGrid)
+	check(err4)
+	var jsonFilename = fmt.Sprintf("data/output/uniformGrid_%v_%v.json",xSize,ySize)
+	f, err5 := os.Create(jsonFilename)
+	check(err5)
+	_, err6 := f.Write(rawJSON)
+	check(err6)
+	f.Sync()
+	
+	return elapsed.String()
+	
+	
 	// return grid
 
 	/*dict := make(map[float64][][]float64)
