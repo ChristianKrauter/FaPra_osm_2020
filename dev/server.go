@@ -12,6 +12,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"../src/dataprocessing"
 )
 
 var port int = 8081
@@ -237,7 +238,28 @@ func main() {
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 
-		if strings.Contains(r.URL.Path, "/point") {
+		if strings.Contains(r.URL.Path, "/testpoint"){
+			query := r.URL.Query()
+			var lat, err = strconv.ParseFloat(query.Get("lat"), 10)
+			if err != nil {
+				panic(err)
+			}
+			var lng, err1 = strconv.ParseFloat(query.Get("lng"), 10)
+			if err1 != nil {
+				panic(err1)
+			}
+			fmt.Printf("%v,%v\n", lat,lng)
+			gridPoint := dataprocessing.UniformCoordToGrid([]float64{lat,lng},10,500)
+			fmt.Printf("%v\n", gridPoint)
+			coords := dataprocessing.UniformGridToCoord(gridPoint,10,500)
+			fmt.Printf("%v,%v\n", coords[0], coords[1])
+			byteCoords, errByteCoords := json.Marshal(coords)
+			if errByteCoords != nil {
+				panic(errByteCoords)
+			}
+			w.Write(byteCoords)
+
+		} else if strings.Contains(r.URL.Path, "/point") {
 			query := r.URL.Query()
 			var startLat, err = strconv.ParseFloat(query.Get("startLat"), 10)
 			if err != nil {

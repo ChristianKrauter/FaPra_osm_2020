@@ -8,12 +8,13 @@ $.ajax({
         points = JSON.parse(data).coordinates
         for (i = 0; i < points.length; i++) {
             point = points[i]
-            createPoint(Cesium.Cartesian3.fromDegrees(point[0], point[1]))
+            createRedPoint(Cesium.Cartesian3.fromDegrees(point[0], point[1]))
             //createPoint(point[0],point[1])
         }
     }
 
 });
+
 
 
 var data = {
@@ -34,7 +35,21 @@ var viewer = new Cesium.Viewer("cesiumContainer", {
     infoBox: false,
     terrainProvider: Cesium.createWorldTerrain(),
 });
+createRedPoint(Cesium.Cartesian3.fromDegrees(0.0,0.0))
+$.ajax({
+                url: "/testpoint",
+                data: {lat:"0.0",lng:"0.0"}
+            }).done(function(response) {
+                if (data == "false") {
 
+                } else {
+                	console.log(response)
+                	var point = JSON.parse(response)
+                    createPoint(Cesium.Cartesian3.fromDegrees(point[0],point[1]));
+                    
+                }
+
+            });
 if (!viewer.scene.pickPositionSupported) {
     window.alert("This browser does not support pickPosition.");
 }
@@ -48,7 +63,18 @@ function createPoint(worldPosition) {
         position: worldPosition,
         point: {
             color: Cesium.Color.WHITE,
-            pixelSize: 5,
+            pixelSize: 8,
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+        },
+    });
+    return point;
+}
+function createRedPoint(worldPosition) {
+    var point = viewer.entities.add({
+        position: worldPosition,
+        point: {
+            color: Cesium.Color.RED,
+            pixelSize: 4,
             heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
         },
     });
@@ -109,7 +135,29 @@ function onLeftMouseClick(event) {
         const cartographic = viewer.scene.globe.ellipsoid.cartesianToCartographic(earthPosition);
         const longitudeString = Cesium.Math.toDegrees(cartographic.longitude).toFixed(15);
         const latitudeString = Cesium.Math.toDegrees(cartographic.latitude).toFixed(15);
+        console.log("1: ")
+        console.log(earthPosition)
+        var data = {
+		    lat: latitudeString,
+		    lng: longitudeString,
+		}
+		$.ajax({
+                url: "/testpoint",
+                data: data
+            }).done(function(response) {
+                if (data == "false") {
 
+                } else {
+                	var point = JSON.parse(response)
+                	console.log("2: ")
+                	console.log(Cesium.Cartesian3.fromDegrees(point[1],point[0]))
+                    createPoint(Cesium.Cartesian3.fromDegrees(point[1],point[0]));
+                    
+                }
+
+            });
+
+        /*
         if (data["startLat"] == "") {
             data["startLat"] = latitudeString
             data["startLng"] = longitudeString
@@ -144,7 +192,7 @@ function onLeftMouseClick(event) {
                 endLat: "",
                 endLng: ""
             }
-        }
+        }*/
 
     }
 }
