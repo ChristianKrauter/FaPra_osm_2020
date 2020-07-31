@@ -35,24 +35,25 @@ var viewer = new Cesium.Viewer("cesiumContainer", {
     infoBox: false,
     terrainProvider: Cesium.createWorldTerrain(),
 });
-createRedPoint(Cesium.Cartesian3.fromDegrees(0.0,0.0))
+createRedPoint(Cesium.Cartesian3.fromDegrees(0.0, 0.0))
 $.ajax({
-                url: "/testneighbours",
-                data: {lat:"0.0",lng:"0.0"}
-            }).done(function(response) {
-                if (data == "false") {
+    url: "/testneighbours",
+    data: { lat: "0.0", lng: "0.0" }
+}).done(function(response) {
+    if (data == "false") {
 
-                } else {
-                	console.log(response)
-                	var points = JSON.parse(response)
-                    //
-                    for (i = 0; i < points.length;i++){
-                        point = points[i]
-                        createPoint(Cesium.Cartesian3.fromDegrees(point[1],point[0]));
-                    }
-                }
+    } else {
+        console.log(response)
+        var points = JSON.parse(response)
+        //
+        for (i = 0; i < points.length; i++) {
+            point = points[i]
+            createPoint(Cesium.Cartesian3.fromDegrees(point[0], point[1]));
+        }
+    }
 
-            });
+});
+
 if (!viewer.scene.pickPositionSupported) {
     window.alert("This browser does not support pickPosition.");
 }
@@ -72,6 +73,7 @@ function createPoint(worldPosition) {
     });
     return point;
 }
+
 function createRedPoint(worldPosition) {
     var point = viewer.entities.add({
         position: worldPosition,
@@ -141,24 +143,26 @@ function onLeftMouseClick(event) {
         //console.log("1: ")
         //console.log(earthPosition)
         var data = {
-		    lat: latitudeString,
-		    lng: longitudeString,
-		}
-		$.ajax({
-                url: "/testpoint",
-                data: data
-            }).done(function(response) {
-                if (data == "false") {
+            lat: latitudeString,
+            lng: longitudeString,
+        }
+        $.ajax({
+            url: "/testneighbours",
+            data: data
+        }).done(function(response) {
+            if (data == "false") {
 
-                } else {
-                	var point = JSON.parse(response)
-                	//console.log("2: ")
-                	//console.log(Cesium.Cartesian3.fromDegrees(point[1],point[0]))
-                    createPoint(Cesium.Cartesian3.fromDegrees(point[1],point[0]));
-                    
+            } else {
+                console.log(response)
+                var points = JSON.parse(response)
+                //
+                for (i = 0; i < points.length; i++) {
+                    point = points[i]
+                    createPoint(Cesium.Cartesian3.fromDegrees(point[0], point[1]));
                 }
+            }
 
-            });
+        });
 
         /*
         if (data["startLat"] == "") {
