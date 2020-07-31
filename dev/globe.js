@@ -37,16 +37,19 @@ var viewer = new Cesium.Viewer("cesiumContainer", {
 });
 createRedPoint(Cesium.Cartesian3.fromDegrees(0.0,0.0))
 $.ajax({
-                url: "/testpoint",
+                url: "/testneighbours",
                 data: {lat:"0.0",lng:"0.0"}
             }).done(function(response) {
                 if (data == "false") {
 
                 } else {
                 	console.log(response)
-                	var point = JSON.parse(response)
-                    createPoint(Cesium.Cartesian3.fromDegrees(point[0],point[1]));
-                    
+                	var points = JSON.parse(response)
+                    //
+                    for (i = 0; i < points.length;i++){
+                        point = points[i]
+                        createPoint(Cesium.Cartesian3.fromDegrees(point[1],point[0]));
+                    }
                 }
 
             });
@@ -135,8 +138,8 @@ function onLeftMouseClick(event) {
         const cartographic = viewer.scene.globe.ellipsoid.cartesianToCartographic(earthPosition);
         const longitudeString = Cesium.Math.toDegrees(cartographic.longitude).toFixed(15);
         const latitudeString = Cesium.Math.toDegrees(cartographic.latitude).toFixed(15);
-        console.log("1: ")
-        console.log(earthPosition)
+        //console.log("1: ")
+        //console.log(earthPosition)
         var data = {
 		    lat: latitudeString,
 		    lng: longitudeString,
@@ -149,8 +152,8 @@ function onLeftMouseClick(event) {
 
                 } else {
                 	var point = JSON.parse(response)
-                	console.log("2: ")
-                	console.log(Cesium.Cartesian3.fromDegrees(point[1],point[0]))
+                	//console.log("2: ")
+                	//console.log(Cesium.Cartesian3.fromDegrees(point[1],point[0]))
                     createPoint(Cesium.Cartesian3.fromDegrees(point[1],point[0]));
                     
                 }
