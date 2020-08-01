@@ -35,7 +35,7 @@ var viewer = new Cesium.Viewer("cesiumContainer", {
     infoBox: false,
     terrainProvider: Cesium.createWorldTerrain(),
 });
-createRedPoint(Cesium.Cartesian3.fromDegrees(0.0, 0.0))
+/*createRedPoint(Cesium.Cartesian3.fromDegrees(0.0, 0.0))
 $.ajax({
     url: "/testneighbours",
     data: { lat: "0.0", lng: "0.0" }
@@ -48,11 +48,11 @@ $.ajax({
         //
         for (i = 0; i < points.length; i++) {
             point = points[i]
-            createPoint(Cesium.Cartesian3.fromDegrees(point[0], point[1]));
+            createPoint(Cesium.Cartesian3.fromDegrees(point[1], point[0]));
         }
     }
 
-});
+});*/
 
 if (!viewer.scene.pickPositionSupported) {
     window.alert("This browser does not support pickPosition.");
@@ -142,7 +142,7 @@ function onLeftMouseClick(event) {
         const latitudeString = Cesium.Math.toDegrees(cartographic.latitude).toFixed(15);
         //console.log("1: ")
         //console.log(earthPosition)
-        var data = {
+        /*var data = {
             lat: latitudeString,
             lng: longitudeString,
         }
@@ -158,13 +158,13 @@ function onLeftMouseClick(event) {
                 //
                 for (i = 0; i < points.length; i++) {
                     point = points[i]
-                    createPoint(Cesium.Cartesian3.fromDegrees(point[0], point[1]));
+                    createPoint(Cesium.Cartesian3.fromDegrees(point[1], point[0]));
                 }
             }
 
         });
 
-        /*
+        */
         if (data["startLat"] == "") {
             data["startLat"] = latitudeString
             data["startLng"] = longitudeString
@@ -199,7 +199,7 @@ function onLeftMouseClick(event) {
                 endLat: "",
                 endLng: ""
             }
-        }*/
+        }
 
     }
 }
