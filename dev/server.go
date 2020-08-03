@@ -34,9 +34,9 @@ func (sg SphereGrid) gridToId (m,n int) int {
 }
 
 func (sg SphereGrid) idToGrid (id int) (int,int) {
-	m := sort.Search(len(sg.FirstIndexOf)-1, func(i int) bool { return sg.FirstIndexOf[i] >= id })
-	n := id - sg.FirstIndexOf[m]
-	return m,n
+	m := sort.Search(len(sg.FirstIndexOf)-1, func(i int) bool { return sg.FirstIndexOf[i] > id })
+	n := id - sg.FirstIndexOf[m-1]
+	return m-1,n
 }
 
 func check(e error) {
@@ -166,7 +166,7 @@ func neighboursUniformGrid(in []int) []int {
 		neighbours = append(neighbours, getNeighbours([]float64{coordUp[0], coord[1]}, 10, 500)...)
 	}
 	var neighbours1d []int
-	//fmt.Printf("%v\n", neighbours)
+	//fmt.Printf("before:\n%v\n", neighbours)
 	for _,neighbour := range neighbours {
 		neighbours1d = append(neighbours1d, sphereGrid.gridToId(neighbour[0],neighbour[1]))
 	}
@@ -306,6 +306,7 @@ func dijkstra(startLngInt, startLatInt, endLngInt, endLatInt int) [][][]float64 
 			gridPos := []int{m,n}
 			neighbours := neighboursUniformGrid(gridPos)
 			delete(vertices, u)
+			//fmt.Printf("after:\n%v\n", neighbours2d)
 
 			for _, j := range neighbours {
 				//fmt.Printf("j: %v, land:%v\n", j, meshgrid[j])
@@ -319,10 +320,10 @@ func dijkstra(startLngInt, startLatInt, endLngInt, endLatInt int) [][][]float64 
 				//fmt.Printf("Distance u-j: %v\n", distance(expandIndx(u), expandIndx(j)))
 				//fmt.Printf("Summe: %v\n", (dist[u] + distance(expandIndx(u), expandIndx(j))))
 				//fmt.Scanln()
-				m,n = sphereGrid.idToGrid(u)
-				p1 := []int{m,n}
-				m,n = sphereGrid.idToGrid(j)
-				p2 := []int{m,n}
+				mu,nu := sphereGrid.idToGrid(u)
+				p1 := []int{mu,nu}
+				mj,nj := sphereGrid.idToGrid(j)
+				p2 := []int{mj,nj}
 				var alt = dist[u] + distance(UniformGridToCoord(p1,10,500), UniformGridToCoord(p2,10,500))
 				//fmt.Printf("Distance: %v\n",distance(expandIndx(u), expandIndx(j)))
 				if alt < dist[j] {
@@ -438,11 +439,11 @@ func main() {
 			var startLngInt = start[0]
 			var startLatInt = start[1]
 
-			var end = UniformCoordToGrid([]float64{endLng, endLat},10,50)
+			var end = UniformCoordToGrid([]float64{endLng, endLat},10,500)
 			var endLngInt = end[0]
 			var endLatInt = end[1]
 
-			//fmt.Printf("\n%v/%v, %v/%v\n", startLngInt, startLatInt, endLngInt, endLatInt)
+			fmt.Printf("\n%v/%v, %v/%v\n", startLngInt, startLatInt, endLngInt, endLatInt)
 			//fmt.Printf("%v/%v\n", meshgrid2d[startLngInt][startLatInt], meshgrid2d[endLngInt][endLatInt])
 
 			if !sphereGrid.VertexData[startLngInt][startLatInt] && !sphereGrid.VertexData[endLngInt][endLatInt] {
@@ -454,7 +455,7 @@ func main() {
 				t := time.Now()
 				elapsed := t.Sub(start)
 				fmt.Printf("time: %s\n", elapsed)
-
+				//mt.Printf("%v\n", route)
 				var result = toGeojson(route)
 				w.Write(result)
 			} else {
