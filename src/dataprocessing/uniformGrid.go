@@ -9,24 +9,33 @@ import (
 	"sort"
 	"time"
 )
-type SphereGrid struct{
-	N int;
-	VertexData [][]bool;
-	FirstIndexOf []int;
+
+// SphereGrid ...
+type SphereGrid struct {
+	N            int
+	VertexData   [][]bool
+	FirstIndexOf []int
 }
 
-func (sg SphereGrid) gridToId (m,n int) int {
-	return sg.FirstIndexOf[m] + n;
+func (sg SphereGrid) gridToID(m, n int) int {
+	return sg.FirstIndexOf[m] + n
 }
 
-func (sg SphereGrid) id_to_grid (id int) (int,int) {
-	m := sort.Search(len(sg.FirstIndexOf), func(i int) bool { return sg.FirstIndexOf[i] >= id })
-	n := id - sg.FirstIndexOf[m]
-	return m,n
+func (sg SphereGrid) idToGrid(id int) (int, int) {
+	m := sort.Search(len(sg.FirstIndexOf)-1, func(i int) bool { return sg.FirstIndexOf[i] > id })
+	n := id - sg.FirstIndexOf[m-1]
+	return m - 1, n
 }
 
 func mod(a, b int) int {
-    return (a % b + b) % b
+	a = a % b
+	if a >= 0 {
+		return a
+	}
+	if b < 0 {
+		return a - b
+	}
+	return a + b
 }
 
 func createPoint(theta float64, phi float64) []float64 {
@@ -36,7 +45,8 @@ func createPoint(theta float64, phi float64) []float64 {
 	return []float64{phi / math.Pi * 180, theta/math.Pi*180 - 90}
 }
 
-func UniformGridToCoord(in []int, xSize, ySize int)  []float64 {
+// UniformGridToCoord ...
+func UniformGridToCoord(in []int, xSize, ySize int) []float64 {
 	m := float64(in[0])
 	n := float64(in[1])
 	N := float64(xSize * ySize)
@@ -51,6 +61,7 @@ func UniformGridToCoord(in []int, xSize, ySize int)  []float64 {
 	return []float64{(phi / math.Pi) * 180, (theta/math.Pi)*180 - 90}
 }
 
+// UniformCoordToGrid ...
 func UniformCoordToGrid(in []float64, xSize, ySize int) []int {
 	N := float64(xSize * ySize)
 	a := 4.0 * math.Pi / N
@@ -67,15 +78,14 @@ func UniformCoordToGrid(in []float64, xSize, ySize int) []int {
 	phi := in[1] * math.Pi / 180
 	mPhi := math.Round(2.0 * math.Pi * math.Sin(theta) / dPhi)
 	n := math.Round(phi * mPhi / (2 * math.Pi))
-	return[]int{mod(int(m),int(mTheta)),mod(int(n),int(mPhi))}
+	return []int{mod(int(m), int(mTheta)), mod(int(n), int(mPhi))}
 }
 
-
-func createUniformGrid(xSize,ySize int , sphereGrid *SphereGrid, boundingTreeRoot *boundingTree, allCoastlines *[][][]float64) string{
+func createUniformGrid(xSize, ySize int, sphereGrid *SphereGrid, boundingTreeRoot *boundingTree, allCoastlines *[][][]float64) string {
 	start := time.Now()
 	var points [][]float64
 	var grid [][]bool
-	var firstIndexOf []int;
+	var firstIndexOf []int
 	N := float64(xSize * ySize)
 	nCount := 0
 	a := 4.0 * math.Pi / N
@@ -88,25 +98,25 @@ func createUniformGrid(xSize,ySize int , sphereGrid *SphereGrid, boundingTreeRoo
 		theta := math.Pi * (m + 0.5) / mTheta
 		mPhi := math.Round(2.0 * math.Pi * math.Sin(theta) / dPhi)
 		var gridRow []bool
-		firstIndexOf = append(firstIndexOf,int(nCount))
+		firstIndexOf = append(firstIndexOf, int(nCount))
 		for n := 0.0; n < mPhi; n += 1.0 {
 			phi := 2 * math.Pi * n / mPhi
 			points = append(points, createPoint(theta, phi))
 			nCount++
-			coords := UniformGridToCoord([]int{int(m),int(n)}, xSize, ySize)
-				if isLand(boundingTreeRoot, []float64{coords[0], coords[1]}, allCoastlines) {
-					gridRow = append(gridRow, true)	
-				} else {
-					gridRow = append(gridRow, false)	
-				}
+			coords := UniformGridToCoord([]int{int(m), int(n)}, xSize, ySize)
+			if isLand(boundingTreeRoot, []float64{coords[0], coords[1]}, allCoastlines) {
+				gridRow = append(gridRow, true)
+			} else {
+				gridRow = append(gridRow, false)
+			}
 		}
 		// fmt.Printf("%v\n", gridRow)
 		grid = append(grid, gridRow)
 	}
 
-	(*sphereGrid).N = nCount;
-	(*sphereGrid).FirstIndexOf = firstIndexOf;
-	(*sphereGrid). VertexData = grid;
+	(*sphereGrid).N = nCount
+	(*sphereGrid).FirstIndexOf = firstIndexOf
+	(*sphereGrid).VertexData = grid
 
 	t := time.Now()
 	elapsed := t.Sub(start)
@@ -114,16 +124,15 @@ func createUniformGrid(xSize,ySize int , sphereGrid *SphereGrid, boundingTreeRoo
 	var rawJSON []byte
 	rawJSON, err4 := json.Marshal(*sphereGrid)
 	check(err4)
-	var jsonFilename = fmt.Sprintf("data/output/uniformGrid_%v_%v.json",xSize,ySize)
+	var jsonFilename = fmt.Sprintf("data/output/uniformGrid_%v_%v.json", xSize, ySize)
 	f, err5 := os.Create(jsonFilename)
 	check(err5)
 	_, err6 := f.Write(rawJSON)
 	check(err6)
 	f.Sync()
-	
+
 	return elapsed.String()
-	
-	
+
 	// return grid
 
 	/*dict := make(map[float64][][]float64)

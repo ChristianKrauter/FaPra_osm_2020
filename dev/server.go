@@ -10,9 +10,9 @@ import (
 	"math"
 	"net/http"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
-	"sort"
 	"time"
 )
 
@@ -29,14 +29,14 @@ type SphereGrid struct {
 	FirstIndexOf []int
 }
 
-func (sg SphereGrid) gridToId (m,n int) int {
-	return sg.FirstIndexOf[m] + n;
+func (sg SphereGrid) gridToID(m, n int) int {
+	return sg.FirstIndexOf[m] + n
 }
 
-func (sg SphereGrid) idToGrid (id int) (int,int) {
+func (sg SphereGrid) idToGrid(id int) (int, int) {
 	m := sort.Search(len(sg.FirstIndexOf)-1, func(i int) bool { return sg.FirstIndexOf[i] > id })
 	n := id - sg.FirstIndexOf[m-1]
-	return m-1,n
+	return m - 1, n
 }
 
 func check(e error) {
@@ -46,10 +46,17 @@ func check(e error) {
 }
 
 func mod(a, b int) int {
-	return (a%b + b) % b
+	a = a % b
+	if a >= 0 {
+		return a
+	}
+	if b < 0 {
+		return a - b
+	}
+	return a + b
 }
 
-// UniformGridToCoord returns lat, lon for grid coordinates
+// UniformGridToCoord returns lat, lng for grid coordinates
 func UniformGridToCoord(in []int, xSize, ySize int) []float64 {
 	m := float64(in[0])
 	n := float64(in[1])
@@ -65,7 +72,9 @@ func UniformGridToCoord(in []int, xSize, ySize int) []float64 {
 	return []float64{(theta/math.Pi)*180 - 90, (phi / math.Pi) * 180}
 }
 
-// UniformCoordToGrid returns grid coordinates given lat, lon
+// M = LATITUTE, N = LONGITUDE
+
+// UniformCoordToGrid returns grid coordinates given lat, lng
 func UniformCoordToGrid(in []float64, xSize, ySize int) []int {
 	N := float64(xSize * ySize)
 	a := 4.0 * math.Pi / N
@@ -80,7 +89,13 @@ func UniformCoordToGrid(in []float64, xSize, ySize int) []int {
 	phi := in[1] * math.Pi / 180
 	mPhi := math.Round(2.0 * math.Pi * math.Sin(theta) / dPhi)
 	n := math.Round(phi * mPhi / (2 * math.Pi))
-	return []int{mod(int(m), int(mTheta)), mod(int(n), int(mPhi))}
+
+	fmt.Printf("in0 %f, in1 %f\n", in[0], in[1])
+	fmt.Printf("THETA %f, PHI %f\n", theta, phi)
+	fmt.Printf("m %d, mod mtheta-1 %d = %d\n", int(m), int(mTheta-1), mod(int(m), int(mTheta-1)))
+	fmt.Printf("n %d, mod mPhi-1 %d = %d\n", int(n), int(mPhi-1), mod(int(n), int(mPhi-1)))
+	return []int{mod(int(m), int(mTheta-1)), mod(int(n), int(mPhi-1))}
+	// return []int{mod2(int(m), int(mTheta)), mod2(int(n), int(mPhi))}
 }
 
 func toGeojson(route [][][]float64) []byte {
@@ -167,12 +182,11 @@ func neighboursUniformGrid(in []int) []int {
 	}
 	var neighbours1d []int
 	//fmt.Printf("before:\n%v\n", neighbours)
-	for _,neighbour := range neighbours {
-		neighbours1d = append(neighbours1d, sphereGrid.gridToId(neighbour[0],neighbour[1]))
+	for _, neighbour := range neighbours {
+		neighbours1d = append(neighbours1d, sphereGrid.gridToID(neighbour[0], neighbour[1]))
 	}
 	return neighbours1d
 }
-
 
 func gridToCoord(in []int) []float64 {
 	var out []float64
@@ -245,16 +259,16 @@ func extractRoute(prev *[]int, end int) [][][]float64 {
 	//print("started extracting route\n")
 	var route [][][]float64
 	var tempRoute [][]float64
-	m,n := sphereGrid.idToGrid(int(end))
-	temp := []int{m,n}
+	m, n := sphereGrid.idToGrid(int(end))
+	temp := []int{m, n}
 	for {
-		m,n = sphereGrid.idToGrid(int(end))
-		x := []int{m,n}
+		m, n = sphereGrid.idToGrid(int(end))
+		x := []int{m, n}
 		if math.Abs(float64(temp[0]-x[0])) > 1 {
 			route = append(route, tempRoute)
 			tempRoute = make([][]float64, 0)
 		}
-		tempRoute = append(tempRoute, UniformGridToCoord([]int{x[0], x[1]},10,500))
+		tempRoute = append(tempRoute, UniformGridToCoord([]int{x[0], x[1]}, 10, 500))
 
 		if (*prev)[end] == -1 {
 			break
@@ -292,9 +306,9 @@ func dijkstra(startLngInt, startLatInt, endLngInt, endLatInt int) [][][]float64 
 		dist = append(dist, math.Inf(1))
 		prev = append(prev, -1)
 	}
-	startId := sphereGrid.gridToId(int(startLngInt),int(startLatInt))
-	dist[startId] = 0
-	vertices[startId] = true
+	startID := sphereGrid.gridToID(startLngInt, startLatInt)
+	dist[startID] = 0
+	vertices[startID] = true
 
 	for {
 		if len(vertices) == 0 {
@@ -302,17 +316,17 @@ func dijkstra(startLngInt, startLatInt, endLngInt, endLatInt int) [][][]float64 
 		} else {
 			//var expansion = make([]int,0)
 			var u = min(&dist, &vertices)
-			m,n := sphereGrid.idToGrid(u)
-			gridPos := []int{m,n}
+			m, n := sphereGrid.idToGrid(u)
+			gridPos := []int{m, n}
 			neighbours := neighboursUniformGrid(gridPos)
 			delete(vertices, u)
 			//fmt.Printf("after:\n%v\n", neighbours2d)
 
 			for _, j := range neighbours {
 				//fmt.Printf("j: %v, land:%v\n", j, meshgrid[j])
-				if j == sphereGrid.gridToId(endLngInt, endLatInt) {
+				if j == sphereGrid.gridToID(endLngInt, endLatInt) {
 					prev[j] = u
-					return extractRoute(&prev, sphereGrid.gridToId(endLngInt, endLatInt))
+					return extractRoute(&prev, sphereGrid.gridToID(endLngInt, endLatInt))
 					//return testExtractRoute(&expansions)
 				}
 				//fmt.Printf("Dist[u]: %v\n", dist[u])
@@ -320,11 +334,11 @@ func dijkstra(startLngInt, startLatInt, endLngInt, endLatInt int) [][][]float64 
 				//fmt.Printf("Distance u-j: %v\n", distance(expandIndx(u), expandIndx(j)))
 				//fmt.Printf("Summe: %v\n", (dist[u] + distance(expandIndx(u), expandIndx(j))))
 				//fmt.Scanln()
-				mu,nu := sphereGrid.idToGrid(u)
-				p1 := []int{mu,nu}
-				mj,nj := sphereGrid.idToGrid(j)
-				p2 := []int{mj,nj}
-				var alt = dist[u] + distance(UniformGridToCoord(p1,10,500), UniformGridToCoord(p2,10,500))
+				mu, nu := sphereGrid.idToGrid(u)
+				p1 := []int{mu, nu}
+				mj, nj := sphereGrid.idToGrid(j)
+				p2 := []int{mj, nj}
+				var alt = dist[u] + distance(UniformGridToCoord(p1, 10, 500), UniformGridToCoord(p2, 10, 500))
 				//fmt.Printf("Distance: %v\n",distance(expandIndx(u), expandIndx(j)))
 				if alt < dist[j] {
 					dist[j] = alt
@@ -337,7 +351,7 @@ func dijkstra(startLngInt, startLatInt, endLngInt, endLatInt int) [][][]float64 
 		}
 	}
 
-	return extractRoute(&prev, sphereGrid.gridToId(endLngInt, endLatInt))
+	return extractRoute(&prev, sphereGrid.gridToID(endLngInt, endLatInt))
 	//return testExtractRoute(&expansions)
 }
 
@@ -366,6 +380,15 @@ func main() {
 	json.Unmarshal(uniformByteValue, &sphereGrid)
 	//fmt.Printf("%v\n",sphereGrid)
 
+	var points [][][]float64
+	for i := 0; i < len(sphereGrid.VertexData); i++ {
+		var pointRow [][]float64
+		for j := 0; j < len(sphereGrid.VertexData[i]); j++ {
+			pointRow = append(pointRow, UniformGridToCoord([]int{i, j}, 10, 500))
+		}
+		points = append(points, pointRow)
+	}
+
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 
 		if strings.Contains(r.URL.Path, "/testneighbours") {
@@ -385,7 +408,7 @@ func main() {
 			neighbours := neighboursUniformGrid(gridPoint)
 			var coords [][]float64
 			for _, x := range neighbours {
-				fmt.Printf("neighbour: %v\n",x)
+				fmt.Printf("neighbour: %v\n", x)
 				coords = append(coords, UniformGridToCoord(x, 10, 500))
 			}
 			byteCoords, errByteCoords := json.Marshal(coords)
@@ -405,11 +428,11 @@ func main() {
 			if err1 != nil {
 				panic(err1)
 			}
-			//fmt.Printf("%v,%v\n", lat,lng)
+			fmt.Printf("lat, lng %v,%v\n", lat, lng)
 			gridPoint := dataprocessing.UniformCoordToGrid([]float64{lat, lng}, 10, 500)
-			//fmt.Printf("%v\n", gridPoint)
+			fmt.Printf("gridpoint %v\n", gridPoint)
 			coords := dataprocessing.UniformGridToCoord(gridPoint, 10, 500)
-			//fmt.Printf("%v,%v\n", coords[0], coords[1])
+			fmt.Printf("coords %v,%v\n", coords[1], coords[0])
 			byteCoords, errByteCoords := json.Marshal(coords)
 			if errByteCoords != nil {
 				panic(errByteCoords)
@@ -435,22 +458,23 @@ func main() {
 				panic(err3)
 			}
 
-			var start = UniformCoordToGrid([]float64{startLng, startLat},10,500)
-			var startLngInt = start[0]
-			var startLatInt = start[1]
+			var start = UniformCoordToGrid([]float64{startLat, startLng}, 10, 500)
+			var startM = start[0]
+			var startN = start[1]
 
-			var end = UniformCoordToGrid([]float64{endLng, endLat},10,500)
-			var endLngInt = end[0]
-			var endLatInt = end[1]
+			var end = UniformCoordToGrid([]float64{endLat, endLng}, 10, 500)
+			var endM = end[0]
+			var endN = end[1]
 
-			fmt.Printf("\n%v/%v, %v/%v\n", startLngInt, startLatInt, endLngInt, endLatInt)
+			fmt.Printf("\nstartLngInt, startLatInt, endLngInt, endLatInt\n")
+			fmt.Printf("%v/%v, %v/%v\n", startM, startN, endM, endN)
 			//fmt.Printf("%v/%v\n", meshgrid2d[startLngInt][startLatInt], meshgrid2d[endLngInt][endLatInt])
 
-			if !sphereGrid.VertexData[startLngInt][startLatInt] && !sphereGrid.VertexData[endLngInt][endLatInt] {
+			if !sphereGrid.VertexData[startM][startN] && !sphereGrid.VertexData[endM][endN] {
 				//fmt.Printf("start: %d / %d ", int(math.Round(startLat)), int(math.Round(startLng)))
 				//fmt.Printf("end: %d / %d\n", int(math.Round(endLat)), int(math.Round(endLng)))
 				var start = time.Now()
-				var route = dijkstra(startLngInt, startLatInt, endLngInt, endLatInt)
+				var route = dijkstra(startM, startN, endM, endN)
 
 				t := time.Now()
 				elapsed := t.Sub(start)
@@ -463,13 +487,11 @@ func main() {
 			}
 
 		} else if strings.Contains(r.URL.Path, "/grid") {
-			gridRaw, errJSON := os.Open("../data/output/gridTest.geojson")
-			if errJSON != nil {
-				panic(errJSON)
+			pointsJSON, err := json.Marshal(points)
+			if err != nil {
+				panic(err)
 			}
-			defer gridRaw.Close()
-			byteValue, _ := ioutil.ReadAll(gridRaw)
-			w.Write(byteValue)
+			w.Write(pointsJSON)
 		} else {
 			http.ServeFile(w, r, r.URL.Path[1:])
 		}

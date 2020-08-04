@@ -5,11 +5,13 @@ $.ajax({
     if (data == "false") {
 
     } else {
-        points = JSON.parse(data).coordinates
+        points = JSON.parse(data)
         for (i = 0; i < points.length; i++) {
-            point = points[i]
-            createRedPoint(Cesium.Cartesian3.fromDegrees(point[0], point[1]))
-            //createPoint(point[0],point[1])
+            for (j = 0; j < points[i].length; j++) {
+                point = points[i][j]
+                createRedPoint(Cesium.Cartesian3.fromDegrees(point[1], point[0]))
+                //createPoint(point[0],point[1])
+            }
         }
     }
 
@@ -142,29 +144,25 @@ function onLeftMouseClick(event) {
         const latitudeString = Cesium.Math.toDegrees(cartographic.latitude).toFixed(15);
         //console.log("1: ")
         //console.log(earthPosition)
+
         /*var data = {
             lat: latitudeString,
             lng: longitudeString,
         }
         $.ajax({
-            url: "/testneighbours",
+            url: "/testpoint",
             data: data
         }).done(function(response) {
             if (data == "false") {
 
             } else {
                 console.log(response)
-                var points = JSON.parse(response)
-                //
-                for (i = 0; i < points.length; i++) {
-                    point = points[i]
-                    createPoint(Cesium.Cartesian3.fromDegrees(point[1], point[0]));
-                }
+                var point = JSON.parse(response)
+                createPoint(Cesium.Cartesian3.fromDegrees(point[0], point[1]));
             }
 
-        });
+        });*/
 
-        */
         if (data["startLat"] == "") {
             data["startLat"] = latitudeString
             data["startLng"] = longitudeString
@@ -186,7 +184,7 @@ function onLeftMouseClick(event) {
                     var coord1d = []
                     for (i = 0; i < features.length; i++) {
                         var coordinates = features[i].geometry.coordinates;
-                        coordinates.forEach(element => coord1d.push(element[0], element[1]))
+                        coordinates.forEach(element => coord1d.push(element[1], element[0]))
                     }
                     drawLine(viewer, coord1d)
                 }
