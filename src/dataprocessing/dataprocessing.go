@@ -357,13 +357,15 @@ func Start(pbfFileName string, xSize, ySize int, createTestGeoJSON, createCoastl
 	var uniformGridTime = createUniformGrid(xSize, ySize, &uniformGrid, &boundingTreeRoot, &allCoastlines)
 	fmt.Printf("%v\n", uniformGridTime)
 
-	var meshgridTime = createMeshgrid(xSize, ySize, &boundingTreeRoot, &allCoastlines, &testGeoJSON, &meshgrid, createTestGeoJSON)
-	logging["time_meshgrid"] = string(meshgridTime)
+	/*
+		var meshgridTime = createMeshgrid(xSize, ySize, &boundingTreeRoot, &allCoastlines, &testGeoJSON, &meshgrid, createTestGeoJSON)
+		logging["time_meshgrid"] = string(meshgridTime)
 
-	var meshgridStoreTime = storeMeshgrid(&meshgrid, fmt.Sprintf("data/output/meshgrid_%d_%d.json", xSize, ySize))
-	logging["time_meshgrid_store"] = string(meshgridStoreTime)
-
+		var meshgridStoreTime = storeMeshgrid(&meshgrid, fmt.Sprintf("data/output/meshgrid_%d_%d.json", xSize, ySize))
+		logging["time_meshgrid_store"] = string(meshgridStoreTime)
+	*/
 	// Create and safe additional files
+
 	if createTestGeoJSON {
 		var testGeoJSONTime = storeTestGeoJSON(&testGeoJSON, fmt.Sprintf("data/output/test_for_%d_%d.geojson", xSize, ySize))
 		logging["time_testGeoJSON"] = string(testGeoJSONTime)

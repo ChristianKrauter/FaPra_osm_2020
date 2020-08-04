@@ -88,6 +88,18 @@ function createRedPoint(worldPosition) {
     return point;
 }
 
+function createBluePoint(worldPosition) {
+    var point = viewer.entities.add({
+        position: worldPosition,
+        point: {
+            color: Cesium.Color.GREEN,
+            pixelSize: 6,
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+        },
+    });
+    return point;
+}
+
 function drawLine(viewer, coords) {
     viewer.entities.add({
         polyline: {
@@ -167,10 +179,40 @@ function onLeftMouseClick(event) {
             data["startLat"] = latitudeString
             data["startLng"] = longitudeString
             createPoint(earthPosition);
+            var data2 = {
+                lat: latitudeString,
+                lng: longitudeString,
+            }
+
+            /*$.ajax({
+                url: "/testneighbours",
+                data: data2
+            }).done(function(response) {
+                    console.log(response)
+                    var points = JSON.parse(response)
+                    for (var i = 0; i < points.length; i++) {
+                        var point = points[i]
+                        createPoint(Cesium.Cartesian3.fromDegrees(point[1], point[0]));
+                    }
+            });*/
+
         } else {
 
             data["endLat"] = latitudeString
             data["endLng"] = longitudeString
+
+            var data2 = {
+                lat: latitudeString,
+                lng: longitudeString,
+            }
+            /*$.ajax({
+                url: "/testpoint",
+                data: data2
+            }).done(function(response) {
+                    console.log(response)
+                    var point = JSON.parse(response)
+                    createBluePoint(Cesium.Cartesian3.fromDegrees(point[0], point[1]));
+            });*/
 
             $.ajax({
                 url: "/point",
