@@ -169,17 +169,17 @@ func neighboursUniformGrid(in []int) []int {
 	neighbours = append(neighbours, []int{m, mod(n-1, len(sphereGrid.VertexData[m]))})
 	neighbours = append(neighbours, []int{m, mod(n+1, len(sphereGrid.VertexData[m]))})
 
-	coord := UniformGridToCoord(in, 10, 500)
+	coord := UniformGridToCoord(in, 100, 500)
 	//fmt.Printf("coord: %v\n", coord)
 	if m > 0 {
 		//fmt.Printf("m: %v\n", m)
-		coordDown := UniformGridToCoord([]int{m - 1, n}, 10, 500)
-		neighbours = append(neighbours, getNeighbours([]float64{coordDown[0], coord[1]}, 10, 500)...)
+		coordDown := UniformGridToCoord([]int{m - 1, n}, 100, 500)
+		neighbours = append(neighbours, getNeighbours([]float64{coordDown[0], coord[1]}, 100, 500)...)
 	}
 
 	if m < len(sphereGrid.VertexData)-1 {
-		coordUp := UniformGridToCoord([]int{m + 1, n}, 10, 500)
-		neighbours = append(neighbours, getNeighbours([]float64{coordUp[0], coord[1]}, 10, 500)...)
+		coordUp := UniformGridToCoord([]int{m + 1, n}, 100, 500)
+		neighbours = append(neighbours, getNeighbours([]float64{coordUp[0], coord[1]}, 100, 500)...)
 	}
 	var neighbours1d []int
 	//fmt.Printf("before:\n%v\n", neighbours)
@@ -200,17 +200,17 @@ func testNeighboursUniformGrid(in []int) [][]int {
 	neighbours = append(neighbours, []int{m, mod(n-1, len(sphereGrid.VertexData[m]))})
 	neighbours = append(neighbours, []int{m, mod(n+1, len(sphereGrid.VertexData[m]))})
 
-	coord := UniformGridToCoord(in, 10, 500)
+	coord := UniformGridToCoord(in, 100, 500)
 	//fmt.Printf("coord: %v\n", coord)
 	if m > 0 {
 		//fmt.Printf("m: %v\n", m)
-		coordDown := UniformGridToCoord([]int{m - 1, n}, 10, 500)
-		neighbours = append(neighbours, getNeighbours([]float64{coordDown[0], coord[1]}, 10, 500)...)
+		coordDown := UniformGridToCoord([]int{m - 1, n}, 100, 500)
+		neighbours = append(neighbours, getNeighbours([]float64{coordDown[0], coord[1]}, 100, 500)...)
 	}
 
 	if m < len(sphereGrid.VertexData)-1 {
-		coordUp := UniformGridToCoord([]int{m + 1, n}, 10, 500)
-		neighbours = append(neighbours, getNeighbours([]float64{coordUp[0], coord[1]}, 10, 500)...)
+		coordUp := UniformGridToCoord([]int{m + 1, n}, 100, 500)
+		neighbours = append(neighbours, getNeighbours([]float64{coordUp[0], coord[1]}, 100, 500)...)
 	}
 	return neighbours
 }
@@ -295,7 +295,7 @@ func extractRoute(prev *[]int, end int) [][][]float64 {
 			route = append(route, tempRoute)
 			tempRoute = make([][]float64, 0)
 		}
-		tempRoute = append(tempRoute, UniformGridToCoord([]int{x[0], x[1]}, 10, 500))
+		tempRoute = append(tempRoute, UniformGridToCoord([]int{x[0], x[1]}, 100, 500))
 
 		if (*prev)[end] == -1 {
 			break
@@ -366,7 +366,7 @@ func dijkstra(startLngInt, startLatInt, endLngInt, endLatInt int) [][][]float64 
 				p1 := []int{mu, nu}
 				mj, nj := sphereGrid.idToGrid(j)
 				p2 := []int{mj, nj}
-				var alt = dist[u] + distance(UniformGridToCoord(p1, 10, 500), UniformGridToCoord(p2, 10, 500))
+				var alt = dist[u] + distance(UniformGridToCoord(p1, 100, 500), UniformGridToCoord(p2, 100, 500))
 				//fmt.Printf("Distance: %v\n",distance(expandIndx(u), expandIndx(j)))
 				if alt < dist[j] {
 					dist[j] = alt
@@ -399,7 +399,7 @@ func main() {
 			meshgrid = append(meshgrid, meshgrid2d[j][i])
 		}
 	}
-	uniformGridRaw, errJSON2 := os.Open("../data/output/uniformGrid_360_360.json")
+	uniformGridRaw, errJSON2 := os.Open("../data/output/uniformGrid_100_500.json")
 	if errJSON2 != nil {
 		panic(errJSON2)
 	}
@@ -412,7 +412,7 @@ func main() {
 	for i := 0; i < len(sphereGrid.VertexData); i++ {
 		var pointRow [][]float64
 		for j := 0; j < len(sphereGrid.VertexData[i]); j++ {
-			pointRow = append(pointRow, UniformGridToCoord([]int{i, j}, 10, 500))
+			pointRow = append(pointRow, UniformGridToCoord([]int{i, j}, 100, 500))
 		}
 		points = append(points, pointRow)
 	}
@@ -431,13 +431,13 @@ func main() {
 				panic(err1)
 			}
 			fmt.Printf("Input:%v,%v\n", lat, lng)
-			gridPoint := dataprocessing.UniformCoordToGrid([]float64{lat, lng}, 10, 500)
+			gridPoint := dataprocessing.UniformCoordToGrid([]float64{lat, lng}, 100, 500)
 			fmt.Printf("gridPoint %v\n", gridPoint)
 			neighbours := testNeighboursUniformGrid(gridPoint)
 			var coords [][]float64
 			for _, x := range neighbours {
 				fmt.Printf("neighbour: %v\n", x)
-				coords = append(coords, UniformGridToCoord(x, 10, 500))
+				coords = append(coords, UniformGridToCoord(x, 100, 500))
 			}
 			byteCoords, errByteCoords := json.Marshal(coords)
 			if errByteCoords != nil {
@@ -457,7 +457,7 @@ func main() {
 				panic(err1)
 			}
 			fmt.Printf("\n \n nat, lng %v,%v\n", lat, lng)
-			gridPoint := dataprocessing.UniformCoordToGrid([]float64{lat, lng}, 10, 500)
+			gridPoint := dataprocessing.UniformCoordToGrid([]float64{lat, lng}, 100, 500)
 			var x = sphereGrid.gridToID(gridPoint[0], gridPoint[1])
 			fmt.Printf("x %v\n", x)
 			var y1, y2 = sphereGrid.idToGrid(x)
@@ -466,9 +466,9 @@ func main() {
 
 			/*
 				fmt.Printf("lat, lng %v,%v\n", lat, lng)
-				gridPoint := dataprocessing.UniformCoordToGrid([]float64{lat, lng}, 10, 500)
+				gridPoint := dataprocessing.UniformCoordToGrid([]float64{lat, lng}, 100, 500)
 				fmt.Printf("gridpoint %v\n", gridPoint)
-				coords := dataprocessing.UniformGridToCoord(gridPoint, 10, 500)
+				coords := dataprocessing.UniformGridToCoord(gridPoint, 100, 500)
 				fmt.Printf("coords %v,%v\n", coords[1], coords[0])
 				byteCoords, errByteCoords := json.Marshal(coords)
 				if errByteCoords != nil {
@@ -495,11 +495,11 @@ func main() {
 				panic(err3)
 			}
 
-			var start = UniformCoordToGrid([]float64{startLat, startLng}, 10, 500)
+			var start = UniformCoordToGrid([]float64{startLat, startLng}, 100, 500)
 			var startM = start[0]
 			var startN = start[1]
 
-			var end = UniformCoordToGrid([]float64{endLat, endLng}, 10, 500)
+			var end = UniformCoordToGrid([]float64{endLat, endLng}, 100, 500)
 			var endM = end[0]
 			var endN = end[1]
 
