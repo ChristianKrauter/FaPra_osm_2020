@@ -42,10 +42,10 @@ func createPoint(theta float64, phi float64) []float64 {
 	//x := 57.296 * math.Sin(theta)*math.Cos(phi)
 	//y := 57.296 * math.Sin(theta)*math.Sin(phi)
 	//z := 57.296 * math.Cos(theta)
-	return []float64{phi / math.Pi * 180, theta/math.Pi*180 - 90}
+	return []float64{theta/math.Pi*180 - 90, phi / math.Pi * 180}
 }
 
-// UniformGridToCoord ...
+// UniformGridToCoord returns lat, lng for grid coordinates
 func UniformGridToCoord(in []int, xSize, ySize int) []float64 {
 	m := float64(in[0])
 	n := float64(in[1])
@@ -58,10 +58,10 @@ func UniformGridToCoord(in []int, xSize, ySize int) []float64 {
 	theta := math.Pi * (m + 0.5) / mTheta
 	mPhi := math.Round(2.0 * math.Pi * math.Sin(theta) / dPhi)
 	phi := 2 * math.Pi * n / mPhi
-	return []float64{(phi / math.Pi) * 180, (theta/math.Pi)*180 - 90}
+	return []float64{(theta/math.Pi)*180 - 90, (phi / math.Pi) * 180}
 }
 
-// UniformCoordToGrid ...
+// UniformCoordToGrid returns grid coordinates given lat, lng
 func UniformCoordToGrid(in []float64, xSize, ySize int) []int {
 	N := float64(xSize * ySize)
 	a := 4.0 * math.Pi / N
@@ -73,17 +73,15 @@ func UniformCoordToGrid(in []float64, xSize, ySize int) []int {
 	theta := (in[0] + 90) * math.Pi / 180
 	m := math.Round((theta * mTheta / math.Pi) - 0.5)
 
-	theta = math.Pi * (m + 0.5) / mTheta
-
 	phi := in[1] * math.Pi / 180
 	mPhi := math.Round(2.0 * math.Pi * math.Sin(theta) / dPhi)
 	n := math.Round(phi * mPhi / (2 * math.Pi))
+
 	return []int{mod(int(m), int(mTheta)), mod(int(n), int(mPhi))}
 }
 
 func createUniformGrid(xSize, ySize int, sphereGrid *SphereGrid, boundingTreeRoot *boundingTree, allCoastlines *[][][]float64) string {
 	start := time.Now()
-	var points [][]float64
 	var grid [][]bool
 	var firstIndexOf []int
 	N := float64(xSize * ySize)
@@ -100,11 +98,13 @@ func createUniformGrid(xSize, ySize int, sphereGrid *SphereGrid, boundingTreeRoo
 		var gridRow []bool
 		firstIndexOf = append(firstIndexOf, int(nCount))
 		for n := 0.0; n < mPhi; n += 1.0 {
-			phi := 2 * math.Pi * n / mPhi
-			points = append(points, createPoint(theta, phi))
+			// phi := 2 * math.Pi * n / mPhi
 			nCount++
 			coords := UniformGridToCoord([]int{int(m), int(n)}, xSize, ySize)
-			if isLand(boundingTreeRoot, []float64{coords[0], coords[1]}, allCoastlines) {
+			if coords[0] > 90 {
+				fmt.Printf("coords: %v\n", coords)
+			}
+			if isLand(boundingTreeRoot, []float64{coords[1], coords[0]}, allCoastlines) {
 				gridRow = append(gridRow, true)
 			} else {
 				gridRow = append(gridRow, false)

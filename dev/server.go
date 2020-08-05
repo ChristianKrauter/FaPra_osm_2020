@@ -1,7 +1,7 @@
 package main
 
 import (
-	"../src/dataprocessing"
+	//"../src/dataprocessing"
 	"encoding/json"
 	"fmt"
 	"github.com/paulmach/go.geojson"
@@ -184,7 +184,9 @@ func neighboursUniformGrid(in []int) []int {
 	var neighbours1d []int
 	//fmt.Printf("before:\n%v\n", neighbours)
 	for _, neighbour := range neighbours {
-		neighbours1d = append(neighbours1d, sphereGrid.gridToID(neighbour[0], neighbour[1]))
+		if !sphereGrid.VertexData[neighbour[0]][neighbour[1]] {
+			neighbours1d = append(neighbours1d, sphereGrid.gridToID(neighbour[0], neighbour[1]))
+		}
 	}
 	return neighbours1d
 }
@@ -412,7 +414,9 @@ func main() {
 	for i := 0; i < len(sphereGrid.VertexData); i++ {
 		var pointRow [][]float64
 		for j := 0; j < len(sphereGrid.VertexData[i]); j++ {
-			pointRow = append(pointRow, UniformGridToCoord([]int{i, j}, 100, 500))
+			if sphereGrid.VertexData[i][j] {
+				pointRow = append(pointRow, UniformGridToCoord([]int{i, j}, 100, 500))
+			}
 		}
 		points = append(points, pointRow)
 	}
@@ -431,7 +435,7 @@ func main() {
 				panic(err1)
 			}
 			fmt.Printf("Input:%v,%v\n", lat, lng)
-			gridPoint := dataprocessing.UniformCoordToGrid([]float64{lat, lng}, 100, 500)
+			gridPoint := UniformCoordToGrid([]float64{lat, lng}, 100, 500)
 			fmt.Printf("gridPoint %v\n", gridPoint)
 			neighbours := testNeighboursUniformGrid(gridPoint)
 			var coords [][]float64
@@ -457,24 +461,20 @@ func main() {
 				panic(err1)
 			}
 			fmt.Printf("\n \n nat, lng %v,%v\n", lat, lng)
-			gridPoint := dataprocessing.UniformCoordToGrid([]float64{lat, lng}, 100, 500)
+			gridPoint := UniformCoordToGrid([]float64{lat, lng}, 100, 500)
 			var x = sphereGrid.gridToID(gridPoint[0], gridPoint[1])
 			fmt.Printf("x %v\n", x)
-			var y1, y2 = sphereGrid.idToGrid(x)
+			var m, n = sphereGrid.idToGrid(x)
 			fmt.Printf("gridpoint %v\n", gridPoint)
-			fmt.Printf("y1,y2 %v %v\n", y1, y2)
+			fmt.Printf("m,n %v %v\n", m, n)
 
-			/*
-				fmt.Printf("lat, lng %v,%v\n", lat, lng)
-				gridPoint := dataprocessing.UniformCoordToGrid([]float64{lat, lng}, 100, 500)
-				fmt.Printf("gridpoint %v\n", gridPoint)
-				coords := dataprocessing.UniformGridToCoord(gridPoint, 100, 500)
-				fmt.Printf("coords %v,%v\n", coords[1], coords[0])
-				byteCoords, errByteCoords := json.Marshal(coords)
-				if errByteCoords != nil {
-					panic(errByteCoords)
-				}*/
-			//w.Write(byteCoords)
+			coords := UniformGridToCoord(gridPoint, 100, 500)
+			fmt.Printf("coords %v,%v\n", coords[0], coords[1])
+			byteCoords, errByteCoords := json.Marshal(coords)
+			if errByteCoords != nil {
+				panic(errByteCoords)
+			}
+			w.Write(byteCoords)
 
 		} else if strings.Contains(r.URL.Path, "/point") {
 			query := r.URL.Query()

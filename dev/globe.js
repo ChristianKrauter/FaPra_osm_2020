@@ -7,10 +7,12 @@ $.ajax({
     } else {
         points = JSON.parse(data)
         for (i = 0; i < points.length; i++) {
-            for (j = 0; j < points[i].length; j++) {
-                point = points[i][j]
-                createRedPoint(Cesium.Cartesian3.fromDegrees(point[1], point[0]))
-                //createPoint(point[0],point[1])
+            if (points[i]) {
+                for (j = 0; j < points[i].length; j++) {
+                    point = points[i][j]
+                    createRedPoint(Cesium.Cartesian3.fromDegrees(point[1], point[0]))
+                    //createPoint(point[0],point[1])
+                }
             }
         }
     }
@@ -170,7 +172,7 @@ function onLeftMouseClick(event) {
             } else {
                 console.log(response)
                 var point = JSON.parse(response)
-                createPoint(Cesium.Cartesian3.fromDegrees(point[0], point[1]));
+                createPoint(Cesium.Cartesian3.fromDegrees(point[1], point[0]));
             }
 
         });*/
@@ -183,6 +185,15 @@ function onLeftMouseClick(event) {
                 lat: latitudeString,
                 lng: longitudeString,
             }
+            $.ajax({
+                url: "/testpoint",
+                data: data2
+            }).done(function(response) {
+                    console.log(response)
+                    var point = JSON.parse(response)
+                    // Takes lng lat
+                    createBluePoint(Cesium.Cartesian3.fromDegrees(point[1], point[0]));
+            });
 
             /*$.ajax({
                 url: "/testneighbours",
@@ -205,14 +216,14 @@ function onLeftMouseClick(event) {
                 lat: latitudeString,
                 lng: longitudeString,
             }
-            /*$.ajax({
+            $.ajax({
                 url: "/testpoint",
                 data: data2
             }).done(function(response) {
                     console.log(response)
                     var point = JSON.parse(response)
-                    createBluePoint(Cesium.Cartesian3.fromDegrees(point[0], point[1]));
-            });*/
+                    createBluePoint(Cesium.Cartesian3.fromDegrees(point[1], point[0]));
+            });
 
             $.ajax({
                 url: "/point",
