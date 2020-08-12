@@ -203,6 +203,22 @@ func countBoundingTree(bt boundingTree) int {
 	return count
 }
 
+func isLandSphere(tree *boundingTree, point []float64, allCoastlines *[][][]float64) bool {
+	land := false
+	if boundingContains(&tree.boundingBox, point) {
+		for _, child := range (*tree).children {
+			land = isLandSphere(&child, point, allCoastlines)
+			if land {
+				return land
+			}
+		}
+		if (*tree).id >= 0 {
+			land = polygonContainsSphere(&(*allCoastlines)[(*tree).id], point)
+		}
+	}
+	return land
+}
+
 func isLand(tree *boundingTree, point []float64, allCoastlines *[][][]float64) bool {
 	land := false
 	if boundingContains(&tree.boundingBox, point) {

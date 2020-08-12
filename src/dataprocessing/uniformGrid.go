@@ -104,7 +104,7 @@ func createUniformGrid(xSize, ySize int, sphereGrid *SphereGrid, boundingTreeRoo
 			if coords[0] > 90 {
 				fmt.Printf("coords: %v\n", coords)
 			}
-			if isLand(boundingTreeRoot, []float64{coords[1], coords[0]}, allCoastlines) {
+			if isLandSphere(boundingTreeRoot, []float64{coords[1], coords[0]}, allCoastlines) {
 				gridRow = append(gridRow, true)
 			} else {
 				gridRow = append(gridRow, false)
