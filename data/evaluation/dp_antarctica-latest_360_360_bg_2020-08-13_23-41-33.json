@@ -1,0 +1,1 @@
+{"basicGrid":"true","filename":"_bg","note":"","numCPU":"4","pbfFileName":"antarctica-latest.osm.pbf","simplePointInPolygon":"false","time_boundingTree":"372.0048ms","time_meshgrid":"775.9251ms","time_meshgrid_store":"15.9555ms","time_poly":"180.5176ms","time_read":"3.078738s","time_total":"4.4381029s","totalAlloc":"3108","xSize":"360","ySize":"360"}
