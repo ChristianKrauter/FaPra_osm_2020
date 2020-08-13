@@ -69,6 +69,15 @@ func Run(xSize, ySize int) {
 		}
 	}
 
+	var points [][]float64
+	for i := 0; i < xSize; i++ {
+		for j := 0; j < ySize; j++ {
+			if meshgrid2d[i][j] {
+				points = append(points, algorithms.GridToCoord([]int64{int64(i), int64(j)}, int64(xSize), int64(ySize)))
+			}
+		}
+	}
+
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 
 		var fileEnding = strings.Split(r.URL.Path[1:], ".")[len(strings.Split(r.URL.Path[1:], "."))-1]
@@ -144,6 +153,12 @@ func Run(xSize, ySize int) {
 
 		} else if fileEnding == "js" || fileEnding == "html" || fileEnding == "css" {
 			http.ServeFile(w, r, r.URL.Path[1:])
+		} else if strings.Contains(r.URL.Path, "/basicGrid") {
+			pointsJSON, err := json.Marshal(points)
+			if err != nil {
+				panic(err)
+			}
+			w.Write(pointsJSON)
 		} else {
 			http.ServeFile(w, r, "src/server/globe.html")
 		}

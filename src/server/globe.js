@@ -151,7 +151,6 @@ function dijkstraAllNodesProcessing(jsonData) {
 
 }
 
-
 function onLeftMouseClick(event) {
     // We use `viewer.scene.pickPosition` here instead of `viewer.camera.pickEllipsoid` so that
     // we get the correct point when mousing over terrain.
@@ -235,6 +234,34 @@ var options = [{
     },
 ];
 
+$.ajax({
+    url: "/basicGrid",
+    data: data
+}).done(function(data) {
+    if (data == "false") {
+
+    } else {
+        points = JSON.parse(data)
+        console.log(points)
+        for (i = 0; i < points.length; i++) {
+            createRedPoint(Cesium.Cartesian3.fromDegrees(points[i][0], points[i][1]))
+            //createPoint(point[0],point[1])
+        }
+    }
+
+});
+
+function createRedPoint(worldPosition) {
+    var point = viewer.entities.add({
+        position: worldPosition,
+        point: {
+            color: Cesium.Color.RED,
+            pixelSize: 4,
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+        },
+    });
+    return point;
+}
 
 // Zoom in to an area with mountains
 viewer.camera.lookAt(
