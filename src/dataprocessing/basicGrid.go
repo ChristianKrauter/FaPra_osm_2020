@@ -8,7 +8,13 @@ import (
 	"time"
 )
 
-func createMeshgrid(xSize int, ySize int, boundingTreeRoot *boundingTree, allCoastlines *[][][]float64, testGeoJSON *[][]float64, meshgrid *[][]bool, createTestGeoJSON bool) string {
+func check(e error) {
+	if e != nil {
+		panic(e)
+	}
+}
+
+func createMeshgrid(xSize int, ySize int, boundingTreeRoot *boundingTree, allCoastlines *[][][]float64, testGeoJSON *[][]float64, meshgrid *[][]bool, createTestGeoJSON, simplePointInPolygon bool) string {
 	start := time.Now()
 	var xStepSize = float64(360 / xSize)
 	var yStepSize = float64(360 / ySize)
@@ -21,10 +27,19 @@ func createMeshgrid(xSize int, ySize int, boundingTreeRoot *boundingTree, allCoa
 				defer wg.Done()
 				var xs = x - 180
 				var ys = (y / 2) - 90
-				if isLand(boundingTreeRoot, []float64{xs, ys}, allCoastlines) {
-					(*meshgrid)[int(x/xStepSize)][int(y/yStepSize)] = true
-					if createTestGeoJSON {
-						*testGeoJSON = append(*testGeoJSON, []float64{xs, ys})
+				if simplePointInPolygon {
+					if isLand(boundingTreeRoot, []float64{xs, ys}, allCoastlines) {
+						(*meshgrid)[int(x/xStepSize)][int(y/yStepSize)] = true
+						if createTestGeoJSON {
+							*testGeoJSON = append(*testGeoJSON, []float64{xs, ys})
+						}
+					}
+				} else {
+					if isLandSphere(boundingTreeRoot, []float64{xs, ys}, allCoastlines) {
+						(*meshgrid)[int(x/xStepSize)][int(y/yStepSize)] = true
+						if createTestGeoJSON {
+							*testGeoJSON = append(*testGeoJSON, []float64{xs, ys})
+						}
 					}
 				}
 			}(x, y)

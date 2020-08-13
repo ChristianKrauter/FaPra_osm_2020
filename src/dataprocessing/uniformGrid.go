@@ -1,6 +1,7 @@
 package dataprocessing
 
 import (
+	"../algorithms"
 	"fmt"
 	//"github.com/paulmach/go.geojson"
 	"encoding/json"
@@ -34,8 +35,7 @@ func createPoint(theta float64, phi float64) []float64 {
 	return []float64{theta/math.Pi*180 - 90, phi / math.Pi * 180}
 }
 
-
-func createUniformGrid(xSize, ySize int, sphereGrid *SphereGrid, boundingTreeRoot *boundingTree, allCoastlines *[][][]float64) string {
+func createUniformGrid(xSize, ySize int, boundingTreeRoot *boundingTree, allCoastlines *[][][]float64, testGeoJSON *[][]float64, uniformGrid *UniformGrid, createTestGeoJSON, simplePointInPolygon bool) string {
 	start := time.Now()
 	var grid [][]bool
 	var firstIndexOf []int
@@ -59,11 +59,26 @@ func createUniformGrid(xSize, ySize int, sphereGrid *SphereGrid, boundingTreeRoo
 			if coords[0] > 90 {
 				fmt.Printf("coords: %v\n", coords)
 			}
-			if isLandSphere(boundingTreeRoot, []float64{coords[1], coords[0]}, allCoastlines) {
-				gridRow = append(gridRow, true)
+			if simplePointInPolygon {
+				if isLand(boundingTreeRoot, []float64{coords[1], coords[0]}, allCoastlines) {
+					gridRow = append(gridRow, true)
+					if createTestGeoJSON {
+						*testGeoJSON = append(*testGeoJSON, []float64{coords[0], coords[1]})
+					}
+				} else {
+					gridRow = append(gridRow, false)
+				}
 			} else {
-				gridRow = append(gridRow, false)
+				if isLandSphere(boundingTreeRoot, []float64{coords[1], coords[0]}, allCoastlines) {
+					gridRow = append(gridRow, true)
+					if createTestGeoJSON {
+						*testGeoJSON = append(*testGeoJSON, []float64{coords[0], coords[1]})
+					}
+				} else {
+					gridRow = append(gridRow, false)
+				}
 			}
+
 		}
 		// fmt.Printf("%v\n", gridRow)
 		grid = append(grid, gridRow)
@@ -76,33 +91,23 @@ func createUniformGrid(xSize, ySize int, sphereGrid *SphereGrid, boundingTreeRoo
 	t := time.Now()
 	elapsed := t.Sub(start)
 	fmt.Printf("Created Uniform Grid in          : %s\n", elapsed)
-	var rawJSON []byte
-	rawJSON, err4 := json.Marshal(*sphereGrid)
-	check(err4)
-	var jsonFilename = fmt.Sprintf("data/output/uniformGrid_%v_%v.json", xSize, ySize)
-	f, err5 := os.Create(jsonFilename)
-	check(err5)
-	_, err6 := f.Write(rawJSON)
-	check(err6)
-	f.Sync()
 
 	return elapsed.String()
+}
 
-	// return grid
+func storeUniformGrid(uniformGrid *UniformGrid, filename string) string {
+	start := time.Now()
+	var meshgridBytes []byte
+	meshgridBytes, err1 := json.Marshal(uniformGrid)
+	check(err1)
+	f, err2 := os.Create(filename)
+	check(err2)
+	_, err3 := f.Write(meshgridBytes)
+	check(err3)
+	f.Sync()
 
-	/*dict := make(map[float64][][]float64)
-		for _,point := range points {
-			if val,ok := dict[point[0]]; ok {
-				dict[point[1]] = append(val,point)
-			} else{
-				dict[point[1]] = [][]float64{point}
-			}
-		}
-
-		keys := make([]float64, 0, len(dict))
-	    for k := range dict {
-	        keys = append(keys, k)
-	    }
-	    sort.Float64s(keys)
-	*/
+	t := time.Now()
+	elapsed := t.Sub(start)
+	fmt.Printf("Stored Meshrid to disc in        : %s\n", elapsed)
+	return elapsed.String()
 }

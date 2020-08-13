@@ -52,9 +52,15 @@ func testExtractRoute(points *[][]int64, xSize, ySize int64) [][][]float64 {
 	return route
 }
 
-// Run the server
-func Run(xSize, ySize int) {
-	filename := fmt.Sprintf("data/output/meshgrid_%v_%v.json", xSize, ySize)
+// Run the server with the basic grid
+func Run(xSize, ySize int, simplePointInPolygon bool) {
+	var filename string
+	if simplePointInPolygon {
+		filename = fmt.Sprintf("data/output/meshgrid_%v_%v_spip.json", xSize, ySize)
+	} else {
+		filename = fmt.Sprintf("data/output/meshgrid_%v_%v.json", xSize, ySize)
+	}
+
 	meshgridRaw, errJSON := os.Open(filename)
 	if errJSON != nil {
 		panic(errJSON)
@@ -167,4 +173,9 @@ func Run(xSize, ySize int) {
 	var portStr = fmt.Sprintf(":%d", port)
 	fmt.Printf(" on localhost%s\n", portStr)
 	log.Fatal(http.ListenAndServe(portStr, nil))
+}
+
+// RunUnidistant server
+func RunUnidistant(xSize, ySize int, simplePointInPolygon bool) {
+	log.Fatal("Server with unidistant grid not implemented.")
 }
