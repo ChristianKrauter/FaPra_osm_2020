@@ -10,18 +10,18 @@ import (
 	"time"
 )
 
-// SphereGrid ...
-type SphereGrid struct {
+// UniformGrid ...
+type UniformGrid struct {
 	N            int
 	VertexData   [][]bool
 	FirstIndexOf []int
 }
 
-func (sg SphereGrid) gridToID(m, n int) int {
+func (sg UniformGrid) gridToID(m, n int) int {
 	return sg.FirstIndexOf[m] + n
 }
 
-func (sg SphereGrid) idToGrid(id int) (int, int) {
+func (sg UniformGrid) idToGrid(id int) (int, int) {
 	m := sort.Search(len(sg.FirstIndexOf)-1, func(i int) bool { return sg.FirstIndexOf[i] > id })
 	n := id - sg.FirstIndexOf[m-1]
 	return m - 1, n
@@ -69,9 +69,9 @@ func createUniformGrid(xSize, ySize int, sphereGrid *SphereGrid, boundingTreeRoo
 		grid = append(grid, gridRow)
 	}
 
-	(*sphereGrid).N = nCount
-	(*sphereGrid).FirstIndexOf = firstIndexOf
-	(*sphereGrid).VertexData = grid
+	(*uniformGrid).N = nCount
+	(*uniformGrid).FirstIndexOf = firstIndexOf
+	(*uniformGrid).VertexData = grid
 
 	t := time.Now()
 	elapsed := t.Sub(start)
