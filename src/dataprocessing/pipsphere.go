@@ -100,3 +100,44 @@ func pointInPolygonSphere(polygon *[][]float64, point []float64) bool {
 
 	return inside
 }
+
+func rayCastSphere(point, s, e []float64) (bool, bool) {
+	if s[0] > e[0] {
+		s, e = e, s
+	}
+	return true, true
+}
+
+func polygonContainsSphere(polygon *[][]float64, point []float64) bool {
+	b, on := rayCastSphere(point, (*polygon)[0], (*polygon)[len(*polygon)-1])
+	if on {
+		return true
+	}
+
+	for i := 0; i < len(*polygon)-1; i++ {
+		inter, on := rayCastSphere(point, (*polygon)[i], (*polygon)[i+1])
+		if on {
+			return true
+		}
+		if inter {
+			b = !b
+		}
+	}
+	return b
+}
+
+func isLandSphere(tree *boundingTree, point []float64, allCoastlines *[][][]float64) bool {
+	land := false
+	if boundingContains(&tree.boundingBox, point) {
+		for _, child := range (*tree).children {
+			land = isLandSphere(&child, point, allCoastlines)
+			if land {
+				return land
+			}
+		}
+		if (*tree).id >= 0 {
+			land = polygonContainsSphere(&(*allCoastlines)[(*tree).id], point)
+		}
+	}
+	return land
+}

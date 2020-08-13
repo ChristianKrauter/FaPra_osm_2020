@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/paulmach/go.geojson"
 	"log"
-	"math"
 	"os"
 	"sort"
 	"time"
@@ -25,12 +24,6 @@ func (p arrayOfArrays) Less(i, j int) bool {
 	return len(p[i]) > len(p[j])
 }
 
-func check(e error) {
-	if e != nil {
-		panic(e)
-	}
-}
-
 func getSomeKey(m *map[int64][]int64) int64 {
 	for k := range *m {
 		return k
@@ -38,24 +31,6 @@ func getSomeKey(m *map[int64][]int64) int64 {
 	return 0
 }
 
-
-func polygonContainsSphere(polygon *[][]float64, point []float64) bool {
-	b, on := rayCastSphere(point, (*polygon)[0], (*polygon)[len(*polygon)-1])
-	if on {
-		return true
-	}
-
-	for i := 0; i < len(*polygon)-1; i++ {
-		inter, on := rayCastSphere(point, (*polygon)[i], (*polygon)[i+1])
-		if on {
-			return true
-		}
-		if inter {
-			b = !b
-		}
-	}
-	return b
-}
 
 func boundingContains(bounding *map[string]float64, point []float64) bool {
 	if (*bounding)["minX"] <= point[0] && point[0] <= (*bounding)["maxX"] {
@@ -117,37 +92,6 @@ func countBoundingTree(bt boundingTree) int {
 	return count
 }
 
-func isLandSphere(tree *boundingTree, point []float64, allCoastlines *[][][]float64) bool {
-	land := false
-	if boundingContains(&tree.boundingBox, point) {
-		for _, child := range (*tree).children {
-			land = isLandSphere(&child, point, allCoastlines)
-			if land {
-				return land
-			}
-		}
-		if (*tree).id >= 0 {
-			land = polygonContainsSphere(&(*allCoastlines)[(*tree).id], point)
-		}
-	}
-	return land
-}
-
-func isLand(tree *boundingTree, point []float64, allCoastlines *[][][]float64) bool {
-	land := false
-	if boundingContains(&tree.boundingBox, point) {
-		for _, child := range (*tree).children {
-			land = isLand(&child, point, allCoastlines)
-			if land {
-				return land
-			}
-		}
-		if (*tree).id >= 0 {
-			land = polygonContains(&(*allCoastlines)[(*tree).id], point)
-		}
-	}
-	return land
-}
 
 func createPolygons(allCoastlines *[][][]float64, coastlineMap *map[int64][]int64, nodeMap *map[int64][]float64) string {
 	start := time.Now()
