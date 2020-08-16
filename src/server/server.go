@@ -68,9 +68,9 @@ func Run(xSize, ySize int, basicPointInPolygon bool) {
 	byteValue, _ := ioutil.ReadAll(meshgridRaw)
 	json.Unmarshal(byteValue, &meshgrid2d)
 
-	for i := 0; i < len(meshgrid2d[0]); i++ {
-		for j := 0; j < len(meshgrid2d); j++ {
-			meshgrid = append(meshgrid, meshgrid2d[j][i])
+	for i := 0; i < len(meshgrid2d); i++ {
+		for j := 0; j < len(meshgrid2d[i]); j++ {
+			meshgrid = append(meshgrid, meshgrid2d[i][j])
 		}
 	}
 

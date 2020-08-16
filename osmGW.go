@@ -62,7 +62,8 @@ func main() {
 		fmt.Printf("Starting evaluation of data processing for %s", info)
 		evaluate.DataProcessing(pbfFileName, note, xSize, ySize, createTestGeoJSON, createCoastlineGeoJSON, lessMemory, noBoundingTree, basicGrid, basicPointInPolygon)
 	case 3:
-		fmt.Printf("Evaluation of wayfinding not implemented")
+		fmt.Printf("Starting evaluation of wayfinding for %s", info)
+		evaluate.WayFinding(xSize, ySize, 0, basicPointInPolygon)
 	default:
 		fmt.Printf("Error: No mode %d specified", mode)
 	}
