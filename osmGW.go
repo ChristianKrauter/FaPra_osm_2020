@@ -32,7 +32,7 @@ func main() {
 	flag.BoolVar(&lessMemory, "lm", false, "Use memory efficient method to read unpruned pbf files.")
 	flag.BoolVar(&noBoundingTree, "nbt", false, "Do not use a tree structure for the bounding boxes.")
 	flag.BoolVar(&basicGrid, "bg", false, "Create a basic (non-unidistant) grid.")
-	flag.BoolVar(&basicPointInPolygon, "bpip", false, "Use a simple 2D point in polygon test.")
+	flag.BoolVar(&basicPointInPolygon, "bpip", false, "Use a basic 2D point in polygon test.")
 	flag.Parse()
 
 	var info string
@@ -42,9 +42,9 @@ func main() {
 		info += fmt.Sprintf("uniform %vx%v grid ", xSize, ySize)
 	}
 	if basicPointInPolygon {
-		info += "\nwith the simple point in polygon test"
+		info += "\nwith the basic point in polygon test"
 	} else {
-		info += "\nwith the advanced point in polygon test"
+		info += "\nwith the spherical point in polygon test"
 	}
 
 	switch mode {
