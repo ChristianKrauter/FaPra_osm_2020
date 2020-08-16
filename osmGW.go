@@ -20,7 +20,7 @@ func main() {
 	var lessMemory bool
 	var noBoundingTree bool
 	var basicGrid bool
-	var simplePointInPolygon bool
+	var basicPointInPolygon bool
 
 	flag.StringVar(&pbfFileName, "f", "antarctica-latest.osm.pbf", "Name of the pbf file inside data/")
 	flag.IntVar(&xSize, "x", 360, "Meshgrid size in x direction.")
@@ -32,7 +32,7 @@ func main() {
 	flag.BoolVar(&lessMemory, "lm", false, "Use memory efficient method to read unpruned pbf files.")
 	flag.BoolVar(&noBoundingTree, "nbt", false, "Do not use a tree structure for the bounding boxes.")
 	flag.BoolVar(&basicGrid, "bg", false, "Create a basic (non-unidistant) grid.")
-	flag.BoolVar(&simplePointInPolygon, "spip", false, "Use a simple 2D point in polygon test.")
+	flag.BoolVar(&basicPointInPolygon, "bpip", false, "Use a simple 2D point in polygon test.")
 	flag.Parse()
 
 	var info string
@@ -41,7 +41,7 @@ func main() {
 	} else {
 		info += fmt.Sprintf("uniform %vx%v grid ", xSize, ySize)
 	}
-	if simplePointInPolygon {
+	if basicPointInPolygon {
 		info += "\nwith the simple point in polygon test"
 	} else {
 		info += "\nwith the advanced point in polygon test"
@@ -51,16 +51,16 @@ func main() {
 	case 0:
 		fmt.Printf("Starting osmGW server with a %s", info)
 		if basicGrid {
-			server.Run(xSize, ySize, simplePointInPolygon)
+			server.Run(xSize, ySize, basicPointInPolygon)
 		} else {
-			server.RunUnidistant(xSize, ySize, simplePointInPolygon)
+			server.RunUnidistant(xSize, ySize, basicPointInPolygon)
 		}
 	case 1:
 		fmt.Printf("Starting data processing for a %s", info)
-		dataprocessing.Start(pbfFileName, xSize, ySize, createTestGeoJSON, createCoastlineGeoJSON, lessMemory, noBoundingTree, basicGrid, simplePointInPolygon)
+		dataprocessing.Start(pbfFileName, xSize, ySize, createTestGeoJSON, createCoastlineGeoJSON, lessMemory, noBoundingTree, basicGrid, basicPointInPolygon)
 	case 2:
 		fmt.Printf("Starting evaluation of data processing for %s", info)
-		evaluate.DataProcessing(pbfFileName, note, xSize, ySize, createTestGeoJSON, createCoastlineGeoJSON, lessMemory, noBoundingTree, basicGrid, simplePointInPolygon)
+		evaluate.DataProcessing(pbfFileName, note, xSize, ySize, createTestGeoJSON, createCoastlineGeoJSON, lessMemory, noBoundingTree, basicGrid, basicPointInPolygon)
 	case 3:
 		fmt.Printf("Evaluation of wayfinding not implemented")
 	default:

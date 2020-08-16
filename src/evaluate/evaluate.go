@@ -14,15 +14,15 @@ import (
 )
 
 // DataProcessing is evaluated
-func DataProcessing(pbfFileName, note string, xSize, ySize int, createTestGeoJSON, createCoastlineGeoJSON, lessMemory, noBoundingTree, basicGrid, simplePointInPolygon bool) {
-	var logging = dataprocessing.Start(pbfFileName, xSize, ySize, createTestGeoJSON, createCoastlineGeoJSON, lessMemory, noBoundingTree, basicGrid, simplePointInPolygon)
+func DataProcessing(pbfFileName, note string, xSize, ySize int, createTestGeoJSON, createCoastlineGeoJSON, lessMemory, noBoundingTree, basicGrid, basicPointInPolygon bool) {
+	var logging = dataprocessing.Start(pbfFileName, xSize, ySize, createTestGeoJSON, createCoastlineGeoJSON, lessMemory, noBoundingTree, basicGrid, basicPointInPolygon)
 
 	var m runtime.MemStats
 	runtime.ReadMemStats(&m)
 	logging["pbfFileName"] = pbfFileName
 	logging["note"] = note
 	logging["basicGrid"] = strconv.FormatBool(basicGrid)
-	logging["simplePointInPolygon"] = strconv.FormatBool(simplePointInPolygon)
+	logging["basicPointInPolygon"] = strconv.FormatBool(basicPointInPolygon)
 	logging["xSize"] = strconv.Itoa(xSize)
 	logging["ySize"] = strconv.Itoa(ySize)
 	logging["numCPU"] = strconv.Itoa(runtime.NumCPU())

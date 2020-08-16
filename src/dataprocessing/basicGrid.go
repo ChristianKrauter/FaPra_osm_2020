@@ -14,7 +14,7 @@ func check(e error) {
 	}
 }
 
-func createMeshgrid(xSize int, ySize int, boundingTreeRoot *boundingTree, allCoastlines *[][][]float64, testGeoJSON *[][]float64, meshgrid *[][]bool, createTestGeoJSON, simplePointInPolygon bool) string {
+func createMeshgrid(xSize int, ySize int, boundingTreeRoot *boundingTree, allCoastlines *[][][]float64, testGeoJSON *[][]float64, meshgrid *[][]bool, createTestGeoJSON, basicPointInPolygon bool) string {
 	start := time.Now()
 	var xStepSize = float64(360 / xSize)
 	var yStepSize = float64(360 / ySize)
@@ -27,7 +27,7 @@ func createMeshgrid(xSize int, ySize int, boundingTreeRoot *boundingTree, allCoa
 				defer wg.Done()
 				var xs = x - 180
 				var ys = (y / 2) - 90
-				if simplePointInPolygon {
+				if basicPointInPolygon {
 					if isLand(boundingTreeRoot, []float64{xs, ys}, allCoastlines) {
 						(*meshgrid)[int(x/xStepSize)][int(y/yStepSize)] = true
 						if createTestGeoJSON {

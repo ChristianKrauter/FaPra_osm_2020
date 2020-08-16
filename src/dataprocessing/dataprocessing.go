@@ -109,7 +109,7 @@ func createAndStoreCoastlineGeoJSON(allCoastlines *[][][]float64, filename strin
 }
 
 // Start processing a pbf file to create a meshgrid
-func Start(pbfFileName string, xSize, ySize int, createTestGeoJSON, createCoastlineGeoJSON, lessMemory, noBoundingTree, basicGrid, simplePointInPolygon bool) map[string]string {
+func Start(pbfFileName string, xSize, ySize int, createTestGeoJSON, createCoastlineGeoJSON, lessMemory, noBoundingTree, basicGrid, basicPointInPolygon bool) map[string]string {
 	fmt.Printf("\nStarting processing of %s\n\n", pbfFileName)
 	logging := make(map[string]string)
 	pbfFileName = fmt.Sprintf("data/%s", pbfFileName)
@@ -145,9 +145,9 @@ func Start(pbfFileName string, xSize, ySize int, createTestGeoJSON, createCoastl
 	// Create and store meshgrid
 	var testGeoJSON [][]float64
 	var filenameAdditions = ""
-	if simplePointInPolygon {
-		logging["filename"] += "_spip"
-		filenameAdditions += "_spip"
+	if basicPointInPolygon {
+		logging["filename"] += "_bpip"
+		filenameAdditions += "_bpip"
 	}
 
 	if basicGrid {
@@ -158,7 +158,7 @@ func Start(pbfFileName string, xSize, ySize int, createTestGeoJSON, createCoastl
 			meshgrid[i] = make([]bool, ySize)
 		}
 
-		var meshgridTime = createMeshgrid(xSize, ySize, &boundingTreeRoot, &allCoastlines, &testGeoJSON, &meshgrid, createTestGeoJSON, simplePointInPolygon)
+		var meshgridTime = createMeshgrid(xSize, ySize, &boundingTreeRoot, &allCoastlines, &testGeoJSON, &meshgrid, createTestGeoJSON, basicPointInPolygon)
 		logging["time_meshgrid"] = string(meshgridTime)
 
 		var meshgridStoreTime = storeMeshgrid(&meshgrid, fmt.Sprintf("data/output/meshgrid_%d_%d%s.json", xSize, ySize, filenameAdditions))
@@ -167,7 +167,7 @@ func Start(pbfFileName string, xSize, ySize int, createTestGeoJSON, createCoastl
 	} else {
 		var uniformGrid UniformGrid
 
-		var uniformGridTime = createUniformGrid(xSize, ySize, &boundingTreeRoot, &allCoastlines, &testGeoJSON, &uniformGrid, createTestGeoJSON, simplePointInPolygon)
+		var uniformGridTime = createUniformGrid(xSize, ySize, &boundingTreeRoot, &allCoastlines, &testGeoJSON, &uniformGrid, createTestGeoJSON, basicPointInPolygon)
 		logging["time_meshgrid"] = string(uniformGridTime)
 
 		var uniformGridStoreTime = storeUniformGrid(&uniformGrid, fmt.Sprintf("data/output/uniformGrid_%v_%v%s.json", xSize, ySize, filenameAdditions))
