@@ -15,7 +15,6 @@ import (
 )
 
 var port int = 8081
-var meshWidth int64
 var meshgrid []bool
 var meshgrid2d [][]bool
 
@@ -78,7 +77,7 @@ func Run(xSize, ySize int, basicPointInPolygon bool) {
 	var points [][]float64
 	for i := 0; i < xSize; i++ {
 		for j := 0; j < ySize; j++ {
-			if meshgrid2d[i][j] {
+			if !meshgrid2d[i][j] {
 				points = append(points, algorithms.GridToCoord([]int64{int64(i), int64(j)}, int64(xSize), int64(ySize)))
 			}
 		}
