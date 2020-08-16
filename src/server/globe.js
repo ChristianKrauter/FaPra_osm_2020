@@ -2,6 +2,21 @@ $("#clearButton").click(function() {
     viewer.entities.removeAll();
 });
 
+$("#gridButton").click(function() {
+    $.ajax({
+        url: "/basicGrid",
+        data: data
+    }).done(function(data) {
+        if (data != "false") {
+            points = JSON.parse(data)
+            console.log(points)
+            for (i = 0; i < points.length; i++) {
+                createColoredPoint(Cesium.Cartesian3.fromDegrees(points[i][0], points[i][1]), Cesium.Color.WHITE)
+            }
+        }
+    });
+});
+
 var data = {
     startLat: "",
     startLng: "",
@@ -233,23 +248,6 @@ var options = [{
         },
     },
 ];
-
-$.ajax({
-    url: "/basicGrid",
-    data: data
-}).done(function(data) {
-    if (data == "false") {
-
-    } else {
-        points = JSON.parse(data)
-        console.log(points)
-        for (i = 0; i < points.length; i++) {
-            createRedPoint(Cesium.Cartesian3.fromDegrees(points[i][0], points[i][1]))
-            //createPoint(point[0],point[1])
-        }
-    }
-
-});
 
 function createRedPoint(worldPosition) {
     var point = viewer.entities.add({
