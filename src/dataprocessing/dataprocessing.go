@@ -3,7 +3,6 @@ package dataprocessing
 import (
 	"fmt"
 	"github.com/paulmach/go.geojson"
-	"log"
 	"os"
 	"sort"
 	"time"
@@ -134,9 +133,19 @@ func Start(pbfFileName string, xSize, ySize int, createTestGeoJSON, createCoastl
 
 	// Create bounding boxes
 	var boundingTreeRoot boundingTree
+	var allBoundingBoxes []map[string]float64
 	if noBoundingTree {
-		log.Fatal("No bounding tree not implemented.")
 		logging["filename"] += "_nbt"
+
+		start := time.Now()
+		for _, i := range allCoastlines {
+			allBoundingBoxes = append(allBoundingBoxes, createBoundingBox(&i))
+		}
+		t := time.Now()
+		elapsed := t.Sub(start)
+		fmt.Printf("Created bounding boxes           : %s\n", elapsed)
+		logging["time_boundingBoxes"] = elapsed.String()
+
 	} else {
 		var boundingTreeTime = createBoundingTree(&boundingTreeRoot, &allCoastlines)
 		logging["time_boundingTree"] = string(boundingTreeTime)
@@ -158,7 +167,12 @@ func Start(pbfFileName string, xSize, ySize int, createTestGeoJSON, createCoastl
 			meshgrid[i] = make([]bool, ySize)
 		}
 
-		var meshgridTime = createMeshgrid(xSize, ySize, &boundingTreeRoot, &allCoastlines, &testGeoJSON, &meshgrid, createTestGeoJSON, basicPointInPolygon)
+		var meshgridTime string
+		if noBoundingTree {
+			meshgridTime = createMeshgridNBT(xSize, ySize, &allBoundingBoxes, &allCoastlines, &testGeoJSON, &meshgrid, createTestGeoJSON, basicPointInPolygon)
+		} else {
+			meshgridTime = createMeshgrid(xSize, ySize, &boundingTreeRoot, &allCoastlines, &testGeoJSON, &meshgrid, createTestGeoJSON, basicPointInPolygon)
+		}
 		logging["time_meshgrid"] = string(meshgridTime)
 
 		var meshgridStoreTime = storeMeshgrid(&meshgrid, fmt.Sprintf("data/output/meshgrid_%d_%d%s.json", xSize, ySize, filenameAdditions))

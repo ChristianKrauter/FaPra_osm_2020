@@ -99,3 +99,14 @@ func isLand(tree *boundingTree, point []float64, allCoastlines *[][][]float64) b
 	}
 	return land
 }
+
+func isLandNBT(allBoundingBoxes *[]map[string]float64, point []float64, allCoastlines *[][][]float64) bool {
+	for i, j := range *allBoundingBoxes {
+		if boundingContains(&j, []float64{point[0], point[1]}) {
+			if polygonContains(&(*allCoastlines)[i], []float64{point[0], point[1]}) {
+				return true
+			}
+		}
+	}
+	return false
+}

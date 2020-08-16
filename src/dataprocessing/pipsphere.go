@@ -141,3 +141,14 @@ func isLandSphere(tree *boundingTree, point []float64, allCoastlines *[][][]floa
 	}
 	return land
 }
+
+func isLandSphereNBT(allBoundingBoxes *[]map[string]float64, point []float64, allCoastlines *[][][]float64) bool {
+	for i, j := range *allBoundingBoxes {
+		if boundingContains(&j, []float64{point[0], point[1]}) {
+			if polygonContainsSphere(&(*allCoastlines)[i], []float64{point[0], point[1]}) {
+				return true
+			}
+		}
+	}
+	return false
+}
