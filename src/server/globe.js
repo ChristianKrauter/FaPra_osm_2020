@@ -47,14 +47,7 @@ viewer.cesiumWidget.screenSpaceEventHandler.removeInputAction(
 function createPoint(worldPosition, processed = false, start = false) {
     var point
     if (processed) {
-        point = viewer.entities.add({
-            position: worldPosition,
-            point: {
-                color: Cesium.Color.RED,
-                pixelSize: 4,
-                heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-            },
-        });
+        createColoredPoint(worldPosition, Cesium.Color.RED)
     } else {
         var text = "End"
         console.log(worldPosition)
@@ -69,8 +62,8 @@ function createPoint(worldPosition, processed = false, start = false) {
 
         if (start == true) {
             text = "Start"
-
         }
+
         point = viewer.entities.add({
             position: worldPosition,
             label: {
@@ -85,12 +78,10 @@ function createPoint(worldPosition, processed = false, start = false) {
             }
         });
     }
-
     return point;
 }
 
 function drawLine(viewer, coords) {
-
     viewer.entities.add({
         positions: coords.slice(0, 2),
         polyline: {
@@ -102,7 +93,6 @@ function drawLine(viewer, coords) {
         }
     })
 }
-
 
 function drawShape(positionData) {
     var shape;
@@ -140,7 +130,6 @@ function dijkstraProcessing(jsonData) {
         }
         drawLine(viewer, coord1d)
     }
-
 }
 
 function dijkstraAllNodesProcessing(jsonData) {
@@ -163,7 +152,6 @@ function dijkstraAllNodesProcessing(jsonData) {
             createPoint(Cesium.Cartesian3.fromDegrees(point[0], point[1]), true)
         }
     }
-
 }
 
 function onLeftMouseClick(event) {
@@ -206,7 +194,6 @@ function onLeftMouseClick(event) {
                 endLng: ""
             }
         }
-
     }
 }
 
@@ -227,15 +214,13 @@ function terminateShape() {
     activeShapePoints = [];
 }
 
-var options = [{
+var options = [
+    {
         text: "Draw Lines",
         onselect: function() {
             if (!Cesium.Entity.supportsPolylinesOnTerrain(viewer.scene)) {
-                window.alert(
-                    "This browser does not support polylines on terrain."
-                );
+                window.alert( "This browser does not support polylines on terrain." );
             }
-
             terminateShape();
             drawingMode = "line";
         },
@@ -249,11 +234,11 @@ var options = [{
     },
 ];
 
-function createRedPoint(worldPosition) {
+function createColoredPoint(worldPosition, color) {
     var point = viewer.entities.add({
         position: worldPosition,
         point: {
-            color: Cesium.Color.RED,
+            color: color,
             pixelSize: 4,
             heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
         },
@@ -268,6 +253,7 @@ viewer.camera.lookAt(
     Cesium.Cartesian3.fromDegrees(0, 0, 0.0),
     new Cesium.Cartesian3(0.0, 0.0, 42000000.0)
 );
+
 viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
 viewer.timeline.destroy()
 viewer.sceneModePicker.destroy()
