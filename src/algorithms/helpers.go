@@ -38,7 +38,7 @@ func ExpandIndex(indx, xSize int) []int {
 	return []int{x, y}
 }
 
-// UniformGridToCoord returns lat, lng for grid coordinates
+// UniformGridToCoord returns lng, lat for grid coordinates
 func UniformGridToCoord(in []int, xSize, ySize int) []float64 {
 	m := float64(in[0])
 	n := float64(in[1])
@@ -51,10 +51,10 @@ func UniformGridToCoord(in []int, xSize, ySize int) []float64 {
 	theta := math.Pi * (m + 0.5) / mTheta
 	mPhi := math.Round(2.0 * math.Pi * math.Sin(theta) / dPhi)
 	phi := 2 * math.Pi * n / mPhi
-	return []float64{(theta/math.Pi)*180 - 90, (phi / math.Pi) * 180}
+	return []float64{(phi / math.Pi) * 180,(theta/math.Pi)*180 - 90}
 }
 
-// UniformCoordToGrid returns grid coordinates given lat, lng
+// UniformCoordToGrid returns grid coordinates given lng,lat
 func UniformCoordToGrid(in []float64, xSize, ySize int) []int {
 	N := float64(xSize * ySize)
 	a := 4.0 * math.Pi / N
@@ -63,10 +63,10 @@ func UniformCoordToGrid(in []float64, xSize, ySize int) []int {
 	dTheta := math.Pi / mTheta
 	dPhi := a / dTheta
 
-	theta := (in[0] + 90) * math.Pi / 180
+	theta := (in[1] + 90) * math.Pi / 180
 	m := math.Round((theta * mTheta / math.Pi) - 0.5)
 
-	phi := in[1] * math.Pi / 180
+	phi := in[0] * math.Pi / 180
 	mPhi := math.Round(2.0 * math.Pi * math.Sin(theta) / dPhi)
 	n := math.Round(phi * mPhi / (2 * math.Pi))
 
@@ -176,6 +176,61 @@ func (ug UniformGrid) IdToGrid(id int) []int {
 	return []int{m - 1, n}
 }
 
+func neighbours1d(indx, xSize int) []int {
+	var neighbours []int
+	var temp []int
+
+	neighbours = append(neighbours, indx-xSize-1) // top left
+	neighbours = append(neighbours, indx-xSize)   // top
+	neighbours = append(neighbours, indx-xSize+1) // top right
+	neighbours = append(neighbours, indx-1)       // left
+	neighbours = append(neighbours, indx+1)       // right
+	neighbours = append(neighbours, indx+xSize-1) // bottom left
+	neighbours = append(neighbours, indx+xSize)   // bottom
+	neighbours = append(neighbours, indx+xSize+1) // bottom right
+
+	for _, j := range neighbours {
+		if j >= 0 && j < int(len(meshgrid)) {
+			if !meshgrid[j] {
+				temp = append(temp, j)
+			}
+		}
+	}
+	return temp
+}
+
+func extractRoute(prev *[]int, end, xSize, ySize int) [][][]float64 {
+	var route [][][]float64
+	var tempRoute [][]float64
+	temp := ExpandIndex(end, xSize)
+	for {
+		x := ExpandIndex(end, xSize)
+		if math.Abs(float64(temp[0]-x[0])) > 1 {
+			route = append(route, tempRoute)
+			tempRoute = make([][]float64, 0)
+		}
+		tempRoute = append(tempRoute, GridToCoord([]int{x[0], x[1]}, xSize, ySize))
+
+		if (*prev)[end] == -1 {
+			break
+		}
+		end = (*prev)[end]
+		temp = x
+	}
+	route = append(route, tempRoute)
+	return route
+}
+
+func extractNodes(nodesProcessed *[]int, xSize, ySize int) [][]float64 {
+	var nodesExtended [][]float64
+	for _, node := range *nodesProcessed {
+		x := ExpandIndex(node, xSize)
+		coord := GridToCoord([]int{x[0], x[1]}, xSize, ySize)
+		nodesExtended = append(nodesExtended, coord)
+	}
+	return nodesExtended
+}
+
 func UniformExtractRoute(prev *[]int, end, xSize, ySize int, uniformGrid *UniformGrid) [][][]float64 {
 	var route [][][]float64
 	var tempRoute [][]float64
@@ -209,7 +264,7 @@ func UniformExtractNodes(nodesProcessed *[]int, xSize, ySize int, uniformGrid *U
 }
 
 // Test if it still works with less than 3 points in one grid row
-func UniformNeighboursRow(in []float64, xSize, ySize int) [][]int {
+func uniformNeighboursRow(in []float64, xSize, ySize int) [][]int {
 	N := float64(xSize * ySize)
 	a := 4.0 * math.Pi / N
 	d := math.Sqrt(a)
@@ -217,12 +272,12 @@ func UniformNeighboursRow(in []float64, xSize, ySize int) [][]int {
 	dTheta := math.Pi / mTheta
 	dPhi := a / dTheta
 
-	theta := (in[0] + 90) * math.Pi / 180
+	theta := (in[1] + 90) * math.Pi / 180
 	m := math.Round((theta * mTheta / math.Pi) - 0.5)
 
 	theta = math.Pi * (m + 0.5) / mTheta
 
-	phi := in[1] * math.Pi / 180
+	phi := in[0] * math.Pi / 180
 	mPhi := math.Round(2.0 * math.Pi * math.Sin(theta) / dPhi)
 	n1 := math.Round(phi * mPhi / (2 * math.Pi))
 	n2 := n1 + 1
@@ -244,14 +299,13 @@ func GetNeighboursUniformGrid(in,xSize,ySize int, uniformGrid *UniformGrid, ) []
 	coord := UniformGridToCoord(inGrid, xSize, ySize)
 	
 	if m > 0 {
-		
 		coordDown := UniformGridToCoord([]int{m - 1, n}, xSize, ySize)
-		neighbours = append(neighbours, UniformNeighboursRow([]float64{coordDown[0], coord[1]}, xSize, ySize)...)
+		neighbours = append(neighbours, uniformNeighboursRow([]float64{coord[0], coordDown[1]}, xSize, ySize)...)
 	}
 
 	if m < len(uniformGrid.VertexData)-1 {
 		coordUp := UniformGridToCoord([]int{m + 1, n}, xSize, ySize)
-		neighbours = append(neighbours, UniformNeighboursRow([]float64{coordUp[0], coord[1]}, xSize, ySize)...)
+		neighbours = append(neighbours, uniformNeighboursRow([]float64{coord[0], coordUp[1]}, xSize, ySize)...)
 	}
 	var neighbours1d []int
 	for _, neighbour := range neighbours {
