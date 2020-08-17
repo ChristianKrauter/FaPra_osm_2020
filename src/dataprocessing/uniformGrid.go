@@ -41,23 +41,23 @@ func createUniformGrid(xSize, ySize int, boundingTreeRoot *boundingTree, allCoas
 			// phi := 2 * math.Pi * n / mPhi
 			nCount++
 			coords := algorithms.UniformGridToCoord([]int{int(m), int(n)}, xSize, ySize)
-			if coords[0] > 90 {
-				fmt.Printf("coords: %v\n", coords)
-			}
+			
+			fmt.Printf("coords: %v\n", coords)
+			
 			if basicPointInPolygon {
-				if isLand(boundingTreeRoot, []float64{coords[1], coords[0]}, allCoastlines) {
+				if isLand(boundingTreeRoot, coords, allCoastlines) {
 					gridRow = append(gridRow, true)
 					if createTestGeoJSON {
-						*testGeoJSON = append(*testGeoJSON, []float64{coords[0], coords[1]})
+						*testGeoJSON = append(*testGeoJSON, coords)
 					}
 				} else {
 					gridRow = append(gridRow, false)
 				}
 			} else {
-				if isLandSphere(boundingTreeRoot, []float64{coords[1], coords[0]}, allCoastlines) {
+				if isLandSphere(boundingTreeRoot, coords, allCoastlines) {
 					gridRow = append(gridRow, true)
 					if createTestGeoJSON {
-						*testGeoJSON = append(*testGeoJSON, []float64{coords[0], coords[1]})
+						*testGeoJSON = append(*testGeoJSON, coords)
 					}
 				} else {
 					gridRow = append(gridRow, false)
