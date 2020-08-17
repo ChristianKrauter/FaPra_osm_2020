@@ -134,7 +134,7 @@ func neighbours1d(indx int) []int {
 }
 
 // Test if it still works with less than 3 points in one grid row
-func getNeighbours(in []float64, xSize, ySize int) [][]int {
+func UniformNeighboursRow(in []float64, xSize, ySize int) [][]int {
 	N := float64(xSize * ySize)
 	a := 4.0 * math.Pi / N
 	d := math.Sqrt(a)
@@ -158,21 +158,17 @@ func getNeighbours(in []float64, xSize, ySize int) [][]int {
 	return [][]int{p1, p2, p3}
 }
 
-func neighboursUniformGrid(in []int) []int {
+func GetNeighboursUniformGrid(in []int) []int {
 	var neighbours [][]int
 	m := in[0]
 	n := in[1]
-	//fmt.Printf("height: %v\n", len(uniformGrid.VertexData))
-	//fmt.Printf("len: %v\n", len(uniformGrid.VertexData[m]))
-	//fmt.Printf("len: %v\n", len(uniformGrid.VertexData[m+1]))
-	//fmt.Printf("len: %v\n", len(uniformGrid.VertexData[m-1]))
 	neighbours = append(neighbours, []int{m, mod(n-1, len(uniformGrid.VertexData[m]))})
 	neighbours = append(neighbours, []int{m, mod(n+1, len(uniformGrid.VertexData[m]))})
 
 	coord := UniformGridToCoord(in, 100, 500)
-	//fmt.Printf("coord: %v\n", coord)
+	
 	if m > 0 {
-		//fmt.Printf("m: %v\n", m)
+		
 		coordDown := UniformGridToCoord([]int{m - 1, n}, 100, 500)
 		neighbours = append(neighbours, getNeighbours([]float64{coordDown[0], coord[1]}, 100, 500)...)
 	}
@@ -182,7 +178,6 @@ func neighboursUniformGrid(in []int) []int {
 		neighbours = append(neighbours, getNeighbours([]float64{coordUp[0], coord[1]}, 100, 500)...)
 	}
 	var neighbours1d []int
-	//fmt.Printf("before:\n%v\n", neighbours)
 	for _, neighbour := range neighbours {
 		if !uniformGrid.VertexData[neighbour[0]][neighbour[1]] {
 			neighbours1d = append(neighbours1d, uniformGrid.gridToID(neighbour[0], neighbour[1]))
