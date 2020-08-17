@@ -27,15 +27,15 @@ func transformLon(newNorth, point []float64) float64 {
 func eastOrWest(aLon, bLon float64) int {
 	var out int
 	var del = bLon - aLon
-	if del > 180 {
-		del = del - 360
+	if del > 180.0 {
+		del = del - 360.0
 	}
-	if del < -180 {
-		del = del + 360
+	if del < -180.0 {
+		del = del + 360.0
 	}
-	if del > 0 && del != 180 {
+	if del > 0 && del != 180.0 {
 		out = -1
-	} else if del < 0 && del != -180 {
+	} else if del < 0 && del != -180.0 {
 		out = 1
 	} else {
 		out = 0
@@ -45,8 +45,9 @@ func eastOrWest(aLon, bLon float64) int {
 
 // Test if point is inside polygon, use north-pole for the known-to-be-outside point
 func pointInPolygonSphere(polygon *[][]float64, point []float64) bool {
+	//fmt.Printf("%v\n","New PP")
 	var inside = false
-	var strike bool
+	var strike = false
 
 	// Point is the south-pole
 	// Pontentially antipodal check
@@ -55,33 +56,40 @@ func pointInPolygonSphere(polygon *[][]float64, point []float64) bool {
 		return true
 	}
 
+	fmt.Printf("%v\n",point)
+	
 	// Point is the north-pole
 	if point[1] == 90 {
 		return false
 	}
-
 	for i := 0; i < len(*polygon); i++ {
 		var a = (*polygon)[i]
 		var b = (*polygon)[(i+1)%len(*polygon)]
-
+		
+		strike = false
+		
 		if point[0] == a[0] {
 			strike = true
 		} else {
+			
 			var aToB = eastOrWest(a[0], b[0])
 			var aToP = eastOrWest(a[0], point[0])
 			var pToB = eastOrWest(point[0], b[0])
+			
 			if aToP == aToB && pToB == aToB {
 				strike = true
+				//fmt.Printf("a,b,p lon: %v, %v, %v\n",a[0],b[0],point[0])
 			}
 		}
 
 		if strike {
+			//fmt.Printf("strike: %v, %v, %v\n",a[0],b[0],point[0])
 			if point[1] == a[1] && point[0] == a[0] {
 				return true
 			}
 
 			// Possible to calculate once at polygon creation
-			var northPoleLonTransformed = transformLon(a, []float64{0, 90})
+			var northPoleLonTransformed = transformLon(a, []float64{0.0, 90.0})
 			var bLonTransformed = transformLon(a, b)
 			// Not possible
 			var pLonTransformed = transformLon(a, point)
