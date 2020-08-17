@@ -1,6 +1,7 @@
 package dataprocessing
 
 import (
+	"../algorithms"
 	"fmt"
 	"github.com/paulmach/go.geojson"
 	"os"
@@ -179,7 +180,7 @@ func Start(pbfFileName string, xSize, ySize int, createTestGeoJSON, createCoastl
 		logging["time_meshgrid_store"] = string(meshgridStoreTime)
 
 	} else {
-		var uniformGrid UniformGrid
+		var uniformGrid algorithms.UniformGrid
 
 		var uniformGridTime = createUniformGrid(xSize, ySize, &boundingTreeRoot, &allCoastlines, &testGeoJSON, &uniformGrid, createTestGeoJSON, basicPointInPolygon)
 		logging["time_meshgrid"] = string(uniformGridTime)

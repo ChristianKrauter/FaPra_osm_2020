@@ -47,7 +47,7 @@ func WayFinding(xSize, ySize, algorithm int, basicPointInPolygon bool) {
 	//var testCount int
 	// TODO: More efficient average
 	var sum time.Duration
-	var count int64
+	var count int
 
 	for i := 0; i < len(meshgrid2d); i++ {
 		for j := 0; j < len(meshgrid2d[i]); j++ {
@@ -57,7 +57,7 @@ func WayFinding(xSize, ySize, algorithm int, basicPointInPolygon bool) {
 						//testCount += 1
 						// fmt.Printf("%v:%v - %v:%v", j, i, l, k)
 						var start = time.Now()
-						var _ = algorithms.Dijkstra(int64(i), int64(j), int64(k), int64(l), int64(xSize), int64(ySize), &meshgrid)
+						var _ = algorithms.Dijkstra(int(i), int(j), int(k), int(l), int(xSize), int(ySize), &meshgrid)
 						t := time.Now()
 						var elapsed = t.Sub(start)
 						sum += elapsed

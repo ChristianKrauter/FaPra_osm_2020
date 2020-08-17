@@ -7,26 +7,11 @@ import (
 	"encoding/json"
 	"math"
 	"os"
-	"sort"
+	//"sort"
 	"time"
 )
 
-// UniformGrid ...
-type UniformGrid struct {
-	N            int
-	VertexData   [][]bool
-	FirstIndexOf []int
-}
 
-func (sg UniformGrid) gridToID(m, n int) int {
-	return sg.FirstIndexOf[m] + n
-}
-
-func (sg UniformGrid) idToGrid(id int) (int, int) {
-	m := sort.Search(len(sg.FirstIndexOf)-1, func(i int) bool { return sg.FirstIndexOf[i] > id })
-	n := id - sg.FirstIndexOf[m-1]
-	return m - 1, n
-}
 
 func createPoint(theta float64, phi float64) []float64 {
 	//x := 57.296 * math.Sin(theta)*math.Cos(phi)
@@ -35,7 +20,7 @@ func createPoint(theta float64, phi float64) []float64 {
 	return []float64{theta/math.Pi*180 - 90, phi / math.Pi * 180}
 }
 
-func createUniformGrid(xSize, ySize int, boundingTreeRoot *boundingTree, allCoastlines *[][][]float64, testGeoJSON *[][]float64, uniformGrid *UniformGrid, createTestGeoJSON, basicPointInPolygon bool) string {
+func createUniformGrid(xSize, ySize int, boundingTreeRoot *boundingTree, allCoastlines *[][][]float64, testGeoJSON *[][]float64, uniformGrid *algorithms.UniformGrid, createTestGeoJSON, basicPointInPolygon bool) string {
 	start := time.Now()
 	var grid [][]bool
 	var firstIndexOf []int
@@ -95,7 +80,7 @@ func createUniformGrid(xSize, ySize int, boundingTreeRoot *boundingTree, allCoas
 	return elapsed.String()
 }
 
-func storeUniformGrid(uniformGrid *UniformGrid, filename string) string {
+func storeUniformGrid(uniformGrid *algorithms.UniformGrid, filename string) string {
 	start := time.Now()
 	var meshgridBytes []byte
 	meshgridBytes, err1 := json.Marshal(uniformGrid)
