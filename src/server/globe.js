@@ -11,7 +11,7 @@ $("#gridButton").click(function() {
             points = JSON.parse(data)
             console.log(points)
             for (i = 0; i < points.length; i++) {
-                createColoredPoint(Cesium.Cartesian3.fromDegrees(points[i][0], points[i][1]), Cesium.Color.WHITE)
+                createColoredPoint(Cesium.Cartesian3.fromDegrees(points[i][0], points[i][1]), Cesium.Color.RED)
             }
         }
     });
