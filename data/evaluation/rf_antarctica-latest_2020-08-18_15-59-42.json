@@ -1,1 +1,8 @@
-{"note":"","numCPU":"4","pbfFileName":"antarctica-latest.osm.pbf","time_read":"2.5920435s","time_readLessMemory":"2.2529755s","totalAlloc":"7663"}
+{
+    "note": "",
+    "numCPU": "4",
+    "pbfFileName": "antarctica-latest.osm.pbf",
+    "time_read": "2.5920435s",
+    "time_readLessMemory": "2.2529755s",
+    "totalAlloc": "7663"
+}

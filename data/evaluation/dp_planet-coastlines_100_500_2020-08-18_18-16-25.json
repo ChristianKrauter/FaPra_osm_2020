@@ -1,1 +1,16 @@
-{"basicGrid":"false","basicPointInPolygon":"false","note":"onServer","numCPU":"24","pbfFileName":"planet-coastlines.pbf","time_boundingTree":"39m53.274053539s","time_meshgrid":"1h12m58.445631365s","time_meshgrid_store":"33.40269ms","time_poly":"24.671730368s","time_read":"1m4.576565054s","time_total":"1h54m21.001766812s","totalAlloc":"57381","xSize":"100","ySize":"500"}
+{
+    "basicGrid": "false",
+    "basicPointInPolygon": "false",
+    "note": "onServer",
+    "numCPU": "24",
+    "pbfFileName": "planet-coastlines.pbf",
+    "time_boundingTree": "39m53.274053539s",
+    "time_meshgrid": "1h12m58.445631365s",
+    "time_meshgrid_store": "33.40269ms",
+    "time_poly": "24.671730368s",
+    "time_read": "1m4.576565054s",
+    "time_total": "1h54m21.001766812s",
+    "totalAlloc": "57381",
+    "xSize": "100",
+    "ySize": "500"
+}

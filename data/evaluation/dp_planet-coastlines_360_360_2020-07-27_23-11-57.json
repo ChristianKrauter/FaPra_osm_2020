@@ -1,1 +1,14 @@
-{"note":"","numCPU":"4","pbfFileName":"planet-coastlines.pbf","time_boundingTree":"27m57.2025993s","time_meshgrid":"19m37.0513374s","time_meshgrid_store":"19.9475ms","time_poly":"1m50.4488016s","time_read":"3m8.1459453s","time_total":"52m32.8856424s","totalAlloc":"57390","xSize":"360","ySize":"360"}
+{
+    "note": "",
+    "numCPU": "4",
+    "pbfFileName": "planet-coastlines.pbf",
+    "time_boundingTree": "27m57.2025993s",
+    "time_meshgrid": "19m37.0513374s",
+    "time_meshgrid_store": "19.9475ms",
+    "time_poly": "1m50.4488016s",
+    "time_read": "3m8.1459453s",
+    "time_total": "52m32.8856424s",
+    "totalAlloc": "57390",
+    "xSize": "360",
+    "ySize": "360"
+}

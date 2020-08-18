@@ -1,1 +1,12 @@
-{"note":"","numCPU":"4","pbfFileName":"planet-coastlines.pbf","time_boundingTree":"29m33.3011788s","time_poly":"2m3.4052258s","time_read":"3m32.9099596s","time_total":"50m34.8475368s","totalAlloc":"57387","xSize":"100","ySize":"500"}
+{
+    "note": "",
+    "numCPU": "4",
+    "pbfFileName": "planet-coastlines.pbf",
+    "time_boundingTree": "29m33.3011788s",
+    "time_poly": "2m3.4052258s",
+    "time_read": "3m32.9099596s",
+    "time_total": "50m34.8475368s",
+    "totalAlloc": "57387",
+    "xSize": "100",
+    "ySize": "500"
+}

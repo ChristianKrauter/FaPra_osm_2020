@@ -39,7 +39,7 @@ func ReadPBF(pbfFileName, note string) {
 	logging["time_read"] = string(readTime)
 	logging["time_readLessMemory"] = string(readLessMemoryTime)
 
-	jsonString, _ := json.Marshal(logging)
+	jsonString, _ := json.MarshalIndent(logging, "", "    ")
 	var filename string
 	var timestamp = time.Now().Format("2006-01-02_15-04-05")
 	filename = fmt.Sprintf("data/evaluation/rf_%s_%s.json", strings.Split(logging["pbfFileName"], ".")[0], timestamp)
@@ -249,7 +249,7 @@ func DataProcessing(pbfFileName, note string, xSize, ySize int, createCoastlineG
 	logging["numCPU"] = strconv.Itoa(runtime.NumCPU())
 	logging["totalAlloc"] = strconv.FormatUint(m.TotalAlloc/1024/1024, 10)
 
-	jsonString, _ := json.Marshal(logging)
+	jsonString, _ := json.MarshalIndent(logging, "", "    ")
 	var filename string
 	var timestamp = time.Now().Format("2006-01-02_15-04-05")
 	if val, ok := logging["filename"]; ok {

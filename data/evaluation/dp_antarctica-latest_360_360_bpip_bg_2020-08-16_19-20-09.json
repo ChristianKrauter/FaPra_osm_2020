@@ -1,1 +1,17 @@
-{"basicGrid":"true","basicPointInPolygon":"true","filename":"_bpip_bg","note":"","numCPU":"8","pbfFileName":"antarctica-latest.osm.pbf","time_boundingTree":"358.0875ms","time_meshgrid":"17.0319539s","time_meshgrid_store":"13.8155ms","time_poly":"203.4555ms","time_read":"2.5756138s","time_total":"20.1829262s","totalAlloc":"3104","xSize":"360","ySize":"360"}
+{
+    "basicGrid": "true",
+    "basicPointInPolygon": "true",
+    "filename": "_bpip_bg",
+    "note": "",
+    "numCPU": "8",
+    "pbfFileName": "antarctica-latest.osm.pbf",
+    "time_boundingTree": "358.0875ms",
+    "time_meshgrid": "17.0319539s",
+    "time_meshgrid_store": "13.8155ms",
+    "time_poly": "203.4555ms",
+    "time_read": "2.5756138s",
+    "time_total": "20.1829262s",
+    "totalAlloc": "3104",
+    "xSize": "360",
+    "ySize": "360"
+}
