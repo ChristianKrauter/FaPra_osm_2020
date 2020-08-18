@@ -62,7 +62,10 @@ func main() {
 		evaluate.DataProcessing(pbfFileName, note, xSize, ySize, createCoastlineGeoJSON, lessMemory, noBoundingTree, basicGrid, basicPointInPolygon)
 	case 3:
 		fmt.Printf("Starting evaluation of wayfinding for %s", info)
-		evaluate.WayFinding(xSize, ySize, 0, basicPointInPolygon)
+		if basicGrid {
+			evaluate.WayFindingBG(xSize, ySize, 0, basicPointInPolygon, note)
+		}
+		evaluate.WayFinding(xSize, ySize, 0, basicPointInPolygon, note)
 	case 4:
 		fmt.Printf("Starting evaluation of pbf reading for %s\n", pbfFileName)
 		evaluate.ReadPBF(pbfFileName, note)
