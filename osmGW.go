@@ -22,6 +22,8 @@ func main() {
 	var basicGrid bool
 	var basicPointInPolygon bool
 
+	var nRuns int
+
 	flag.StringVar(&pbfFileName, "f", "antarctica-latest.osm.pbf", "Name of the pbf file inside data/")
 	flag.IntVar(&xSize, "x", 360, "Meshgrid size in x direction.")
 	flag.IntVar(&ySize, "y", 360, "Meshgrid size in y direction.")
@@ -32,6 +34,8 @@ func main() {
 	flag.BoolVar(&noBoundingTree, "nbt", false, "Do not use a tree structure for the bounding boxes.")
 	flag.BoolVar(&basicGrid, "bg", false, "Create a basic (non-unidistant) grid.")
 	flag.BoolVar(&basicPointInPolygon, "bpip", false, "Use a basic 2D point in polygon test.")
+
+	flag.IntVar(&nRuns, "r", 1000, "Number of runs for wayfinding evaluation.")
 	flag.Parse()
 
 	var info string
@@ -61,11 +65,12 @@ func main() {
 		fmt.Printf("Starting evaluation of data processing for %s", info)
 		evaluate.DataProcessing(pbfFileName, note, xSize, ySize, createCoastlineGeoJSON, lessMemory, noBoundingTree, basicGrid, basicPointInPolygon)
 	case 3:
-		fmt.Printf("Starting evaluation of wayfinding for %s", info)
+		fmt.Printf("Starting evaluation of wayfinding for %s\n", info)
 		if basicGrid {
-			evaluate.WayFindingBG(xSize, ySize, 0, basicPointInPolygon, note)
+			evaluate.WayFindingBG(xSize, ySize, nRuns, basicPointInPolygon, note)
+		} else {
+			evaluate.WayFinding(xSize, ySize, nRuns, 0, basicPointInPolygon, note)
 		}
-		evaluate.WayFinding(xSize, ySize, 0, basicPointInPolygon, note)
 	case 4:
 		fmt.Printf("Starting evaluation of pbf reading for %s\n", pbfFileName)
 		evaluate.ReadPBF(pbfFileName, note)
