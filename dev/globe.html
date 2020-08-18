@@ -7,10 +7,20 @@
     <script src="https://cesium.com/downloads/cesiumjs/releases/1.71/Build/Cesium/Cesium.js"></script>
     <link href="https://cesium.com/downloads/cesiumjs/releases/1.71/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
     <script src="jquery-3.5.1.min.js"></script>
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-    <div id="cesiumContainer" class="fullSize"></div>
+    <div class="container">
+        <div class="buttonContainer">
+            <div class="checkBoxContainer">
+                <input id="processedNodes" type="checkbox" name="allNodes"> Show Processed Nodes
+            </div>
+            <button id="gridButton">Show Grid</button>
+            <button id="clearButton">Clear</button>
+        </div>
+        <div id="cesiumContainer" class="fullSize"></div>
+    </div>
     <style type="text/css">
     .cesium-viewer-bottom {
         display: none !important

@@ -1,31 +1,25 @@
-$.ajax({
-    url: "/grid",
-    data: data
-}).done(function(data) {
-    if (data == "false") {
-
-    } else {
-        points = JSON.parse(data)
-        for (i = 0; i < points.length; i++) {
-            if (points[i]) {
-                for (j = 0; j < points[i].length; j++) {
-                    point = points[i][j]
-                    createRedPoint(Cesium.Cartesian3.fromDegrees(point[1], point[0]))
-                    //createPoint(point[0],point[1])
-                }
-            }
-        }
-    }
-
+$("#clearButton").click(function() {
+    viewer.entities.removeAll();
 });
 
-
+$("#gridButton").click(function() {
+    $.ajax({
+        url: "/basicGrid",
+        data: data
+    }).done(function(data) {
+        if (data != "false") {
+            points = JSON.parse(data)
+            console.log(points)
+            for (i = 0; i < points.length; i++) {
+                createColoredPoint(Cesium.Cartesian3.fromDegrees(points[i][0], points[i][1]), Cesium.Color.RED)
+            }
+        }
+    });
+});
 
 var data = {
     startLat: "",
-    startLng: "",
-    endLat: "",
-    endLng: ""
+    startLng: ""
 }
 
 var drawingMode = "line";
@@ -39,24 +33,6 @@ var viewer = new Cesium.Viewer("cesiumContainer", {
     infoBox: false,
     terrainProvider: Cesium.createWorldTerrain(),
 });
-/*createRedPoint(Cesium.Cartesian3.fromDegrees(0.0, 0.0))
-$.ajax({
-    url: "/testneighbours",
-    data: { lat: "0.0", lng: "0.0" }
-}).done(function(response) {
-    if (data == "false") {
-
-    } else {
-        console.log(response)
-        var points = JSON.parse(response)
-        //
-        for (i = 0; i < points.length; i++) {
-            point = points[i]
-            createPoint(Cesium.Cartesian3.fromDegrees(point[1], point[0]));
-        }
-    }
-
-});*/
 
 if (!viewer.scene.pickPositionSupported) {
     window.alert("This browser does not support pickPosition.");
@@ -66,61 +42,75 @@ viewer.cesiumWidget.screenSpaceEventHandler.removeInputAction(
     Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK
 );
 
-function createPoint(worldPosition) {
-    var point = viewer.entities.add({
-        position: worldPosition,
-        point: {
-            color: Cesium.Color.WHITE,
-            pixelSize: 8,
-            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-        },
-    });
+function createPoint(worldPosition, processed = false, start = false) {
+    var point
+    if (processed) {
+        createColoredPoint(worldPosition, Cesium.Color.RED)
+    } else {
+        var text = "End"
+        console.log(worldPosition)
+        point = viewer.entities.add({
+            position: worldPosition,
+            point: {
+                color: Cesium.Color.WHITE,
+                pixelSize: 5,
+                heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+            },
+        });
+
+        if (start == true) {
+            text = "Start"
+        }
+
+        point = viewer.entities.add({
+            position: worldPosition,
+            label: {
+                height: 20000000,
+                text: text,
+                font: '14pt monospace',
+                style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+                outlineWidth: 2,
+                verticalOrigin: Cesium.VerticalOrigin.TOP,
+                pixelOffset: new Cesium.Cartesian2(0, 32),
+                eyeOffset: new Cesium.Cartesian3(0, 0, -3000000)
+            }
+        });
+    }
     return point;
 }
 
-function createRedPoint(worldPosition) {
-    var point = viewer.entities.add({
-        position: worldPosition,
-        point: {
-            color: Cesium.Color.RED,
-            pixelSize: 4,
-            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-        },
-    });
-    return point;
-}
-
-function createBluePoint(worldPosition) {
-    var point = viewer.entities.add({
-        position: worldPosition,
-        point: {
-            color: Cesium.Color.GREEN,
-            pixelSize: 6,
-            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-        },
-    });
-    return point;
+function pipTest(testData){
+    point = this.earthPosition.ep
+    var td = JSON.parse(testData)
+    console.log(td)
+    console.log(point)
+    point = [point[0],point[1],0,90]
+    drawLine(viewer,point)
+       
+    if (td.Strikes !== null) {
+        for(i=0; i< td.Strikes.length; i++){
+            for (j =0; j< td.Strikes[i].length;j++){
+                //console.log(td.Strikes[i][j][0], td.Strikes[i][j][1])
+                createColoredPoint(Cesium.Cartesian3.fromDegrees(td.Strikes[i][j][0], td.Strikes[i][j][1]), Cesium.Color.RED)
+            
+            }
+        }
+    }
+    
 }
 
 function drawLine(viewer, coords) {
     viewer.entities.add({
+        positions: coords.slice(0, 2),
         polyline: {
             positions: Cesium.Cartesian3.fromDegreesArray(coords),
-            width: 1,
+            width: 2,
             material: Cesium.Color.DEEPSKYBLUE,
-        },
-        label: {
-            position: coords.slice(0, 2),
-            text: 'Select points on water',
-            font: '14pt monospace',
-            style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-            outlineWidth: 2,
-            verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-        },
+            // granularity: Cesium.Math.toRadians(0.001)
+            // distanceDisplayCondition: Cesium.Cartesian3(0, 0, 100000000)
+        }
     })
 }
-
-
 
 function drawShape(positionData) {
     var shape;
@@ -156,101 +146,14 @@ function onLeftMouseClick(event) {
         const cartographic = viewer.scene.globe.ellipsoid.cartesianToCartographic(earthPosition);
         const longitudeString = Cesium.Math.toDegrees(cartographic.longitude).toFixed(15);
         const latitudeString = Cesium.Math.toDegrees(cartographic.latitude).toFixed(15);
-        //console.log("1: ")
-        //console.log(earthPosition)
 
-        /*var data = {
-            lat: latitudeString,
-            lng: longitudeString,
-        }
-        $.ajax({
-            url: "/testpoint",
-            data: data
-        }).done(function(response) {
-            if (data == "false") {
-
-            } else {
-                console.log(response)
-                var point = JSON.parse(response)
-                createPoint(Cesium.Cartesian3.fromDegrees(point[1], point[0]));
-            }
-
-        });*/
-
-        if (data["startLat"] == "") {
             data["startLat"] = latitudeString
             data["startLng"] = longitudeString
-            createPoint(earthPosition);
-            var data2 = {
-                lat: latitudeString,
-                lng: longitudeString,
-            }
-            $.ajax({
-                url: "/testpoint",
-                data: data2
-            }).done(function(response) {
-                    console.log(response)
-                    var point = JSON.parse(response)
-                    // Takes lng lat
-                    createBluePoint(Cesium.Cartesian3.fromDegrees(point[1], point[0]));
-            });
-
-            /*$.ajax({
-                url: "/testneighbours",
-                data: data2
-            }).done(function(response) {
-                    console.log(response)
-                    var points = JSON.parse(response)
-                    for (var i = 0; i < points.length; i++) {
-                        var point = points[i]
-                        createPoint(Cesium.Cartesian3.fromDegrees(point[1], point[0]));
-                    }
-            });*/
-
-        } else {
-
-            data["endLat"] = latitudeString
-            data["endLng"] = longitudeString
-
-            var data2 = {
-                lat: latitudeString,
-                lng: longitudeString,
-            }
-            $.ajax({
-                url: "/testpoint",
-                data: data2
-            }).done(function(response) {
-                    console.log(response)
-                    var point = JSON.parse(response)
-                    createBluePoint(Cesium.Cartesian3.fromDegrees(point[1], point[0]));
-            });
-
             $.ajax({
                 url: "/point",
-                data: data
-            }).done(function(data) {
-                if (data == "false") {
-
-                } else {
-                    createPoint(earthPosition);
-                    var features = JSON.parse(data).features
-                    var coord1d = []
-                    for (i = 0; i < features.length; i++) {
-                        var coordinates = features[i].geometry.coordinates;
-                        coordinates.forEach(element => coord1d.push(element[1], element[0]))
-                    }
-                    drawLine(viewer, coord1d)
-                }
-
-            });
-
-            data = {
-                startLat: "",
-                startLng: "",
-                endLat: "",
-                endLng: ""
-            }
-        }
+                data: data,
+                earthPosition: { ep: [longitudeString,latitudeString] }
+            }).done(pipTest);
 
     }
 }
@@ -272,15 +175,13 @@ function terminateShape() {
     activeShapePoints = [];
 }
 
-var options = [{
+var options = [
+    {
         text: "Draw Lines",
         onselect: function() {
             if (!Cesium.Entity.supportsPolylinesOnTerrain(viewer.scene)) {
-                window.alert(
-                    "This browser does not support polylines on terrain."
-                );
+                window.alert( "This browser does not support polylines on terrain." );
             }
-
             terminateShape();
             drawingMode = "line";
         },
@@ -294,6 +195,17 @@ var options = [{
     },
 ];
 
+function createColoredPoint(worldPosition, color) {
+    var point = viewer.entities.add({
+        position: worldPosition,
+        point: {
+            color: color,
+            pixelSize: 6,
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+        },
+    });
+    return point;
+}
 
 // Zoom in to an area with mountains
 viewer.camera.lookAt(
@@ -302,6 +214,7 @@ viewer.camera.lookAt(
     Cesium.Cartesian3.fromDegrees(0, 0, 0.0),
     new Cesium.Cartesian3(0.0, 0.0, 42000000.0)
 );
+
 viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
 viewer.timeline.destroy()
 viewer.sceneModePicker.destroy()
