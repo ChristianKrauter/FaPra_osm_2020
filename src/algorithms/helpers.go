@@ -171,8 +171,8 @@ func (ug UniformGrid) GridToID(m, n int) int {
 	return ug.FirstIndexOf[m] + n
 }
 
-// IdToGrid ...
-func (ug UniformGrid) IdToGrid(id int) []int {
+// IDToGrid ...
+func (ug UniformGrid) IDToGrid(id int) []int {
 	m := sort.Search(len(ug.FirstIndexOf)-1, func(i int) bool { return ug.FirstIndexOf[i] > id })
 	n := id - ug.FirstIndexOf[m-1]
 	return []int{m - 1, n}
@@ -237,9 +237,9 @@ func extractNodes(nodesProcessed *[]int, xSize, ySize int) [][]float64 {
 func UniformExtractRoute(prev *[]int, end, xSize, ySize int, uniformGrid *UniformGrid) [][][]float64 {
 	var route [][][]float64
 	var tempRoute [][]float64
-	temp := uniformGrid.IdToGrid(end)
+	temp := uniformGrid.IDToGrid(end)
 	for {
-		x := uniformGrid.IdToGrid(end)
+		x := uniformGrid.IDToGrid(end)
 		if math.Abs(float64(temp[0]-x[0])) > 1 {
 			route = append(route, tempRoute)
 			tempRoute = make([][]float64, 0)
@@ -260,7 +260,7 @@ func UniformExtractRoute(prev *[]int, end, xSize, ySize int, uniformGrid *Unifor
 func UniformExtractNodes(nodesProcessed *[]int, xSize, ySize int, uniformGrid *UniformGrid) [][]float64 {
 	var nodesExtended [][]float64
 	for _, node := range *nodesProcessed {
-		x := uniformGrid.IdToGrid(node)
+		x := uniformGrid.IDToGrid(node)
 		coord := UniformGridToCoord([]int{x[0], x[1]}, xSize, ySize)
 		nodesExtended = append(nodesExtended, coord)
 	}
@@ -295,7 +295,7 @@ func uniformNeighboursRow(in []float64, xSize, ySize int) [][]int {
 // GetNeighboursUniformGrid ...
 func GetNeighboursUniformGrid(in, xSize, ySize int, uniformGrid *UniformGrid) []int {
 	var neighbours [][]int
-	var inGrid = uniformGrid.IdToGrid(in)
+	var inGrid = uniformGrid.IDToGrid(in)
 	m := inGrid[0]
 	n := inGrid[1]
 	neighbours = append(neighbours, []int{m, mod(n-1, len(uniformGrid.VertexData[m]))})
