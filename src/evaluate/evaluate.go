@@ -7,6 +7,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"math"
+	"math/rand"
 	"os"
 	"runtime"
 	"strconv"
@@ -100,9 +102,46 @@ func WayFindingBG(xSize, ySize, algorithm int, basicPointInPolygon bool, note st
 	// TODO: More efficient average
 	var sum time.Duration
 	var count int
+	var max = time.Duration(math.MinInt64)
+	var min = time.Duration(math.MaxInt64)
+
+	var from [100000]int
+	var to [100000]int
+	rand.Seed(time.Now().UnixNano())
+	for i := 0; i < 1000; i++ {
+		from[i] = rand.Intn(len(meshgrid))
+		to[i] = rand.Intn(len(meshgrid))
+	}
 
 	var wg sync.WaitGroup
+
 	fmt.Printf("\n%v\n", len(meshgrid))
+	for i := 0; i < len(from); i++ {
+		if !meshgrid[from[i]] && !meshgrid[to[i]] {
+			var x = from[i]
+			var y = to[i]
+			wg.Add(1)
+			go func(x, y int) {
+				defer wg.Done()
+				var start = time.Now()
+				var a = algorithms.ExpandIndex(x, xSize)
+				var b = algorithms.ExpandIndex(y, xSize)
+				var _ = algorithms.Dijkstra(a[0], a[1], b[0], b[1], xSize, ySize, &meshgrid)
+				t := time.Now()
+				var elapsed = t.Sub(start)
+				if elapsed > max {
+					max = elapsed
+				}
+				if elapsed < min {
+					min = elapsed
+				}
+				sum += elapsed
+				count++
+			}(x, y)
+		}
+	}
+
+	/*fmt.Printf("\n%v\n", len(meshgrid))
 	for i := 0; i < len(meshgrid)/1000; i++ {
 		if !meshgrid[i] {
 			for j := 0; j < len(meshgrid)/1000; j++ {
@@ -122,10 +161,10 @@ func WayFindingBG(xSize, ySize, algorithm int, basicPointInPolygon bool, note st
 				}
 			}
 		}
-	}
+	}*/
 
 	wg.Wait()
-	fmt.Printf("Total Time: %v\nNumber of routings: %v\nAverage duration: %v", sum, count, sum/time.Duration(count))
+	fmt.Printf("Total Time: %v\nNumber of routings: %v\nAverage duration: %v\nMin, Max: %v, %v", sum, count, sum/time.Duration(count), min, max)
 	//fmt.Printf("%v\n", testCount)
 }
 
