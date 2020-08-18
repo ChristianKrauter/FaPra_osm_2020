@@ -41,8 +41,11 @@ func createUniformGrid(xSize, ySize int, boundingTreeRoot *boundingTree, allCoas
 			// phi := 2 * math.Pi * n / mPhi
 			nCount++
 			coords := algorithms.UniformGridToCoord([]int{int(m), int(n)}, xSize, ySize)
+			if(coords[0] > 180){
+				coords[0] = coords[0] -360	
+			}
 			
-			fmt.Printf("coords: %v\n", coords)
+			//fmt.Printf("coords: %v\n", coords)
 			
 			if basicPointInPolygon {
 				if isLand(boundingTreeRoot, coords, allCoastlines) {
