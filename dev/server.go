@@ -166,9 +166,9 @@ func GetNeighboursUniformGrid(in []int) []int {
 	neighbours = append(neighbours, []int{m, mod(n+1, len(uniformGrid.VertexData[m]))})
 
 	coord := UniformGridToCoord(in, 100, 500)
-	
+
 	if m > 0 {
-		
+
 		coordDown := UniformGridToCoord([]int{m - 1, n}, 100, 500)
 		neighbours = append(neighbours, getNeighbours([]float64{coordDown[0], coord[1]}, 100, 500)...)
 	}
