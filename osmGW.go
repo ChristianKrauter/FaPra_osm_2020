@@ -15,7 +15,7 @@ func main() {
 
 	var pbfFileName, note string
 	var xSize, ySize int
-	var createTestGeoJSON, createCoastlineGeoJSON bool
+	var createCoastlineGeoJSON bool
 
 	var lessMemory bool
 	var noBoundingTree bool
@@ -25,7 +25,6 @@ func main() {
 	flag.StringVar(&pbfFileName, "f", "antarctica-latest.osm.pbf", "Name of the pbf file inside data/")
 	flag.IntVar(&xSize, "x", 360, "Meshgrid size in x direction.")
 	flag.IntVar(&ySize, "y", 360, "Meshgrid size in y direction.")
-	flag.BoolVar(&createTestGeoJSON, "test", false, "Create test geoJSON?")
 	flag.BoolVar(&createCoastlineGeoJSON, "coastline", false, "Create coastline geoJSON?")
 	flag.StringVar(&note, "n", "", "Additional note for evaluations.")
 
@@ -57,10 +56,10 @@ func main() {
 		}
 	case 1:
 		fmt.Printf("Starting data processing for a %s", info)
-		dataprocessing.Start(pbfFileName, xSize, ySize, createTestGeoJSON, createCoastlineGeoJSON, lessMemory, noBoundingTree, basicGrid, basicPointInPolygon)
+		dataprocessing.Start(pbfFileName, xSize, ySize, createCoastlineGeoJSON, lessMemory, noBoundingTree, basicGrid, basicPointInPolygon)
 	case 2:
 		fmt.Printf("Starting evaluation of data processing for %s", info)
-		evaluate.DataProcessing(pbfFileName, note, xSize, ySize, createTestGeoJSON, createCoastlineGeoJSON, lessMemory, noBoundingTree, basicGrid, basicPointInPolygon)
+		evaluate.DataProcessing(pbfFileName, note, xSize, ySize, createCoastlineGeoJSON, lessMemory, noBoundingTree, basicGrid, basicPointInPolygon)
 	case 3:
 		fmt.Printf("Starting evaluation of wayfinding for %s", info)
 		evaluate.WayFinding(xSize, ySize, 0, basicPointInPolygon)

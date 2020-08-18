@@ -2,16 +2,12 @@ package dataprocessing
 
 import (
 	"../algorithms"
-	"fmt"
-	//"github.com/paulmach/go.geojson"
 	"encoding/json"
+	"fmt"
 	"math"
 	"os"
-	//"sort"
 	"time"
 )
-
-
 
 func createPoint(theta float64, phi float64) []float64 {
 	//x := 57.296 * math.Sin(theta)*math.Cos(phi)
@@ -20,7 +16,7 @@ func createPoint(theta float64, phi float64) []float64 {
 	return []float64{theta/math.Pi*180 - 90, phi / math.Pi * 180}
 }
 
-func createUniformGrid(xSize, ySize int, boundingTreeRoot *boundingTree, allCoastlines *[][][]float64, testGeoJSON *[][]float64, uniformGrid *algorithms.UniformGrid, createTestGeoJSON, basicPointInPolygon bool) string {
+func createUniformGrid(xSize, ySize int, boundingTreeRoot *boundingTree, allCoastlines *[][][]float64, uniformGrid *algorithms.UniformGrid, basicPointInPolygon bool) string {
 	start := time.Now()
 	var grid [][]bool
 	var firstIndexOf []int
@@ -41,32 +37,60 @@ func createUniformGrid(xSize, ySize int, boundingTreeRoot *boundingTree, allCoas
 			// phi := 2 * math.Pi * n / mPhi
 			nCount++
 			coords := algorithms.UniformGridToCoord([]int{int(m), int(n)}, xSize, ySize)
-			if(coords[0] > 180){
-				coords[0] = coords[0] -360	
+			if coords[0] > 180 {
+				coords[0] = coords[0] - 360
 			}
-			
-			//fmt.Printf("coords: %v\n", coords)
-			
 			if basicPointInPolygon {
-				if isLand(boundingTreeRoot, coords, allCoastlines) {
-					gridRow = append(gridRow, true)
-					if createTestGeoJSON {
-						*testGeoJSON = append(*testGeoJSON, coords)
-					}
-				} else {
-					gridRow = append(gridRow, false)
-				}
+				gridRow = append(gridRow, isLand(boundingTreeRoot, coords, allCoastlines))
 			} else {
-				if isLandSphere(boundingTreeRoot, coords, allCoastlines) {
-					gridRow = append(gridRow, true)
-					if createTestGeoJSON {
-						*testGeoJSON = append(*testGeoJSON, coords)
-					}
-				} else {
-					gridRow = append(gridRow, false)
-				}
+				gridRow = append(gridRow, isLandSphere(boundingTreeRoot, coords, allCoastlines))
 			}
+		}
+		// fmt.Printf("%v\n", gridRow)
+		grid = append(grid, gridRow)
+	}
 
+	(*uniformGrid).N = nCount
+	(*uniformGrid).FirstIndexOf = firstIndexOf
+	(*uniformGrid).VertexData = grid
+
+	t := time.Now()
+	elapsed := t.Sub(start)
+	fmt.Printf("Created Uniform Grid in          : %s\n", elapsed)
+
+	return elapsed.String()
+}
+
+// TODO
+func createUniformGridNBT(xSize, ySize int, allBoundingBoxes *[]map[string]float64, allCoastlines *[][][]float64, uniformGrid *algorithms.UniformGrid, basicPointInPolygon bool) string {
+	start := time.Now()
+	var grid [][]bool
+	var firstIndexOf []int
+	N := float64(xSize * ySize)
+	nCount := 0
+	a := 4.0 * math.Pi / N
+	d := math.Sqrt(a)
+	mTheta := math.Round(math.Pi / d)
+	dTheta := math.Pi / mTheta
+	dPhi := a / dTheta
+
+	for m := 0.0; m < mTheta; m += 1.0 {
+		theta := math.Pi * (m + 0.5) / mTheta
+		mPhi := math.Round(2.0 * math.Pi * math.Sin(theta) / dPhi)
+		var gridRow []bool
+		firstIndexOf = append(firstIndexOf, int(nCount))
+		for n := 0.0; n < mPhi; n += 1.0 {
+			// phi := 2 * math.Pi * n / mPhi
+			nCount++
+			coords := algorithms.UniformGridToCoord([]int{int(m), int(n)}, xSize, ySize)
+			if coords[0] > 180 {
+				coords[0] = coords[0] - 360
+			}
+			if basicPointInPolygon {
+				gridRow = append(gridRow, isLandNBT(allBoundingBoxes, coords, allCoastlines))
+			} else {
+				gridRow = append(gridRow, isLandSphereNBT(allBoundingBoxes, coords, allCoastlines))
+			}
 		}
 		// fmt.Printf("%v\n", gridRow)
 		grid = append(grid, gridRow)

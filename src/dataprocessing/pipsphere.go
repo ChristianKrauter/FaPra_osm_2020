@@ -8,6 +8,7 @@ import (
 func transformLon(newNorth, point []float64) float64 {
 	var transformedLon float64
 
+	// Degrees to Radians
 	var dtr = math.Pi / 180.0
 
 	// New north is already the north pole
@@ -16,9 +17,15 @@ func transformLon(newNorth, point []float64) float64 {
 	} else {
 		var t = math.Sin((point[0]-newNorth[0])*dtr) * math.Cos(point[1]*dtr)
 		var b = math.Sin(dtr*point[1])*math.Cos(newNorth[1]*dtr) - math.Cos(point[1]*dtr)*math.Sin(newNorth[1]*dtr)*math.Cos((point[0]-newNorth[0])*dtr)
+		// Radians to Degrees
 		transformedLon = math.Atan2(t, b) / dtr
 	}
-
+	if transformedLon < -180 {
+		transformedLon += 360
+	}
+	if transformedLon > 180 {
+		transformedLon -= 360
+	}
 	return transformedLon
 }
 
@@ -56,8 +63,8 @@ func pointInPolygonSphere(polygon *[][]float64, point []float64) bool {
 		return true
 	}
 
-	fmt.Printf("%v\n",point)
-	
+	// fmt.Printf("%v\n", point)
+
 	// Point is the north-pole
 	if point[1] == 90 {
 		return false
@@ -65,17 +72,17 @@ func pointInPolygonSphere(polygon *[][]float64, point []float64) bool {
 	for i := 0; i < len(*polygon); i++ {
 		var a = (*polygon)[i]
 		var b = (*polygon)[(i+1)%len(*polygon)]
-		
+
 		strike = false
-		
+
 		if point[0] == a[0] {
 			strike = true
 		} else {
-			
+
 			var aToB = eastOrWest(a[0], b[0])
 			var aToP = eastOrWest(a[0], point[0])
 			var pToB = eastOrWest(point[0], b[0])
-			
+
 			if aToP == aToB && pToB == aToB {
 				strike = true
 				//fmt.Printf("a,b,p lon: %v, %v, %v\n",a[0],b[0],point[0])

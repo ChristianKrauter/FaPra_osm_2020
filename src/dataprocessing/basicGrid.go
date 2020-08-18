@@ -14,7 +14,7 @@ func check(e error) {
 	}
 }
 
-func createMeshgrid(xSize int, ySize int, boundingTreeRoot *boundingTree, allCoastlines *[][][]float64, testGeoJSON *[][]float64, meshgrid *[][]bool, createTestGeoJSON, basicPointInPolygon bool) string {
+func createMeshgrid(xSize int, ySize int, boundingTreeRoot *boundingTree, allCoastlines *[][][]float64, meshgrid *[][]bool, basicPointInPolygon bool) string {
 	start := time.Now()
 	var xStepSize = float64(360 / xSize)
 	var yStepSize = float64(360 / ySize)
@@ -28,19 +28,9 @@ func createMeshgrid(xSize int, ySize int, boundingTreeRoot *boundingTree, allCoa
 				var xs = x - 180
 				var ys = (y / 2) - 90
 				if basicPointInPolygon {
-					if isLand(boundingTreeRoot, []float64{xs, ys}, allCoastlines) {
-						(*meshgrid)[int(x/xStepSize)][int(y/yStepSize)] = true
-						if createTestGeoJSON {
-							*testGeoJSON = append(*testGeoJSON, []float64{xs, ys})
-						}
-					}
+					(*meshgrid)[int(x/xStepSize)][int(y/yStepSize)] = isLand(boundingTreeRoot, []float64{xs, ys}, allCoastlines)
 				} else {
-					if isLandSphere(boundingTreeRoot, []float64{xs, ys}, allCoastlines) {
-						(*meshgrid)[int(x/xStepSize)][int(y/yStepSize)] = true
-						if createTestGeoJSON {
-							*testGeoJSON = append(*testGeoJSON, []float64{xs, ys})
-						}
-					}
+					(*meshgrid)[int(x/xStepSize)][int(y/yStepSize)] = isLandSphere(boundingTreeRoot, []float64{xs, ys}, allCoastlines)
 				}
 			}(x, y)
 		}
@@ -54,7 +44,7 @@ func createMeshgrid(xSize int, ySize int, boundingTreeRoot *boundingTree, allCoa
 	return elapsed.String()
 }
 
-func createMeshgridNBT(xSize int, ySize int, allBoundingBoxes *[]map[string]float64, allCoastlines *[][][]float64, testGeoJSON *[][]float64, meshgrid *[][]bool, createTestGeoJSON, basicPointInPolygon bool) string {
+func createMeshgridNBT(xSize int, ySize int, allBoundingBoxes *[]map[string]float64, allCoastlines *[][][]float64, meshgrid *[][]bool, basicPointInPolygon bool) string {
 	start := time.Now()
 	var xStepSize = float64(360 / xSize)
 	var yStepSize = float64(360 / ySize)
@@ -68,19 +58,9 @@ func createMeshgridNBT(xSize int, ySize int, allBoundingBoxes *[]map[string]floa
 				var xs = x - 180
 				var ys = (y / 2) - 90
 				if basicPointInPolygon {
-					if isLandNBT(allBoundingBoxes, []float64{xs, ys}, allCoastlines) {
-						(*meshgrid)[int(x/xStepSize)][int(y/yStepSize)] = true
-						if createTestGeoJSON {
-							*testGeoJSON = append(*testGeoJSON, []float64{xs, ys})
-						}
-					}
+					(*meshgrid)[int(x/xStepSize)][int(y/yStepSize)] = isLandNBT(allBoundingBoxes, []float64{xs, ys}, allCoastlines)
 				} else {
-					if isLandSphereNBT(allBoundingBoxes, []float64{xs, ys}, allCoastlines) {
-						(*meshgrid)[int(x/xStepSize)][int(y/yStepSize)] = true
-						if createTestGeoJSON {
-							*testGeoJSON = append(*testGeoJSON, []float64{xs, ys})
-						}
-					}
+					(*meshgrid)[int(x/xStepSize)][int(y/yStepSize)] = isLandSphereNBT(allBoundingBoxes, []float64{xs, ys}, allCoastlines)
 				}
 			}(x, y)
 		}
