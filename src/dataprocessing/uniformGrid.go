@@ -46,17 +46,9 @@ func createUniformGrid(xSize, ySize int, boundingTreeRoot *boundingTree, allCoas
 			//fmt.Printf("coords: %v\n", coords)
 
 			if basicPointInPolygon {
-				if isLand(boundingTreeRoot, coords, allCoastlines) {
-					gridRow = append(gridRow, true)
-				} else {
-					gridRow = append(gridRow, false)
-				}
+				gridRow = append(gridRow, isLand(boundingTreeRoot, coords, allCoastlines))
 			} else {
-				if isLandSphere(boundingTreeRoot, coords, allCoastlines) {
-					gridRow = append(gridRow, true)
-				} else {
-					gridRow = append(gridRow, false)
-				}
+				gridRow = append(gridRow, isLandSphere(boundingTreeRoot, coords, allCoastlines))
 			}
 
 		}
