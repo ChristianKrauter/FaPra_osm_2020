@@ -5,22 +5,21 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/paulmach/go.geojson"
+	"github.com/qedus/osmpbf"
+	"io"
 	"io/ioutil"
 	"log"
+	"math"
 	"net/http"
 	"os"
+	"runtime"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
-	"sort"
-	"github.com/qedus/osmpbf"
-	"io"
-	"runtime"
-	"math"
 )
 
 var port int = 8081
-
 
 type dijkstraData struct {
 	Route    *geojson.FeatureCollection
@@ -263,7 +262,7 @@ func pointInPolygonSphere(polygon *[][]float64, point []float64, strikes *[][][]
 	}
 
 	//fmt.Printf("%v\n",point)
-	
+
 	// Point is the north-pole
 	if point[1] == 90 {
 		fmt.Printf("south pole.")
@@ -272,32 +271,30 @@ func pointInPolygonSphere(polygon *[][]float64, point []float64, strikes *[][][]
 	for i := 0; i < len(*polygon); i++ {
 		var a = (*polygon)[i]
 		var b = (*polygon)[(i+1)%len(*polygon)]
-		
+
 		strike = false
-		
+
 		if point[0] == a[0] && point[0] == b[0] {
 			strike = true
 		} else {
-			
+
 			var aToB = eastOrWest(a[0], b[0])
 			var aToP = eastOrWest(a[0], point[0])
 			var pToB = eastOrWest(point[0], b[0])
-			
+
 			if aToP == aToB && pToB == aToB {
 				strike = true
 			}
 		}
-		
+
 		/*if strike && point[1] > a[1] && point[1] > b[1] {
-				strike = false
-			}*/
+			strike = false
+		}*/
 		if strike {
-			*strikes = append(*strikes, [][]float64{a,b})	
+			*strikes = append(*strikes, [][]float64{a, b})
 			if point[1] == a[1] && point[0] == a[0] {
 				return true
 			}
-
-			
 
 			// Possible to calculate once at polygon creation
 			var northPoleLonTransformed = transformLon(a, []float64{0.0, 90.0})
@@ -312,7 +309,7 @@ func pointInPolygonSphere(polygon *[][]float64, point []float64, strikes *[][][]
 			var bToX = eastOrWest(bLonTransformed, northPoleLonTransformed)
 			var bToP = eastOrWest(bLonTransformed, pLonTransformed)
 			if bToX == -bToP {
-				
+
 				inside = !inside
 			}
 		}
@@ -340,18 +337,17 @@ func isLandSphere(tree *boundingTree, point []float64, allCoastlines *[][][]floa
 	return land
 }
 
+// TestData ...
 type TestData struct {
-	IsLand    bool
+	IsLand  bool
 	Strikes [][][]float64
 }
-
 
 func main() {
 
 	pbfFileName := "antarctica-latest.osm.pbf"
 	fmt.Printf("\nStarting processing of %s\n\n", pbfFileName)
 	pbfFileName = fmt.Sprintf("../data/%s", pbfFileName)
-	
 
 	// Read the pbf file
 	var coastlineMap = make(map[int64][]int64)
@@ -361,7 +357,6 @@ func main() {
 	// Create coastline polygons
 	var allCoastlines [][][]float64
 	createPolygons(&allCoastlines, &coastlineMap, &nodeMap)
-	
 
 	// Create bounding boxes
 	var boundingTreeRoot boundingTree
@@ -421,7 +416,7 @@ func main() {
 			}
 			var strikes [][][]float64
 			var td TestData
-			td.IsLand = isLandSphere(&boundingTreeRoot, []float64{startLng, startLat} ,&allCoastlines, &strikes)
+			td.IsLand = isLandSphere(&boundingTreeRoot, []float64{startLng, startLat}, &allCoastlines, &strikes)
 			td.Strikes = strikes
 			//fmt.Printf("%v\n", td)
 			tdJSON, err := json.Marshal(td)

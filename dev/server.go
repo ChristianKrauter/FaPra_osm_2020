@@ -133,7 +133,7 @@ func neighbours1d(indx int) []int {
 	return temp
 }
 
-// Test if it still works with less than 3 points in one grid row
+// UniformNeighboursRow Test if it still works with less than 3 points in one grid row
 func UniformNeighboursRow(in []float64, xSize, ySize int) [][]int {
 	N := float64(xSize * ySize)
 	a := 4.0 * math.Pi / N
@@ -158,6 +158,7 @@ func UniformNeighboursRow(in []float64, xSize, ySize int) [][]int {
 	return [][]int{p1, p2, p3}
 }
 
+// GetNeighboursUniformGrid ...
 func GetNeighboursUniformGrid(in []int) []int {
 	var neighbours [][]int
 	m := in[0]

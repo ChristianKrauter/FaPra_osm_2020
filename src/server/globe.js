@@ -214,12 +214,11 @@ function terminateShape() {
     activeShapePoints = [];
 }
 
-var options = [
-    {
+var options = [{
         text: "Draw Lines",
         onselect: function() {
             if (!Cesium.Entity.supportsPolylinesOnTerrain(viewer.scene)) {
-                window.alert( "This browser does not support polylines on terrain." );
+                window.alert("This browser does not support polylines on terrain.");
             }
             terminateShape();
             drawingMode = "line";

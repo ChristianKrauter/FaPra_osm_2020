@@ -233,6 +233,7 @@ func extractNodes(nodesProcessed *[]int, xSize, ySize int) [][]float64 {
 	return nodesExtended
 }
 
+// UniformExtractRoute ...
 func UniformExtractRoute(prev *[]int, end, xSize, ySize int, uniformGrid *UniformGrid) [][][]float64 {
 	var route [][][]float64
 	var tempRoute [][]float64
@@ -255,6 +256,7 @@ func UniformExtractRoute(prev *[]int, end, xSize, ySize int, uniformGrid *Unifor
 	return route
 }
 
+// UniformExtractNodes ...
 func UniformExtractNodes(nodesProcessed *[]int, xSize, ySize int, uniformGrid *UniformGrid) [][]float64 {
 	var nodesExtended [][]float64
 	for _, node := range *nodesProcessed {
@@ -290,6 +292,7 @@ func uniformNeighboursRow(in []float64, xSize, ySize int) [][]int {
 	return [][]int{p1, p2, p3}
 }
 
+// GetNeighboursUniformGrid ...
 func GetNeighboursUniformGrid(in, xSize, ySize int, uniformGrid *UniformGrid) []int {
 	var neighbours [][]int
 	var inGrid = uniformGrid.IdToGrid(in)

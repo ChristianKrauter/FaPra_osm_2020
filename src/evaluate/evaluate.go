@@ -61,7 +61,7 @@ func WayFinding(xSize, ySize, algorithm int, basicPointInPolygon bool) {
 						t := time.Now()
 						var elapsed = t.Sub(start)
 						sum += elapsed
-						count += 1
+						count++
 					}
 				}
 			}

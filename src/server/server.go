@@ -16,7 +16,6 @@ import (
 
 var port int = 8081
 
-
 type dijkstraData struct {
 	Route    *geojson.FeatureCollection
 	AllNodes [][]float64
@@ -302,4 +301,3 @@ func RunUnidistant(xSize, ySize int, basicPointInPolygon bool) {
 	fmt.Printf(" on localhost%s\n", portStr)
 	log.Fatal(http.ListenAndServe(portStr, nil))
 }
-

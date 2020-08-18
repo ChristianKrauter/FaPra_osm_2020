@@ -79,24 +79,24 @@ function createPoint(worldPosition, processed = false, start = false) {
     return point;
 }
 
-function pipTest(testData){
+function pipTest(testData) {
     point = this.earthPosition.ep
     var td = JSON.parse(testData)
     console.log(td)
     console.log(point)
-    point = [point[0],point[1],0,90]
-    drawLine(viewer,point)
-       
+    point = [point[0], point[1], 0, 90]
+    drawLine(viewer, point)
+
     if (td.Strikes !== null) {
-        for(i=0; i< td.Strikes.length; i++){
-            for (j =0; j< td.Strikes[i].length;j++){
+        for (i = 0; i < td.Strikes.length; i++) {
+            for (j = 0; j < td.Strikes[i].length; j++) {
                 //console.log(td.Strikes[i][j][0], td.Strikes[i][j][1])
                 createColoredPoint(Cesium.Cartesian3.fromDegrees(td.Strikes[i][j][0], td.Strikes[i][j][1]), Cesium.Color.RED)
-            
+
             }
         }
     }
-    
+
 }
 
 function drawLine(viewer, coords) {
@@ -147,13 +147,13 @@ function onLeftMouseClick(event) {
         const longitudeString = Cesium.Math.toDegrees(cartographic.longitude).toFixed(15);
         const latitudeString = Cesium.Math.toDegrees(cartographic.latitude).toFixed(15);
 
-            data["startLat"] = latitudeString
-            data["startLng"] = longitudeString
-            $.ajax({
-                url: "/point",
-                data: data,
-                earthPosition: { ep: [longitudeString,latitudeString] }
-            }).done(pipTest);
+        data["startLat"] = latitudeString
+        data["startLng"] = longitudeString
+        $.ajax({
+            url: "/point",
+            data: data,
+            earthPosition: { ep: [longitudeString, latitudeString] }
+        }).done(pipTest);
 
     }
 }
@@ -175,12 +175,11 @@ function terminateShape() {
     activeShapePoints = [];
 }
 
-var options = [
-    {
+var options = [{
         text: "Draw Lines",
         onselect: function() {
             if (!Cesium.Entity.supportsPolylinesOnTerrain(viewer.scene)) {
-                window.alert( "This browser does not support polylines on terrain." );
+                window.alert("This browser does not support polylines on terrain.");
             }
             terminateShape();
             drawingMode = "line";
