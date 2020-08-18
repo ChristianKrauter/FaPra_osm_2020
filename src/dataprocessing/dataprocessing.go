@@ -90,18 +90,19 @@ func storeTestGeoJSON(testGeoJSON *[][]float64, filename string) string {
 
 func createAndStoreCoastlineGeoJSON(allCoastlines *[][][]float64, filename string) string {
 	start := time.Now()
+	var polygons [][][]float64
 	for _, i := range *allCoastlines {
-		var polygon [][][]float64
-		polygon = append(polygon, i)
-		g := geojson.NewPolygonGeometry(polygon)
-		rawJSON, err := g.MarshalJSON()
-		f, err := os.Create(filename)
-		check(err)
-
-		_, err1 := f.Write(rawJSON)
-		check(err1)
-		f.Sync()
+		polygons = append(polygons, i)
 	}
+	var fc = geojson.NewMultiPolygonGeometry(polygons)
+	rawJSON, err := fc.MarshalJSON()
+	f, err := os.Create(filename)
+	check(err)
+
+	_, err1 := f.Write(rawJSON)
+	check(err1)
+	f.Sync()
+
 	t := time.Now()
 	elapsed := t.Sub(start)
 	fmt.Printf("Created and stored coastlines in : %s\n", elapsed)
