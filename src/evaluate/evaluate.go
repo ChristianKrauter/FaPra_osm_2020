@@ -14,6 +14,52 @@ import (
 	"time"
 )
 
+// ReadPBF is evaluated
+func ReadPBF(pbfFileName, note string) {
+	logging := make(map[string]string)
+	logging["pbfFileName"] = pbfFileName
+	pbfFileName = fmt.Sprintf("data/%s", pbfFileName)
+
+	var coastlineMap = make(map[int64][]int64)
+	var nodeMap = make(map[int64][]float64)
+	var readTime = dataprocessing.ReadFile(pbfFileName, &coastlineMap, &nodeMap)
+
+	coastlineMap = make(map[int64][]int64)
+	nodeMap = make(map[int64][]float64)
+	var readLessMemoryTime = dataprocessing.ReadFileLessMemory(pbfFileName, &coastlineMap, &nodeMap)
+
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+	logging["note"] = note
+	logging["numCPU"] = strconv.Itoa(runtime.NumCPU())
+	logging["totalAlloc"] = strconv.FormatUint(m.TotalAlloc/1024/1024, 10)
+	logging["time_read"] = string(readTime)
+	logging["time_readLessMemory"] = string(readLessMemoryTime)
+
+	jsonString, _ := json.Marshal(logging)
+	var filename string
+	var timestamp = time.Now().Format("2006-01-02_15-04-05")
+	filename = fmt.Sprintf("data/evaluation/rf_%s_%s.json", strings.Split(logging["pbfFileName"], ".")[0], timestamp)
+
+	f, err := os.Create(filename)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	_, err = f.WriteString(string(jsonString))
+	if err != nil {
+		fmt.Println(err)
+		f.Close()
+		return
+	}
+	err = f.Close()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+}
+
 // WayFinding is evaluated
 func WayFinding(xSize, ySize, algorithm int, basicPointInPolygon bool) {
 	var filename string

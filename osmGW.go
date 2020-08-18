@@ -11,7 +11,7 @@ import (
 func main() {
 	var mode int
 	flag.IntVar(&mode, "m", 0,
-		"Select Mode:\n  0: Start server \n  1: Start dataprocessing \n  2: Evaluate data processing\n  3: Evaluate wayfinding")
+		"Select Mode:\n  0: Start server \n  1: Start dataprocessing \n  2: Evaluate data processing\n  3: Evaluate wayfinding\n  4: Evaluate reading pbf")
 
 	var pbfFileName, note string
 	var xSize, ySize int
@@ -63,6 +63,9 @@ func main() {
 	case 3:
 		fmt.Printf("Starting evaluation of wayfinding for %s", info)
 		evaluate.WayFinding(xSize, ySize, 0, basicPointInPolygon)
+	case 4:
+		fmt.Printf("Starting evaluation of pbf reading for %s\n", pbfFileName)
+		evaluate.ReadPBF(pbfFileName, note)
 	default:
 		fmt.Printf("Error: No mode %d specified", mode)
 	}

@@ -98,11 +98,11 @@ func Start(pbfFileName string, xSize, ySize int, createCoastlineGeoJSON, lessMem
 	var coastlineMap = make(map[int64][]int64)
 	var nodeMap = make(map[int64][]float64)
 	if lessMemory {
-		var readTime = readFileLessMemory(pbfFileName, &coastlineMap, &nodeMap)
+		var readTime = ReadFileLessMemory(pbfFileName, &coastlineMap, &nodeMap)
 		logging["time_read"] = string(readTime)
 		logging["filename"] += "_lm"
 	} else {
-		var readTime = readFile(pbfFileName, &coastlineMap, &nodeMap)
+		var readTime = ReadFile(pbfFileName, &coastlineMap, &nodeMap)
 		logging["time_read"] = string(readTime)
 	}
 

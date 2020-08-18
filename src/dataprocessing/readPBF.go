@@ -10,7 +10,8 @@ import (
 	"time"
 )
 
-func readFile(pbfFileName string, coastlineMap *map[int64][]int64, nodeMap *map[int64][]float64) string {
+// ReadFile pbf
+func ReadFile(pbfFileName string, coastlineMap *map[int64][]int64, nodeMap *map[int64][]float64) string {
 	start := time.Now()
 
 	// Read coastlines
@@ -58,7 +59,8 @@ func readFile(pbfFileName string, coastlineMap *map[int64][]int64, nodeMap *map[
 	return elapsed.String()
 }
 
-func readFileLessMemory(pbfFileName string, coastlineMap *map[int64][]int64, nodeMap *map[int64][]float64) string {
+// ReadFileLessMemory pbf
+func ReadFileLessMemory(pbfFileName string, coastlineMap *map[int64][]int64, nodeMap *map[int64][]float64) string {
 	start := time.Now()
 
 	// Read coastlines
