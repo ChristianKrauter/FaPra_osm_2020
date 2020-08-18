@@ -51,7 +51,7 @@ func UniformGridToCoord(in []int, xSize, ySize int) []float64 {
 	theta := math.Pi * (m + 0.5) / mTheta
 	mPhi := math.Round(2.0 * math.Pi * math.Sin(theta) / dPhi)
 	phi := 2 * math.Pi * n / mPhi
-	return []float64{(phi / math.Pi) * 180,(theta/math.Pi)*180 - 90}
+	return []float64{(phi / math.Pi) * 180, (theta/math.Pi)*180 - 90}
 }
 
 // UniformCoordToGrid returns grid coordinates given lng,lat
@@ -103,7 +103,7 @@ func mod(a, b int) int {
 
 // Item of priority queue
 type Item struct {
-	value    int   // The value of the item; arbitrary.
+	value    int     // The value of the item; arbitrary.
 	priority float64 // The priority of the item in the queue.
 	// The index is needed by update and is maintained by the heap.Interface methods.
 	index int // The index of the item in the heap.
@@ -166,10 +166,12 @@ type UniformGrid struct {
 	FirstIndexOf []int
 }
 
+// GridToID ...
 func (ug UniformGrid) GridToID(m, n int) int {
 	return ug.FirstIndexOf[m] + n
 }
 
+// IdToGrid ...
 func (ug UniformGrid) IdToGrid(id int) []int {
 	m := sort.Search(len(ug.FirstIndexOf)-1, func(i int) bool { return ug.FirstIndexOf[i] > id })
 	n := id - ug.FirstIndexOf[m-1]
@@ -288,7 +290,7 @@ func uniformNeighboursRow(in []float64, xSize, ySize int) [][]int {
 	return [][]int{p1, p2, p3}
 }
 
-func GetNeighboursUniformGrid(in,xSize,ySize int, uniformGrid *UniformGrid, ) []int {
+func GetNeighboursUniformGrid(in, xSize, ySize int, uniformGrid *UniformGrid) []int {
 	var neighbours [][]int
 	var inGrid = uniformGrid.IdToGrid(in)
 	m := inGrid[0]
@@ -297,7 +299,7 @@ func GetNeighboursUniformGrid(in,xSize,ySize int, uniformGrid *UniformGrid, ) []
 	neighbours = append(neighbours, []int{m, mod(n+1, len(uniformGrid.VertexData[m]))})
 
 	coord := UniformGridToCoord(inGrid, xSize, ySize)
-	
+
 	if m > 0 {
 		coordDown := UniformGridToCoord([]int{m - 1, n}, xSize, ySize)
 		neighbours = append(neighbours, uniformNeighboursRow([]float64{coord[0], coordDown[1]}, xSize, ySize)...)

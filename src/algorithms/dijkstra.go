@@ -2,8 +2,8 @@ package algorithms
 
 import (
 	"container/heap"
-	"math"
 	"fmt"
+	"math"
 )
 
 var meshgrid []bool
@@ -115,7 +115,7 @@ func DijkstraAllNodes(startLngInt, startLatInt, endLngInt, endLatInt, xSize, ySi
 	return route, processedNodes
 }
 
-// Dijkstra implementation on uniform grid
+// UniformDijkstra implementation on uniform grid
 func UniformDijkstra(startLngInt, startLatInt, endLngInt, endLatInt, xSize, ySize int, uniformgridPointer *UniformGrid) [][][]float64 {
 
 	var uniformgrid = *uniformgridPointer
@@ -149,7 +149,7 @@ func UniformDijkstra(startLngInt, startLatInt, endLngInt, endLatInt, xSize, ySiz
 				return UniformExtractRoute(&prev, uniformgrid.GridToID(endLngInt, endLatInt), xSize, ySize, uniformgridPointer)
 			}
 
-			neighbours := GetNeighboursUniformGrid(u ,xSize, ySize, uniformgridPointer)
+			neighbours := GetNeighboursUniformGrid(u, xSize, ySize, uniformgridPointer)
 			//fmt.Printf("%v\n", neighbours)
 			for _, j := range neighbours {
 				//fmt.Printf("%v\n", uniformgrid.IdToGrid(j))
@@ -169,7 +169,7 @@ func UniformDijkstra(startLngInt, startLatInt, endLngInt, endLatInt, xSize, ySiz
 	return UniformExtractRoute(&prev, uniformgrid.GridToID(endLngInt, endLatInt), xSize, ySize, uniformgridPointer)
 }
 
-// DijkstraAllNodes additionally returns all visited nodes on uniform grid
+// UniformDijkstraAllNodes additionally returns all visited nodes on uniform grid
 func UniformDijkstraAllNodes(startLngInt, startLatInt, endLngInt, endLatInt, xSize, ySize int, uniformgridPointer *UniformGrid) ([][][]float64, [][]float64) {
 
 	var uniformgrid = *uniformgridPointer
@@ -205,7 +205,7 @@ func UniformDijkstraAllNodes(startLngInt, startLatInt, endLngInt, endLatInt, xSi
 				return route, processedNodes
 			}
 
-			neighbours := GetNeighboursUniformGrid(u ,xSize, ySize, uniformgridPointer)
+			neighbours := GetNeighboursUniformGrid(u, xSize, ySize, uniformgridPointer)
 
 			for _, j := range neighbours {
 				var alt = dist[u] + distance(UniformGridToCoord(uniformgrid.IdToGrid(u), xSize, ySize), UniformGridToCoord(uniformgrid.IdToGrid(j), xSize, ySize))
@@ -221,7 +221,7 @@ func UniformDijkstraAllNodes(startLngInt, startLatInt, endLngInt, endLatInt, xSi
 			}
 		}
 	}
-	var route = UniformExtractRoute(&prev,  uniformgrid.GridToID(endLngInt, endLatInt), xSize, ySize, uniformgridPointer)
+	var route = UniformExtractRoute(&prev, uniformgrid.GridToID(endLngInt, endLatInt), xSize, ySize, uniformgridPointer)
 	var processedNodes = UniformExtractNodes(&nodesProcessed, xSize, ySize, uniformgridPointer)
 	return route, processedNodes
 }
