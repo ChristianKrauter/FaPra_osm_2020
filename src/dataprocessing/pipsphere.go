@@ -1,7 +1,7 @@
 package dataprocessing
 
 import (
-	"fmt"
+	//"fmt"
 	"math"
 )
 
@@ -52,19 +52,15 @@ func eastOrWest(aLon, bLon float64) int {
 
 // Test if point is inside polygon, use north-pole for the known-to-be-outside point
 func pointInPolygonSphere(polygon *[][]float64, point []float64) bool {
-	//fmt.Printf("%v\n","New PP")
 	var inside = false
 	var strike = false
-
 	// Point is the south-pole
 	// Pontentially antipodal check
 	if point[1] == -90 {
-		fmt.Printf("Tried to check point antipodal to the north pole.")
+		//fmt.Printf("Tried to check point antipodal to the north pole.")
 		return true
 	}
-
-	// fmt.Printf("%v\n", point)
-
+	
 	// Point is the north-pole
 	if point[1] == 90 {
 		return false
@@ -72,28 +68,28 @@ func pointInPolygonSphere(polygon *[][]float64, point []float64) bool {
 	for i := 0; i < len(*polygon); i++ {
 		var a = (*polygon)[i]
 		var b = (*polygon)[(i+1)%len(*polygon)]
-
+		
 		strike = false
-
+		
 		if point[0] == a[0] {
 			strike = true
 		} else {
-
+			
 			var aToB = eastOrWest(a[0], b[0])
 			var aToP = eastOrWest(a[0], point[0])
 			var pToB = eastOrWest(point[0], b[0])
-
+			
 			if aToP == aToB && pToB == aToB {
 				strike = true
-				//fmt.Printf("a,b,p lon: %v, %v, %v\n",a[0],b[0],point[0])
 			}
 		}
-
+		
 		if strike {
-			//fmt.Printf("strike: %v, %v, %v\n",a[0],b[0],point[0])
 			if point[1] == a[1] && point[0] == a[0] {
 				return true
 			}
+
+			
 
 			// Possible to calculate once at polygon creation
 			var northPoleLonTransformed = transformLon(a, []float64{0.0, 90.0})
@@ -105,9 +101,10 @@ func pointInPolygonSphere(polygon *[][]float64, point []float64) bool {
 				return true
 			}
 
-			var bToX = eastOrWest(b[0], northPoleLonTransformed)
-			var bToP = eastOrWest(b[0], point[0])
+			var bToX = eastOrWest(bLonTransformed, northPoleLonTransformed)
+			var bToP = eastOrWest(bLonTransformed, pLonTransformed)
 			if bToX == -bToP {
+				
 				inside = !inside
 			}
 		}
