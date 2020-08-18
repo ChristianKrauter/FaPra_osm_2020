@@ -18,7 +18,7 @@ func createPoint(theta float64, phi float64) []float64 {
 	return []float64{theta/math.Pi*180 - 90, phi / math.Pi * 180}
 }
 
-func createUniformGrid(xSize, ySize int, boundingTreeRoot *boundingTree, allCoastlines *[][][]float64, testGeoJSON *[][]float64, uniformGrid *algorithms.UniformGrid, createTestGeoJSON, basicPointInPolygon bool) string {
+func createUniformGrid(xSize, ySize int, boundingTreeRoot *boundingTree, allCoastlines *[][][]float64, uniformGrid *algorithms.UniformGrid, basicPointInPolygon bool) string {
 	start := time.Now()
 	var grid [][]bool
 	var firstIndexOf []int
@@ -48,18 +48,12 @@ func createUniformGrid(xSize, ySize int, boundingTreeRoot *boundingTree, allCoas
 			if basicPointInPolygon {
 				if isLand(boundingTreeRoot, coords, allCoastlines) {
 					gridRow = append(gridRow, true)
-					if createTestGeoJSON {
-						*testGeoJSON = append(*testGeoJSON, coords)
-					}
 				} else {
 					gridRow = append(gridRow, false)
 				}
 			} else {
 				if isLandSphere(boundingTreeRoot, coords, allCoastlines) {
 					gridRow = append(gridRow, true)
-					if createTestGeoJSON {
-						*testGeoJSON = append(*testGeoJSON, coords)
-					}
 				} else {
 					gridRow = append(gridRow, false)
 				}

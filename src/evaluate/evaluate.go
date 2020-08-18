@@ -73,8 +73,8 @@ func WayFinding(xSize, ySize, algorithm int, basicPointInPolygon bool) {
 }
 
 // DataProcessing is evaluated
-func DataProcessing(pbfFileName, note string, xSize, ySize int, createTestGeoJSON, createCoastlineGeoJSON, lessMemory, noBoundingTree, basicGrid, basicPointInPolygon bool) {
-	var logging = dataprocessing.Start(pbfFileName, xSize, ySize, createTestGeoJSON, createCoastlineGeoJSON, lessMemory, noBoundingTree, basicGrid, basicPointInPolygon)
+func DataProcessing(pbfFileName, note string, xSize, ySize int, createCoastlineGeoJSON, lessMemory, noBoundingTree, basicGrid, basicPointInPolygon bool) {
+	var logging = dataprocessing.Start(pbfFileName, xSize, ySize, createCoastlineGeoJSON, lessMemory, noBoundingTree, basicGrid, basicPointInPolygon)
 
 	var m runtime.MemStats
 	runtime.ReadMemStats(&m)

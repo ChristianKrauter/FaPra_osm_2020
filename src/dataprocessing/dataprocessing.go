@@ -66,28 +66,6 @@ func createPolygons(allCoastlines *[][][]float64, coastlineMap *map[int64][]int6
 	return elapsed.String()
 }
 
-func storeTestGeoJSON(testGeoJSON *[][]float64, filename string) string {
-	start := time.Now()
-	fmt.Printf("Points in test geojson: %d\n", len(*testGeoJSON))
-	var rawJSON []byte
-
-	g := geojson.NewMultiPointGeometry(*testGeoJSON...)
-	rawJSON, err4 := g.MarshalJSON()
-	check(err4)
-
-	f, err5 := os.Create(filename)
-	check(err5)
-
-	_, err6 := f.Write(rawJSON)
-	check(err6)
-	f.Sync()
-
-	t := time.Now()
-	elapsed := t.Sub(start)
-	fmt.Printf("Stored test geojson in           : %s\n", elapsed)
-	return elapsed.String()
-}
-
 func createAndStoreCoastlineGeoJSON(allCoastlines *[][][]float64, filename string) string {
 	start := time.Now()
 	var polygons [][][]float64
@@ -110,7 +88,7 @@ func createAndStoreCoastlineGeoJSON(allCoastlines *[][][]float64, filename strin
 }
 
 // Start processing a pbf file to create a meshgrid
-func Start(pbfFileName string, xSize, ySize int, createTestGeoJSON, createCoastlineGeoJSON, lessMemory, noBoundingTree, basicGrid, basicPointInPolygon bool) map[string]string {
+func Start(pbfFileName string, xSize, ySize int, createCoastlineGeoJSON, lessMemory, noBoundingTree, basicGrid, basicPointInPolygon bool) map[string]string {
 	fmt.Printf("\nStarting processing of %s\n\n", pbfFileName)
 	logging := make(map[string]string)
 	pbfFileName = fmt.Sprintf("data/%s", pbfFileName)
@@ -154,7 +132,6 @@ func Start(pbfFileName string, xSize, ySize int, createTestGeoJSON, createCoastl
 	}
 
 	// Create and store meshgrid
-	var testGeoJSON [][]float64
 	var filenameAdditions = ""
 	if basicPointInPolygon {
 		logging["filename"] += "_bpip"
@@ -171,9 +148,9 @@ func Start(pbfFileName string, xSize, ySize int, createTestGeoJSON, createCoastl
 
 		var meshgridTime string
 		if noBoundingTree {
-			meshgridTime = createMeshgridNBT(xSize, ySize, &allBoundingBoxes, &allCoastlines, &testGeoJSON, &meshgrid, createTestGeoJSON, basicPointInPolygon)
+			meshgridTime = createMeshgridNBT(xSize, ySize, &allBoundingBoxes, &allCoastlines, &meshgrid, basicPointInPolygon)
 		} else {
-			meshgridTime = createMeshgrid(xSize, ySize, &boundingTreeRoot, &allCoastlines, &testGeoJSON, &meshgrid, createTestGeoJSON, basicPointInPolygon)
+			meshgridTime = createMeshgrid(xSize, ySize, &boundingTreeRoot, &allCoastlines, &meshgrid, basicPointInPolygon)
 		}
 		logging["time_meshgrid"] = string(meshgridTime)
 
@@ -183,19 +160,14 @@ func Start(pbfFileName string, xSize, ySize int, createTestGeoJSON, createCoastl
 	} else {
 		var uniformGrid algorithms.UniformGrid
 
-		var uniformGridTime = createUniformGrid(xSize, ySize, &boundingTreeRoot, &allCoastlines, &testGeoJSON, &uniformGrid, createTestGeoJSON, basicPointInPolygon)
+		var uniformGridTime = createUniformGrid(xSize, ySize, &boundingTreeRoot, &allCoastlines, &uniformGrid, basicPointInPolygon)
 		logging["time_meshgrid"] = string(uniformGridTime)
 
 		var uniformGridStoreTime = storeUniformGrid(&uniformGrid, fmt.Sprintf("data/output/uniformGrid_%v_%v%s.json", xSize, ySize, filenameAdditions))
 		logging["time_meshgrid_store"] = string(uniformGridStoreTime)
 	}
 
-	// Create and safe additional files
-	if createTestGeoJSON {
-		var testGeoJSONTime = storeTestGeoJSON(&testGeoJSON, fmt.Sprintf("data/output/test_for_%d_%d.geojson", xSize, ySize))
-		logging["time_testGeoJSON"] = string(testGeoJSONTime)
-	}
-
+	// Create and safe coastline
 	if createCoastlineGeoJSON {
 		var coastlineGeoJSONTime = createAndStoreCoastlineGeoJSON(&allCoastlines, fmt.Sprintf("data/output/coastlines_for_%d_%d.geojson", xSize, ySize))
 		logging["time_coastlineGeoJSON"] = string(coastlineGeoJSONTime)
