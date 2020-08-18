@@ -23,7 +23,7 @@ func createMeshgrid(xSize int, ySize int, boundingTreeRoot *boundingTree, allCoa
 	for x := 0.0; x < 360; x += xStepSize {
 		for y := 0.0; y < 360; y += yStepSize {
 			wg.Add(1)
-			go func(x float64, y float64) {
+			go func(x, y float64) {
 				defer wg.Done()
 				var xs = x - 180
 				var ys = (y / 2) - 90

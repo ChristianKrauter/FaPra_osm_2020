@@ -11,6 +11,7 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -57,14 +58,24 @@ func ReadPBF(pbfFileName, note string) {
 		fmt.Println(err)
 		return
 	}
-
 }
 
-// WayFinding is evaluated
-func WayFinding(xSize, ySize, algorithm int, basicPointInPolygon bool) {
+// WayFindingBG is evaluated
+func WayFindingBG(xSize, ySize, algorithm int, basicPointInPolygon bool, note string) {
 	var filename string
 	var meshgrid []bool
 	var meshgrid2d [][]bool
+
+	logging := make(map[string]string)
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+	logging["note"] = note
+	logging["basicGrid"] = "true"
+	logging["basicPointInPolygon"] = strconv.FormatBool(basicPointInPolygon)
+	logging["xSize"] = strconv.Itoa(xSize)
+	logging["ySize"] = strconv.Itoa(ySize)
+	logging["numCPU"] = strconv.Itoa(runtime.NumCPU())
+	logging["totalAlloc"] = strconv.FormatUint(m.TotalAlloc/1024/1024, 10)
 
 	if basicPointInPolygon {
 		filename = fmt.Sprintf("data/output/meshgrid_%v_%v_bpip.json", xSize, ySize)
@@ -80,16 +91,82 @@ func WayFinding(xSize, ySize, algorithm int, basicPointInPolygon bool) {
 	byteValue, _ := ioutil.ReadAll(meshgridRaw)
 	json.Unmarshal(byteValue, &meshgrid2d)
 
-	//var trueCount int
 	for i := 0; i < len(meshgrid2d[0]); i++ {
 		for j := 0; j < len(meshgrid2d); j++ {
 			meshgrid = append(meshgrid, meshgrid2d[j][i])
-			//if !meshgrid2d[j][i] {
-			//	trueCount += 1
-			//}
 		}
 	}
-	//fmt.Printf("\n%v\n", trueCount)
+
+	// TODO: More efficient average
+	var sum time.Duration
+	var count int
+
+	var wg sync.WaitGroup
+	fmt.Printf("\n%v\n", len(meshgrid))
+	for i := 0; i < len(meshgrid)/1000; i++ {
+		if !meshgrid[i] {
+			for j := 0; j < len(meshgrid)/1000; j++ {
+				if !meshgrid[j] {
+					wg.Add(1)
+					go func(i, j int) {
+						defer wg.Done()
+						var start = time.Now()
+						var a = algorithms.ExpandIndex(i, xSize)
+						var b = algorithms.ExpandIndex(j, xSize)
+						var _ = algorithms.Dijkstra(a[0], a[1], b[0], b[1], xSize, ySize, &meshgrid)
+						t := time.Now()
+						var elapsed = t.Sub(start)
+						sum += elapsed
+						count++
+					}(i, j)
+				}
+			}
+		}
+	}
+
+	wg.Wait()
+	fmt.Printf("Total Time: %v\nNumber of routings: %v\nAverage duration: %v", sum, count, sum/time.Duration(count))
+	//fmt.Printf("%v\n", testCount)
+}
+
+// WayFinding is evaluated
+func WayFinding(xSize, ySize, algorithm int, basicPointInPolygon bool, note string) {
+	var filename string
+	var meshgrid []bool
+	var meshgrid2d [][]bool
+	var uniformgrid []bool
+	var uniformgrid2d algorithms.UniformGrid
+
+	logging := make(map[string]string)
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+	logging["note"] = note
+	logging["basicGrid"] = "false"
+	logging["basicPointInPolygon"] = strconv.FormatBool(basicPointInPolygon)
+	logging["xSize"] = strconv.Itoa(xSize)
+	logging["ySize"] = strconv.Itoa(ySize)
+	logging["numCPU"] = strconv.Itoa(runtime.NumCPU())
+	logging["totalAlloc"] = strconv.FormatUint(m.TotalAlloc/1024/1024, 10)
+
+	if basicPointInPolygon {
+		filename = fmt.Sprintf("data/output/uniformGrid_%v_%v_bpip.json", xSize, ySize)
+	} else {
+		filename = fmt.Sprintf("data/output/uniformGrid_%v_%v.json", xSize, ySize)
+	}
+
+	uniformgridRaw, errJSON := os.Open(filename)
+	if errJSON != nil {
+		panic(errJSON)
+	}
+	defer uniformgridRaw.Close()
+	byteValue, _ := ioutil.ReadAll(uniformgridRaw)
+	json.Unmarshal(byteValue, &uniformgrid2d)
+	for i := 0; i < len(uniformgrid2d.VertexData); i++ {
+		for j := 0; j < len(uniformgrid2d.VertexData[i]); j++ {
+			uniformgrid = append(uniformgrid, uniformgrid2d.VertexData[i][j])
+		}
+	}
+
 	//var testCount int
 	// TODO: More efficient average
 	var sum time.Duration
