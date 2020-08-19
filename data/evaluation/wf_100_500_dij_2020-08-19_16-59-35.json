@@ -1,0 +1,15 @@
+{
+    "basicGrid": "false",
+    "basicPointInPolygon": "false",
+    "count_runs": "1000",
+    "filename": "_dij",
+    "note": "newgridtocoord",
+    "numCPU": "4",
+    "time_avg": "14.265107853s",
+    "time_max": "24.1663482s",
+    "time_min": "95.7434ms",
+    "time_sum": "3h57m45.1078539s",
+    "totalAlloc": "29314",
+    "xSize": "100",
+    "ySize": "500"
+}

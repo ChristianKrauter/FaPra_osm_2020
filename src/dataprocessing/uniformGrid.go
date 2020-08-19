@@ -54,6 +54,14 @@ func createUniformGrid(xSize, ySize int, boundingTreeRoot *boundingTree, allCoas
 	(*uniformGrid).N = nCount
 	(*uniformGrid).FirstIndexOf = firstIndexOf
 	(*uniformGrid).VertexData = grid
+	(*uniformGrid).XSize = xSize
+	(*uniformGrid).YSize = ySize
+	(*uniformGrid).BigN = int(N)
+	(*uniformGrid).A = a
+	(*uniformGrid).D = d
+	(*uniformGrid).MTheta = mTheta
+	(*uniformGrid).DTheta = dTheta
+	(*uniformGrid).DPhi = dPhi
 
 	t := time.Now()
 	elapsed := t.Sub(start)
@@ -101,6 +109,14 @@ func createUniformGridNBT(xSize, ySize int, allBoundingBoxes *[]map[string]float
 	(*uniformGrid).N = nCount
 	(*uniformGrid).FirstIndexOf = firstIndexOf
 	(*uniformGrid).VertexData = grid
+	(*uniformGrid).XSize = xSize
+	(*uniformGrid).YSize = ySize
+	(*uniformGrid).BigN = int(N)
+	(*uniformGrid).A = a
+	(*uniformGrid).D = d
+	(*uniformGrid).MTheta = mTheta
+	(*uniformGrid).DTheta = dTheta
+	(*uniformGrid).DPhi = dPhi
 
 	t := time.Now()
 	elapsed := t.Sub(start)

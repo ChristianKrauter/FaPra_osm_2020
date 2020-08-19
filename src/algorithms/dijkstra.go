@@ -136,11 +136,8 @@ func UniformDijkstra(startLngInt, startLatInt, endLngInt, endLatInt, xSize, ySiz
 	}
 	heap.Init(&pq)
 
-	//fmt.Printf("%v\n", "Start algo")
-
 	for {
 		if len(pq) == 0 {
-			//fmt.Printf("%v\n", "queue empty")
 			break
 		} else {
 			u := heap.Pop(&pq).(*Item).value
@@ -150,10 +147,9 @@ func UniformDijkstra(startLngInt, startLatInt, endLngInt, endLatInt, xSize, ySiz
 			}
 
 			neighbours := GetNeighboursUniformGrid(u, xSize, ySize, uniformgridPointer)
-			//fmt.Printf("%v\n", neighbours)
 			for _, j := range neighbours {
-				//fmt.Printf("%v\n", uniformgrid.IDToGrid(j))
-				var alt = dist[u] + distance(UniformGridToCoord(uniformgrid.IDToGrid(u), xSize, ySize), UniformGridToCoord(uniformgrid.IDToGrid(j), xSize, ySize))
+				//var alt = dist[u] + distance(UniformGridToCoord(uniformgrid.IDToGrid(u), xSize, ySize), UniformGridToCoord(uniformgrid.IDToGrid(j), xSize, ySize))
+				var alt = dist[u] + distance(uniformgrid.GridToCoord(uniformgrid.IDToGrid(u)), uniformgrid.GridToCoord(uniformgrid.IDToGrid(j)))
 				if alt < dist[j] {
 					dist[j] = alt
 					prev[j] = u
@@ -208,7 +204,8 @@ func UniformDijkstraAllNodes(startLngInt, startLatInt, endLngInt, endLatInt, xSi
 			neighbours := GetNeighboursUniformGrid(u, xSize, ySize, uniformgridPointer)
 
 			for _, j := range neighbours {
-				var alt = dist[u] + distance(UniformGridToCoord(uniformgrid.IDToGrid(u), xSize, ySize), UniformGridToCoord(uniformgrid.IDToGrid(j), xSize, ySize))
+				// var alt = dist[u] + distance(UniformGridToCoord(uniformgrid.IDToGrid(u), xSize, ySize), UniformGridToCoord(uniformgrid.IDToGrid(j), xSize, ySize))
+				var alt = dist[u] + distance(uniformgrid.GridToCoord(uniformgrid.IDToGrid(u)), uniformgrid.GridToCoord(uniformgrid.IDToGrid(j)))
 				if alt < dist[j] {
 					dist[j] = alt
 					prev[j] = u

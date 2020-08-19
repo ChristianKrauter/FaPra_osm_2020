@@ -7,6 +7,7 @@ import (
 	"github.com/paulmach/go.geojson"
 	"io/ioutil"
 	"log"
+	"math"
 	"net/http"
 	"os"
 	"strconv"
@@ -206,10 +207,19 @@ func RunUnidistant(xSize, ySize int, basicPointInPolygon bool) {
 	for i := 0; i < len(uniformgrid2d.VertexData); i++ {
 		for j := 0; j < len(uniformgrid2d.VertexData[i]); j++ {
 			if !uniformgrid2d.VertexData[i][j] {
-				points = append(points, algorithms.UniformGridToCoord([]int{int(i), int(j)}, int(xSize), int(ySize)))
+				points = append(points, uniformgrid2d.GridToCoord([]int{int(i), int(j)}))
 			}
 		}
 	}
+
+	uniformgrid2d.XSize = xSize
+	uniformgrid2d.YSize = ySize
+	uniformgrid2d.BigN = xSize * ySize
+	uniformgrid2d.A = 4.0 * math.Pi / float64(uniformgrid2d.BigN)
+	uniformgrid2d.D = math.Sqrt(uniformgrid2d.A)
+	uniformgrid2d.MTheta = math.Round(math.Pi / uniformgrid2d.D)
+	uniformgrid2d.DTheta = math.Pi / uniformgrid2d.MTheta
+	uniformgrid2d.DPhi = uniformgrid2d.A / uniformgrid2d.DTheta
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 
@@ -234,11 +244,11 @@ func RunUnidistant(xSize, ySize int, basicPointInPolygon bool) {
 				panic(err3)
 			}
 
-			var start = algorithms.UniformCoordToGrid([]float64{startLng, startLat}, int(xSize), int(ySize))
+			var start = uniformgrid2d.CoordToGrid(startLng, startLat)
 			var startLngInt = start[0]
 			var startLatInt = start[1]
 
-			var end = algorithms.UniformCoordToGrid([]float64{endLng, endLat}, int(xSize), int(ySize))
+			var end = uniformgrid2d.CoordToGrid(endLng, endLat)
 			var endLngInt = end[0]
 			var endLatInt = end[1]
 

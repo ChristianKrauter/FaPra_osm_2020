@@ -161,9 +161,35 @@ func (p arrayOfArrays) Less(i, j int) bool {
 
 // UniformGrid ...
 type UniformGrid struct {
+	XSize        int
+	YSize        int
 	N            int
+	BigN         int
+	A            float64
+	D            float64
+	MTheta       float64
+	DTheta       float64
+	DPhi         float64
 	VertexData   [][]bool
 	FirstIndexOf []int
+}
+
+// GridToCoord ...
+func (ug UniformGrid) GridToCoord(in []int) []float64 {
+	theta := math.Pi * (float64(in[0]) + 0.5) / float64(ug.MTheta)
+	mPhi := math.Round(2.0 * math.Pi * math.Sin(theta) / ug.DPhi)
+	phi := 2 * math.Pi * float64(in[1]) / mPhi
+	return []float64{(phi / math.Pi) * 180, (theta/math.Pi)*180 - 90}
+}
+
+// CoordToGrid returns grid coordinates given lng,lat
+func (ug UniformGrid) CoordToGrid(lng, lat float64) []int {
+	theta := (lat + 90) * math.Pi / 180
+	m := math.Round((theta * ug.MTheta / math.Pi) - 0.5)
+	phi := lng * math.Pi / 180
+	mPhi := math.Round(2.0 * math.Pi * math.Sin(theta) / ug.DPhi)
+	n := math.Round(phi * mPhi / (2 * math.Pi))
+	return []int{mod(int(m), int(ug.MTheta)), mod(int(n), int(mPhi))}
 }
 
 // GridToID ...
@@ -244,7 +270,7 @@ func UniformExtractRoute(prev *[]int, end, xSize, ySize int, uniformGrid *Unifor
 			route = append(route, tempRoute)
 			tempRoute = make([][]float64, 0)
 		}
-		tempRoute = append(tempRoute, UniformGridToCoord([]int{x[0], x[1]}, xSize, ySize))
+		tempRoute = append(tempRoute, uniformGrid.GridToCoord([]int{x[0], x[1]}))
 
 		if (*prev)[end] == -1 {
 			break
@@ -261,7 +287,7 @@ func UniformExtractNodes(nodesProcessed *[]int, xSize, ySize int, uniformGrid *U
 	var nodesExtended [][]float64
 	for _, node := range *nodesProcessed {
 		x := uniformGrid.IDToGrid(node)
-		coord := UniformGridToCoord([]int{x[0], x[1]}, xSize, ySize)
+		coord := uniformGrid.GridToCoord([]int{x[0], x[1]})
 		nodesExtended = append(nodesExtended, coord)
 	}
 	return nodesExtended
@@ -301,15 +327,15 @@ func GetNeighboursUniformGrid(in, xSize, ySize int, uniformGrid *UniformGrid) []
 	neighbours = append(neighbours, []int{m, mod(n-1, len(uniformGrid.VertexData[m]))})
 	neighbours = append(neighbours, []int{m, mod(n+1, len(uniformGrid.VertexData[m]))})
 
-	coord := UniformGridToCoord(inGrid, xSize, ySize)
+	coord := uniformGrid.GridToCoord(inGrid)
 
 	if m > 0 {
-		coordDown := UniformGridToCoord([]int{m - 1, n}, xSize, ySize)
+		coordDown := uniformGrid.GridToCoord([]int{m - 1, n})
 		neighbours = append(neighbours, uniformNeighboursRow([]float64{coord[0], coordDown[1]}, xSize, ySize)...)
 	}
 
 	if m < len(uniformGrid.VertexData)-1 {
-		coordUp := UniformGridToCoord([]int{m + 1, n}, xSize, ySize)
+		coordUp := uniformGrid.GridToCoord([]int{m + 1, n})
 		neighbours = append(neighbours, uniformNeighboursRow([]float64{coord[0], coordUp[1]}, xSize, ySize)...)
 	}
 	var neighbours1d []int

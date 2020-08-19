@@ -222,7 +222,6 @@ func WayFinding(xSize, ySize, nRuns, algorithm int, basicPointInPolygon bool, no
 			uniformgrid = append(uniformgrid, uniformgrid2d.VertexData[i][j])
 		}
 	}
-
 	var sum time.Duration
 	var count int
 	var max = time.Duration(math.MinInt64)
@@ -241,6 +240,15 @@ func WayFinding(xSize, ySize, nRuns, algorithm int, basicPointInPolygon bool, no
 			}
 		}
 	}
+
+	uniformgrid2d.XSize = xSize
+	uniformgrid2d.YSize = ySize
+	uniformgrid2d.BigN = xSize * ySize
+	uniformgrid2d.A = 4.0 * math.Pi / float64(uniformgrid2d.BigN)
+	uniformgrid2d.D = math.Sqrt(uniformgrid2d.A)
+	uniformgrid2d.MTheta = math.Round(math.Pi / uniformgrid2d.D)
+	uniformgrid2d.DTheta = math.Pi / uniformgrid2d.MTheta
+	uniformgrid2d.DPhi = uniformgrid2d.A / uniformgrid2d.DTheta
 
 	for i := 0; i < len(from); i++ {
 		var x = from[i]
