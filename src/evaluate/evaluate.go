@@ -67,17 +67,15 @@ func WayFindingBG(xSize, ySize, nRuns int, basicPointInPolygon bool, note string
 	var filename string
 	var meshgrid []bool
 	var meshgrid2d [][]bool
+	var m runtime.MemStats
 
 	logging := make(map[string]string)
-	var m runtime.MemStats
-	runtime.ReadMemStats(&m)
 	logging["note"] = note
 	logging["basicGrid"] = "true"
 	logging["basicPointInPolygon"] = strconv.FormatBool(basicPointInPolygon)
 	logging["xSize"] = strconv.Itoa(xSize)
 	logging["ySize"] = strconv.Itoa(ySize)
 	logging["numCPU"] = strconv.Itoa(runtime.NumCPU())
-	logging["totalAlloc"] = strconv.FormatUint(m.TotalAlloc/1024/1024, 10)
 
 	if basicPointInPolygon {
 		filename = fmt.Sprintf("data/output/meshgrid_%v_%v_bpip.json", xSize, ySize)
@@ -145,6 +143,8 @@ func WayFindingBG(xSize, ySize, nRuns int, basicPointInPolygon bool, note string
 	wg.Wait()
 	fmt.Printf("Total Time: %v\nNumber of routings: %v\nAverage duration: %v\nMin, Max: %v, %v", sum, count, sum/time.Duration(count), min, max)
 
+	runtime.ReadMemStats(&m)
+	logging["totalAlloc"] = strconv.FormatUint(m.TotalAlloc/1024/1024, 10)
 	logging["time_sum"] = sum.String()
 	logging["count_runs"] = strconv.Itoa(count)
 	logging["time_avg"] = (sum / time.Duration(count)).String()
@@ -183,17 +183,16 @@ func WayFinding(xSize, ySize, nRuns, algorithm int, basicPointInPolygon bool, no
 	var filename string
 	var uniformgrid []bool
 	var uniformgrid2d algorithms.UniformGrid
+	var m runtime.MemStats
 
 	logging := make(map[string]string)
-	var m runtime.MemStats
-	runtime.ReadMemStats(&m)
 	logging["note"] = note
 	logging["basicGrid"] = "false"
 	logging["basicPointInPolygon"] = strconv.FormatBool(basicPointInPolygon)
 	logging["xSize"] = strconv.Itoa(xSize)
 	logging["ySize"] = strconv.Itoa(ySize)
 	logging["numCPU"] = strconv.Itoa(runtime.NumCPU())
-	logging["totalAlloc"] = strconv.FormatUint(m.TotalAlloc/1024/1024, 10)
+
 	var algostring string
 	switch algorithm {
 	case 0:
@@ -269,6 +268,8 @@ func WayFinding(xSize, ySize, nRuns, algorithm int, basicPointInPolygon bool, no
 	wg.Wait()
 	fmt.Printf("Total Time: %v\nNumber of routings: %v\nAverage duration: %v\nMin, Max: %v, %v", sum, count, sum/time.Duration(count), min, max)
 
+	runtime.ReadMemStats(&m)
+	logging["totalAlloc"] = strconv.FormatUint(m.TotalAlloc/1024/1024, 10)
 	logging["time_sum"] = sum.String()
 	logging["count_runs"] = strconv.Itoa(count)
 	logging["time_avg"] = (sum / time.Duration(count)).String()
