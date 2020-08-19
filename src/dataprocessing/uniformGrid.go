@@ -34,9 +34,10 @@ func createUniformGrid(xSize, ySize int, boundingTreeRoot *boundingTree, allCoas
 		var gridRow []bool
 		firstIndexOf = append(firstIndexOf, int(nCount))
 		for n := 0.0; n < mPhi; n += 1.0 {
-			// phi := 2 * math.Pi * n / mPhi
+			phi := 2 * math.Pi * n / mPhi
 			nCount++
-			coords := algorithms.UniformGridToCoord([]int{int(m), int(n)}, xSize, ySize)
+			// coords := algorithms.UniformGridToCoord([]int{int(m), int(n)}, xSize, ySize)
+			coords := []float64{(phi / math.Pi) * 180, (theta/math.Pi)*180 - 90}
 			if coords[0] > 180 {
 				coords[0] = coords[0] - 360
 			}
@@ -80,9 +81,10 @@ func createUniformGridNBT(xSize, ySize int, allBoundingBoxes *[]map[string]float
 		var gridRow []bool
 		firstIndexOf = append(firstIndexOf, int(nCount))
 		for n := 0.0; n < mPhi; n += 1.0 {
-			// phi := 2 * math.Pi * n / mPhi
+			phi := 2 * math.Pi * n / mPhi
 			nCount++
-			coords := algorithms.UniformGridToCoord([]int{int(m), int(n)}, xSize, ySize)
+			// coords := algorithms.UniformGridToCoord([]int{int(m), int(n)}, xSize, ySize)
+			coords := []float64{(phi / math.Pi) * 180, (theta/math.Pi)*180 - 90}
 			if coords[0] > 180 {
 				coords[0] = coords[0] - 360
 			}
