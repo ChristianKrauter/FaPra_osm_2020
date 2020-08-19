@@ -120,50 +120,27 @@ func WayFindingBG(xSize, ySize, nRuns int, basicPointInPolygon bool, note string
 	}
 
 	for i := 0; i < len(from); i++ {
-		if !meshgrid[from[i]] && !meshgrid[to[i]] {
-			var x = from[i]
-			var y = to[i]
-			wg.Add(1)
-			go func(x, y int) {
-				defer wg.Done()
-				var start = time.Now()
-				var a = algorithms.ExpandIndex(x, xSize)
-				var b = algorithms.ExpandIndex(y, xSize)
-				var _ = algorithms.Dijkstra(a[0], a[1], b[0], b[1], xSize, ySize, &meshgrid)
-				t := time.Now()
-				var elapsed = t.Sub(start)
-				if elapsed > max {
-					max = elapsed
-				}
-				if elapsed < min {
-					min = elapsed
-				}
-				sum += elapsed
-				count++
-			}(x, y)
-		}
-	}
-
-	/*for i := 0; i < len(meshgrid)/1000; i++ {
-		if !meshgrid[i] {
-			for j := 0; j < len(meshgrid)/1000; j++ {
-				if !meshgrid[j] {
-					wg.Add(1)
-					go func(i, j int) {
-						defer wg.Done()
-						var start = time.Now()
-						var a = algorithms.ExpandIndex(i, xSize)
-						var b = algorithms.ExpandIndex(j, xSize)
-						var _ = algorithms.Dijkstra(a[0], a[1], b[0], b[1], xSize, ySize, &meshgrid)
-						t := time.Now()
-						var elapsed = t.Sub(start)
-						sum += elapsed
-						count++
-					}(i, j)
-				}
+		var x = from[i]
+		var y = to[i]
+		wg.Add(1)
+		go func(x, y int) {
+			defer wg.Done()
+			var start = time.Now()
+			var a = algorithms.ExpandIndex(x, xSize)
+			var b = algorithms.ExpandIndex(y, xSize)
+			var _ = algorithms.Dijkstra(a[0], a[1], b[0], b[1], xSize, ySize, &meshgrid)
+			t := time.Now()
+			var elapsed = t.Sub(start)
+			if elapsed > max {
+				max = elapsed
 			}
-		}
-	}*/
+			if elapsed < min {
+				min = elapsed
+			}
+			sum += elapsed
+			count++
+		}(x, y)
+	}
 
 	wg.Wait()
 	fmt.Printf("Total Time: %v\nNumber of routings: %v\nAverage duration: %v\nMin, Max: %v, %v", sum, count, sum/time.Duration(count), min, max)
@@ -257,33 +234,36 @@ func WayFinding(xSize, ySize, nRuns, algorithm int, basicPointInPolygon bool, no
 
 	rand.Seed(time.Now().UnixNano())
 	for i := 0; i < nRuns; i++ {
-		from[i] = rand.Intn(len(uniformgrid))
-		to[i] = rand.Intn(len(uniformgrid))
+		for {
+			from[i] = rand.Intn(len(uniformgrid))
+			to[i] = rand.Intn(len(uniformgrid))
+			if !uniformgrid[from[i]] && !uniformgrid[to[i]] {
+				break
+			}
+		}
 	}
 
 	for i := 0; i < len(from); i++ {
-		if !uniformgrid[from[i]] && !uniformgrid[to[i]] {
-			var x = from[i]
-			var y = to[i]
-			wg.Add(1)
-			go func(x, y int) {
-				defer wg.Done()
-				var start = time.Now()
-				var a = uniformgrid2d.IDToGrid(x)
-				var b = uniformgrid2d.IDToGrid(y)
-				var _ = algorithms.UniformDijkstra(a[0], a[1], b[0], b[1], xSize, ySize, &uniformgrid2d)
-				t := time.Now()
-				var elapsed = t.Sub(start)
-				if elapsed > max {
-					max = elapsed
-				}
-				if elapsed < min {
-					min = elapsed
-				}
-				sum += elapsed
-				count++
-			}(x, y)
-		}
+		var x = from[i]
+		var y = to[i]
+		wg.Add(1)
+		go func(x, y int) {
+			defer wg.Done()
+			var start = time.Now()
+			var a = uniformgrid2d.IDToGrid(x)
+			var b = uniformgrid2d.IDToGrid(y)
+			var _ = algorithms.UniformDijkstra(a[0], a[1], b[0], b[1], xSize, ySize, &uniformgrid2d)
+			t := time.Now()
+			var elapsed = t.Sub(start)
+			if elapsed > max {
+				max = elapsed
+			}
+			if elapsed < min {
+				min = elapsed
+			}
+			sum += elapsed
+			count++
+		}(x, y)
 	}
 
 	wg.Wait()
