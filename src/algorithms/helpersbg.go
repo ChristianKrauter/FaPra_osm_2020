@@ -37,7 +37,7 @@ func ExpandIndex(indx, xSize int) []int {
     return []int{x, y}
 }
 
-func neighbours1d(indx, xSize int) []int {
+func neighbours1d(indx, xSize int, mg *[]bool) []int {
     var neighbours []int
     var temp []int
 
@@ -51,8 +51,8 @@ func neighbours1d(indx, xSize int) []int {
     neighbours = append(neighbours, indx+xSize+1) // bottom right
 
     for _, j := range neighbours {
-        if j >= 0 && j < int(len(meshgrid)) {
-            if !meshgrid[j] {
+        if j >= 0 && j < int(len((*mg))) {
+            if !(*mg)[j] {
                 temp = append(temp, j)
             }
         }

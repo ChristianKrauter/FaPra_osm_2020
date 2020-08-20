@@ -6,17 +6,14 @@ import (
 	"math"
 )
 
-var meshgrid []bool
-
 // Dijkstra implementation
-func Dijkstra(startLngInt, startLatInt, endLngInt, endLatInt, xSize, ySize int, meshgridPointer *[]bool) [][][]float64 {
+func Dijkstra(startLngInt, startLatInt, endLngInt, endLatInt, xSize, ySize int, mg *[]bool) [][][]float64 {
 
-	meshgrid = *meshgridPointer
 	var dist []float64
 	var prev []int
 	pq := make(PriorityQueue, 1)
 
-	for i := 0; i < len(meshgrid); i++ {
+	for i := 0; i < len((*mg)); i++ {
 		dist = append(dist, math.Inf(1))
 		prev = append(prev, -1)
 	}
@@ -39,7 +36,7 @@ func Dijkstra(startLngInt, startLatInt, endLngInt, endLatInt, xSize, ySize int, 
 				return extractRoute(&prev, flattenIndex(endLngInt, endLatInt, xSize), xSize, ySize)
 			}
 
-			neighbours := neighbours1d(u, xSize)
+			neighbours := neighbours1d(u, xSize, mg)
 
 			for _, j := range neighbours {
 				var alt = dist[u] + distance(GridToCoord(ExpandIndex(u, xSize), xSize, ySize), GridToCoord(ExpandIndex(j, xSize), xSize, ySize))
@@ -59,15 +56,14 @@ func Dijkstra(startLngInt, startLatInt, endLngInt, endLatInt, xSize, ySize int, 
 }
 
 // DijkstraAllNodes additionally returns all visited nodes
-func DijkstraAllNodes(startLngInt, startLatInt, endLngInt, endLatInt, xSize, ySize int, meshgridPointer *[]bool) ([][][]float64, [][]float64) {
+func DijkstraAllNodes(startLngInt, startLatInt, endLngInt, endLatInt, xSize, ySize int, mg *[]bool) ([][][]float64, [][]float64) {
 
-	meshgrid = *meshgridPointer
 	var dist []float64
 	var prev []int
 	var nodesProcessed []int
 	pq := make(PriorityQueue, 1)
 
-	for i := 0; i < len(meshgrid); i++ {
+	for i := 0; i < len((*mg)); i++ {
 		dist = append(dist, math.Inf(1))
 		prev = append(prev, -1)
 	}
@@ -94,7 +90,7 @@ func DijkstraAllNodes(startLngInt, startLatInt, endLngInt, endLatInt, xSize, ySi
 				return route, processedNodes
 			}
 
-			neighbours := neighbours1d(u, xSize)
+			neighbours := neighbours1d(u, xSize, mg)
 
 			for _, j := range neighbours {
 				var alt = dist[u] + distance(GridToCoord(ExpandIndex(u, xSize), xSize, ySize), GridToCoord(ExpandIndex(j, xSize), xSize, ySize))
