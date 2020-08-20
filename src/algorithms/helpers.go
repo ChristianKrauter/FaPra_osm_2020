@@ -144,18 +144,18 @@ func (pq *PriorityQueue) Pop() interface{} {
 	return item
 }
 
-// Sorting arrays by length
-type arrayOfArrays [][][]float64
+// ArrayOfArrays sorting by length
+type ArrayOfArrays [][][]float64
 
-func (p arrayOfArrays) Len() int {
+func (p ArrayOfArrays) Len() int {
 	return len(p)
 }
 
-func (p arrayOfArrays) Swap(i, j int) {
+func (p ArrayOfArrays) Swap(i, j int) {
 	p[i], p[j] = p[j], p[i]
 }
 
-func (p arrayOfArrays) Less(i, j int) bool {
+func (p ArrayOfArrays) Less(i, j int) bool {
 	return len(p[i]) > len(p[j])
 }
 
