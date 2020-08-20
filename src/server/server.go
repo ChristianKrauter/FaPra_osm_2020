@@ -179,8 +179,17 @@ func Run(xSize, ySize int, basicPointInPolygon bool) {
 func RunUnidistant(xSize, ySize int, basicPointInPolygon bool) {
 	//log.Fatal("Server with unidistant grid not implemented.")
 
-	var uniformgrid []bool
-	var uniformgrid2d algorithms.UniformGrid
+	var ug1D []bool
+	var ug algorithms.UniformGrid
+
+	ug.XSize = xSize
+	ug.YSize = ySize
+	ug.BigN = xSize * ySize
+	ug.A = 4.0 * math.Pi / float64(ug.BigN)
+	ug.D = math.Sqrt(ug.A)
+	ug.MTheta = math.Round(math.Pi / ug.D)
+	ug.DTheta = math.Pi / ug.MTheta
+	ug.DPhi = ug.A / ug.DTheta
 
 	var filename string
 	if basicPointInPolygon {
@@ -195,31 +204,22 @@ func RunUnidistant(xSize, ySize int, basicPointInPolygon bool) {
 	}
 	defer uniformgridRaw.Close()
 	byteValue, _ := ioutil.ReadAll(uniformgridRaw)
-	json.Unmarshal(byteValue, &uniformgrid2d)
+	json.Unmarshal(byteValue, &ug)
 
-	for i := 0; i < len(uniformgrid2d.VertexData); i++ {
-		for j := 0; j < len(uniformgrid2d.VertexData[i]); j++ {
-			uniformgrid = append(uniformgrid, uniformgrid2d.VertexData[i][j])
+	for i := 0; i < len(ug.VertexData); i++ {
+		for j := 0; j < len(ug.VertexData[i]); j++ {
+			ug1D = append(ug1D, ug.VertexData[i][j])
 		}
 	}
 
 	var points [][]float64
-	for i := 0; i < len(uniformgrid2d.VertexData); i++ {
-		for j := 0; j < len(uniformgrid2d.VertexData[i]); j++ {
-			if !uniformgrid2d.VertexData[i][j] {
-				points = append(points, uniformgrid2d.GridToCoord([]int{int(i), int(j)}))
+	for i := 0; i < len(ug.VertexData); i++ {
+		for j := 0; j < len(ug.VertexData[i]); j++ {
+			if !ug.VertexData[i][j] {
+				points = append(points, ug.GridToCoord([]int{int(i), int(j)}))
 			}
 		}
 	}
-
-	uniformgrid2d.XSize = xSize
-	uniformgrid2d.YSize = ySize
-	uniformgrid2d.BigN = xSize * ySize
-	uniformgrid2d.A = 4.0 * math.Pi / float64(uniformgrid2d.BigN)
-	uniformgrid2d.D = math.Sqrt(uniformgrid2d.A)
-	uniformgrid2d.MTheta = math.Round(math.Pi / uniformgrid2d.D)
-	uniformgrid2d.DTheta = math.Pi / uniformgrid2d.MTheta
-	uniformgrid2d.DPhi = uniformgrid2d.A / uniformgrid2d.DTheta
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 
@@ -244,24 +244,24 @@ func RunUnidistant(xSize, ySize int, basicPointInPolygon bool) {
 				panic(err3)
 			}
 
-			var start = uniformgrid2d.CoordToGrid(startLng, startLat)
+			var start = ug.CoordToGrid(startLng, startLat)
 			var startLngInt = start[0]
 			var startLatInt = start[1]
 
-			var end = uniformgrid2d.CoordToGrid(endLng, endLat)
+			var end = ug.CoordToGrid(endLng, endLat)
 			var endLngInt = end[0]
 			var endLatInt = end[1]
 
 			//fmt.Printf("\n%v/%v, %v/%v\n", startLngInt, startLatInt, endLngInt, endLatInt)
 			//fmt.Printf("%v/%v\n", meshgrid2d[startLngInt][startLatInt], meshgrid2d[endLngInt][endLatInt])
 
-			if !uniformgrid2d.VertexData[startLngInt][startLatInt] && !uniformgrid2d.VertexData[endLngInt][endLatInt] {
 				//fmt.Printf("start: %d / %d ", int(math.Round(startLat)), int(math.Round(startLng)))
 				//fmt.Printf("end: %d / %d\n", int(math.Round(endLat)), int(math.Round(endLng)))
 
+			if !ug.VertexData[startLngInt][startLatInt] && !ug.VertexData[endLngInt][endLatInt] {
 				if strings.Contains(r.URL.Path, "/dijkstraAllNodes") {
 					var start = time.Now()
-					var route, nodesProcessed = algorithms.UniformDijkstraAllNodes(startLngInt, startLatInt, endLngInt, endLatInt, int(xSize), int(ySize), &uniformgrid2d)
+					var route, nodesProcessed = algorithms.UniformDijkstraAllNodes(startLngInt, startLatInt, endLngInt, endLatInt, &ug)
 					t := time.Now()
 					elapsed := t.Sub(start)
 					fmt.Printf("time: %s\n", elapsed)
@@ -280,7 +280,7 @@ func RunUnidistant(xSize, ySize int, basicPointInPolygon bool) {
 					w.Write(jsonData)
 				} else {
 					var start = time.Now()
-					var route = algorithms.UniformDijkstra(startLngInt, startLatInt, endLngInt, endLatInt, int(xSize), int(ySize), &uniformgrid2d)
+					var route = algorithms.UniformDijkstra(startLngInt, startLatInt, endLngInt, endLatInt, &ug)
 					t := time.Now()
 					elapsed := t.Sub(start)
 					fmt.Printf("time: %s\n", elapsed)

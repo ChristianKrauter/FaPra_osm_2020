@@ -16,7 +16,7 @@ func createPoint(theta float64, phi float64) []float64 {
 	return []float64{theta/math.Pi*180 - 90, phi / math.Pi * 180}
 }
 
-func createUniformGrid(xSize, ySize int, boundingTreeRoot *boundingTree, allCoastlines *[][][]float64, uniformGrid *algorithms.UniformGrid, basicPointInPolygon bool) string {
+func createUniformGrid(xSize, ySize int, boundingTreeRoot *boundingTree, allCoastlines *[][][]float64, ug *algorithms.UniformGrid, basicPointInPolygon bool) string {
 	start := time.Now()
 	var grid [][]bool
 	var firstIndexOf []int
@@ -51,17 +51,17 @@ func createUniformGrid(xSize, ySize int, boundingTreeRoot *boundingTree, allCoas
 		grid = append(grid, gridRow)
 	}
 
-	(*uniformGrid).N = nCount
-	(*uniformGrid).FirstIndexOf = firstIndexOf
-	(*uniformGrid).VertexData = grid
-	(*uniformGrid).XSize = xSize
-	(*uniformGrid).YSize = ySize
-	(*uniformGrid).BigN = int(N)
-	(*uniformGrid).A = a
-	(*uniformGrid).D = d
-	(*uniformGrid).MTheta = mTheta
-	(*uniformGrid).DTheta = dTheta
-	(*uniformGrid).DPhi = dPhi
+	(*ug).N = nCount
+	(*ug).FirstIndexOf = firstIndexOf
+	(*ug).VertexData = grid
+	(*ug).XSize = xSize
+	(*ug).YSize = ySize
+	(*ug).BigN = int(N)
+	(*ug).A = a
+	(*ug).D = d
+	(*ug).MTheta = mTheta
+	(*ug).DTheta = dTheta
+	(*ug).DPhi = dPhi
 
 	t := time.Now()
 	elapsed := t.Sub(start)
@@ -70,8 +70,7 @@ func createUniformGrid(xSize, ySize int, boundingTreeRoot *boundingTree, allCoas
 	return elapsed.String()
 }
 
-// TODO
-func createUniformGridNBT(xSize, ySize int, allBoundingBoxes *[]map[string]float64, allCoastlines *[][][]float64, uniformGrid *algorithms.UniformGrid, basicPointInPolygon bool) string {
+func createUniformGridNBT(xSize, ySize int, allBoundingBoxes *[]map[string]float64, allCoastlines *[][][]float64, ug *algorithms.UniformGrid, basicPointInPolygon bool) string {
 	start := time.Now()
 	var grid [][]bool
 	var firstIndexOf []int
@@ -106,17 +105,17 @@ func createUniformGridNBT(xSize, ySize int, allBoundingBoxes *[]map[string]float
 		grid = append(grid, gridRow)
 	}
 
-	(*uniformGrid).N = nCount
-	(*uniformGrid).FirstIndexOf = firstIndexOf
-	(*uniformGrid).VertexData = grid
-	(*uniformGrid).XSize = xSize
-	(*uniformGrid).YSize = ySize
-	(*uniformGrid).BigN = int(N)
-	(*uniformGrid).A = a
-	(*uniformGrid).D = d
-	(*uniformGrid).MTheta = mTheta
-	(*uniformGrid).DTheta = dTheta
-	(*uniformGrid).DPhi = dPhi
+	(*ug).N = nCount
+	(*ug).FirstIndexOf = firstIndexOf
+	(*ug).VertexData = grid
+	(*ug).XSize = xSize
+	(*ug).YSize = ySize
+	(*ug).BigN = int(N)
+	(*ug).A = a
+	(*ug).D = d
+	(*ug).MTheta = mTheta
+	(*ug).DTheta = dTheta
+	(*ug).DPhi = dPhi
 
 	t := time.Now()
 	elapsed := t.Sub(start)
@@ -125,10 +124,10 @@ func createUniformGridNBT(xSize, ySize int, allBoundingBoxes *[]map[string]float
 	return elapsed.String()
 }
 
-func storeUniformGrid(uniformGrid *algorithms.UniformGrid, filename string) string {
+func storeUniformGrid(ug *algorithms.UniformGrid, filename string) string {
 	start := time.Now()
 	var meshgridBytes []byte
-	meshgridBytes, err1 := json.Marshal(uniformGrid)
+	meshgridBytes, err1 := json.Marshal(ug)
 	check(err1)
 	f, err2 := os.Create(filename)
 	check(err2)
