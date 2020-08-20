@@ -68,6 +68,13 @@ func WayFindingBG(xSize, ySize, nRuns int, basicPointInPolygon bool, note string
 	var meshgrid []bool
 	var meshgrid2d [][]bool
 	var m runtime.MemStats
+	var sum time.Duration
+	var count int
+	var max = time.Duration(math.MinInt64)
+	var min = time.Duration(math.MaxInt64)
+	from := make([]int, nRuns)
+	to := make([]int, nRuns)
+	var wg sync.WaitGroup
 
 	log := make(map[string]string)
 	log["note"] = note
@@ -97,14 +104,6 @@ func WayFindingBG(xSize, ySize, nRuns int, basicPointInPolygon bool, note string
 			meshgrid = append(meshgrid, meshgrid2d[j][i])
 		}
 	}
-
-	var sum time.Duration
-	var count int
-	var max = time.Duration(math.MinInt64)
-	var min = time.Duration(math.MaxInt64)
-	from := make([]int, nRuns)
-	to := make([]int, nRuns)
-	var wg sync.WaitGroup
 
 	rand.Seed(time.Now().UnixNano())
 	for i := 0; i < nRuns; i++ {
@@ -184,6 +183,13 @@ func WayFinding(xSize, ySize, nRuns, algorithm int, basicPointInPolygon bool, no
 	var ug1D []bool
 	var ug algorithms.UniformGrid
 	var m runtime.MemStats
+	var sum time.Duration
+	var count int
+	var max = time.Duration(math.MinInt64)
+	var min = time.Duration(math.MaxInt64)
+	from := make([]int, nRuns)
+	to := make([]int, nRuns)
+	var wg sync.WaitGroup
 
 	log := make(map[string]string)
 	log["note"] = note
@@ -222,13 +228,6 @@ func WayFinding(xSize, ySize, nRuns, algorithm int, basicPointInPolygon bool, no
 			ug1D = append(ug1D, ug.VertexData[i][j])
 		}
 	}
-	var sum time.Duration
-	var count int
-	var max = time.Duration(math.MinInt64)
-	var min = time.Duration(math.MaxInt64)
-	from := make([]int, nRuns)
-	to := make([]int, nRuns)
-	var wg sync.WaitGroup
 
 	rand.Seed(time.Now().UnixNano())
 	for i := 0; i < nRuns; i++ {

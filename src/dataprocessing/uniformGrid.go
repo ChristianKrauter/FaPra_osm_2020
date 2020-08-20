@@ -9,15 +9,9 @@ import (
 	"time"
 )
 
-func createPoint(theta float64, phi float64) []float64 {
-	//x := 57.296 * math.Sin(theta)*math.Cos(phi)
-	//y := 57.296 * math.Sin(theta)*math.Sin(phi)
-	//z := 57.296 * math.Cos(theta)
-	return []float64{theta/math.Pi*180 - 90, phi / math.Pi * 180}
-}
-
 func createUniformGrid(xSize, ySize int, boundingTreeRoot *boundingTree, allCoastlines *[][][]float64, ug *algorithms.UniformGrid, basicPointInPolygon bool) string {
 	start := time.Now()
+
 	var grid [][]bool
 	var firstIndexOf []int
 	N := float64(xSize * ySize)
@@ -36,7 +30,6 @@ func createUniformGrid(xSize, ySize int, boundingTreeRoot *boundingTree, allCoas
 		for n := 0.0; n < mPhi; n += 1.0 {
 			phi := 2 * math.Pi * n / mPhi
 			nCount++
-			// coords := algorithms.UniformGridToCoord([]int{int(m), int(n)}, xSize, ySize)
 			coords := []float64{(phi / math.Pi) * 180, (theta/math.Pi)*180 - 90}
 			if coords[0] > 180 {
 				coords[0] = coords[0] - 360
@@ -47,7 +40,6 @@ func createUniformGrid(xSize, ySize int, boundingTreeRoot *boundingTree, allCoas
 				gridRow = append(gridRow, isLandSphere(boundingTreeRoot, coords, allCoastlines))
 			}
 		}
-		// fmt.Printf("%v\n", gridRow)
 		grid = append(grid, gridRow)
 	}
 
@@ -72,6 +64,7 @@ func createUniformGrid(xSize, ySize int, boundingTreeRoot *boundingTree, allCoas
 
 func createUniformGridNBT(xSize, ySize int, allBoundingBoxes *[]map[string]float64, allCoastlines *[][][]float64, ug *algorithms.UniformGrid, basicPointInPolygon bool) string {
 	start := time.Now()
+
 	var grid [][]bool
 	var firstIndexOf []int
 	N := float64(xSize * ySize)
@@ -90,7 +83,6 @@ func createUniformGridNBT(xSize, ySize int, allBoundingBoxes *[]map[string]float
 		for n := 0.0; n < mPhi; n += 1.0 {
 			phi := 2 * math.Pi * n / mPhi
 			nCount++
-			// coords := algorithms.UniformGridToCoord([]int{int(m), int(n)}, xSize, ySize)
 			coords := []float64{(phi / math.Pi) * 180, (theta/math.Pi)*180 - 90}
 			if coords[0] > 180 {
 				coords[0] = coords[0] - 360
@@ -101,7 +93,6 @@ func createUniformGridNBT(xSize, ySize int, allBoundingBoxes *[]map[string]float
 				gridRow = append(gridRow, isLandSphereNBT(allBoundingBoxes, coords, allCoastlines))
 			}
 		}
-		// fmt.Printf("%v\n", gridRow)
 		grid = append(grid, gridRow)
 	}
 

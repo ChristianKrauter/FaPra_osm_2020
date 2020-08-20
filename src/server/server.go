@@ -36,25 +36,12 @@ func toGeojson(route [][][]float64) *geojson.FeatureCollection {
 	return routes
 }
 
-func testExtractRoute(points *[][]int, xSize, ySize int) [][][]float64 {
-	var route [][][]float64
-
-	for _, j := range *points {
-		coordPoints := make([][]float64, 0)
-		for _, l := range j {
-			point := algorithms.ExpandIndex(int(l), xSize)
-			coordPoints = append(coordPoints, algorithms.GridToCoord([]int{point[0], point[1]}, xSize, ySize))
-		}
-		route = append(route, coordPoints)
-	}
-	return route
-}
-
 // Run the server with the basic grid
 func Run(xSize, ySize int, basicPointInPolygon bool) {
 	var meshgrid []bool
 	var meshgrid2d [][]bool
 	var filename string
+
 	if basicPointInPolygon {
 		filename = fmt.Sprintf("data/output/meshgrid_%v_%v_bpip.json", xSize, ySize)
 	} else {
@@ -115,13 +102,7 @@ func Run(xSize, ySize int, basicPointInPolygon bool) {
 			var endLngInt = end[0]
 			var endLatInt = end[1]
 
-			//fmt.Printf("\n%v/%v, %v/%v\n", startLngInt, startLatInt, endLngInt, endLatInt)
-			//fmt.Printf("%v/%v\n", meshgrid2d[startLngInt][startLatInt], meshgrid2d[endLngInt][endLatInt])
-
 			if !meshgrid2d[startLngInt][startLatInt] && !meshgrid2d[endLngInt][endLatInt] {
-				//fmt.Printf("start: %d / %d ", int(math.Round(startLat)), int(math.Round(startLng)))
-				//fmt.Printf("end: %d / %d\n", int(math.Round(endLat)), int(math.Round(endLng)))
-
 				if strings.Contains(r.URL.Path, "/dijkstraAllNodes") {
 					var start = time.Now()
 					var route, nodesProcessed = algorithms.DijkstraAllNodes(startLngInt, startLatInt, endLngInt, endLatInt, int(xSize), int(ySize), &meshgrid)
@@ -177,8 +158,6 @@ func Run(xSize, ySize int, basicPointInPolygon bool) {
 
 // RunUnidistant server
 func RunUnidistant(xSize, ySize int, basicPointInPolygon bool) {
-	//log.Fatal("Server with unidistant grid not implemented.")
-
 	var ug1D []bool
 	var ug algorithms.UniformGrid
 
@@ -251,12 +230,6 @@ func RunUnidistant(xSize, ySize int, basicPointInPolygon bool) {
 			var end = ug.CoordToGrid(endLng, endLat)
 			var endLngInt = end[0]
 			var endLatInt = end[1]
-
-			//fmt.Printf("\n%v/%v, %v/%v\n", startLngInt, startLatInt, endLngInt, endLatInt)
-			//fmt.Printf("%v/%v\n", meshgrid2d[startLngInt][startLatInt], meshgrid2d[endLngInt][endLatInt])
-
-				//fmt.Printf("start: %d / %d ", int(math.Round(startLat)), int(math.Round(startLng)))
-				//fmt.Printf("end: %d / %d\n", int(math.Round(endLat)), int(math.Round(endLng)))
 
 			if !ug.VertexData[startLngInt][startLatInt] && !ug.VertexData[endLngInt][endLatInt] {
 				if strings.Contains(r.URL.Path, "/dijkstraAllNodes") {
