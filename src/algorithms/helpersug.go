@@ -84,8 +84,9 @@ func UniformExtractNodes(nodesProcessed *[]int, ug *UniformGrid) [][]float64 {
 	return nodesExtended
 }
 
-// Test if it still works with less than 3 points in one grid row
+// Gets neighours left and right in the same row
 func uniformNeighboursRow(in []float64, ug *UniformGrid) [][]int {
+	// Test if it still works with less than 3 points in one grid row
 	theta := (in[1] + 90) * math.Pi / 180
 	m := math.Round((theta * ug.MTheta / math.Pi) - 0.5)
 	theta = math.Pi * (m + 0.5) / ug.MTheta
@@ -99,7 +100,7 @@ func uniformNeighboursRow(in []float64, ug *UniformGrid) [][]int {
 	return [][]int{p1, p2, p3}
 }
 
-// GetNeighboursUniformGrid ...
+// GetNeighboursUniformGrid gets up to 8 neighbours
 func GetNeighboursUniformGrid(in int, ug *UniformGrid) []int {
 	var neighbours [][]int
 	var inGrid = ug.IDToGrid(in)
