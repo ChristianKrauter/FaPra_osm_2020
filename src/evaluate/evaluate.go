@@ -17,6 +17,25 @@ import (
 	"time"
 )
 
+func saveLog(filename string, jsonString []byte) {
+	f, err := os.Create(filename)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	_, err = f.WriteString(string(jsonString))
+	if err != nil {
+		fmt.Println(err)
+		f.Close()
+		return
+	}
+	err = f.Close()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+}
+
 // ReadPBF is evaluated
 func ReadPBF(pbfFileName, note string) {
 	log := make(map[string]string)
@@ -42,24 +61,8 @@ func ReadPBF(pbfFileName, note string) {
 	jsonString, _ := json.MarshalIndent(log, "", "    ")
 	var filename string
 	var timestamp = time.Now().Format("2006-01-02_15-04-05")
-
-	f, err := os.Create(filename)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	_, err = f.WriteString(string(jsonString))
-	if err != nil {
-		fmt.Println(err)
-		f.Close()
-		return
-	}
-	err = f.Close()
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
 	filename = fmt.Sprintf("data/evaluation/rf_%s_%s.json", strings.Split(log["pbfFileName"], ".")[0], timestamp)
+	saveLog(filename, jsonString)
 }
 
 // WayFindingBG is evaluated
@@ -156,25 +159,9 @@ func WayFindingBG(xSize, ySize, nRuns int, basicPointInPolygon bool, note string
 	if val, ok := log["filename"]; ok {
 		outFilename = fmt.Sprintf("data/evaluation/wf_%s_%s_bg_dij%s_%s.json", log["xSize"], log["ySize"], val, timestamp)
 	} else {
-	}
-
-	f, err := os.Create(outFilename)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	_, err = f.WriteString(string(jsonString))
-	if err != nil {
-		fmt.Println(err)
-		f.Close()
-		return
-	}
-	err = f.Close()
-	if err != nil {
-		fmt.Println(err)
-		return
 		outFilename = fmt.Sprintf("data/evaluation/wf_%s_%s_bg_dij_%s.json", log["xSize"], log["ySize"], timestamp)
 	}
+	saveLog(outFilename, jsonString)
 }
 
 // WayFinding is evaluated
@@ -286,24 +273,8 @@ func WayFinding(xSize, ySize, nRuns, algorithm int, basicPointInPolygon bool, no
 	jsonString, _ := json.MarshalIndent(log, "", "    ")
 	var outFilename string
 	var timestamp = time.Now().Format("2006-01-02_15-04-05")
-
-	f, err := os.Create(outFilename)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	_, err = f.WriteString(string(jsonString))
-	if err != nil {
-		fmt.Println(err)
-		f.Close()
-		return
-	}
-	err = f.Close()
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
 	outFilename = fmt.Sprintf("data/evaluation/wf_%s_%s%s_%s.json", log["xSize"], log["ySize"], log["filename"], timestamp)
+	saveLog(outFilename, jsonString)
 }
 
 // DataProcessing is evaluated
@@ -327,23 +298,7 @@ func DataProcessing(pbfFileName, note string, xSize, ySize int, createCoastlineG
 	if val, ok := log["filename"]; ok {
 		filename = fmt.Sprintf("data/evaluation/dp_%s_%s_%s%s_%s.json", strings.Split(log["pbfFileName"], ".")[0], log["xSize"], log["ySize"], val, timestamp)
 	} else {
-	}
-
-	f, err := os.Create(filename)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	_, err = f.WriteString(string(jsonString))
-	if err != nil {
-		fmt.Println(err)
-		f.Close()
-		return
-	}
-	err = f.Close()
-	if err != nil {
-		fmt.Println(err)
-		return
 		filename = fmt.Sprintf("data/evaluation/dp_%s_%s_%s_%s.json", strings.Split(log["pbfFileName"], ".")[0], log["xSize"], log["ySize"], timestamp)
 	}
+	saveLog(filename, jsonString)
 }
