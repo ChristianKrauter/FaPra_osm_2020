@@ -206,19 +206,19 @@ func RunUnidistant(xSize, ySize int, basicPointInPolygon bool) {
 
 		if strings.Contains(r.URL.Path, "/dijkstra") {
 			query := r.URL.Query()
-			var startLat, err = strconv.ParseFloat(query.Get("startLat"), 10)
+			var startLat, err = strconv.ParseFloat(query.Get("startLat"), 15)
 			if err != nil {
 				panic(err)
 			}
-			var startLng, err1 = strconv.ParseFloat(query.Get("startLng"), 10)
+			var startLng, err1 = strconv.ParseFloat(query.Get("startLng"), 15)
 			if err1 != nil {
 				panic(err1)
 			}
-			var endLat, err2 = strconv.ParseFloat(query.Get("endLat"), 10)
+			var endLat, err2 = strconv.ParseFloat(query.Get("endLat"), 15)
 			if err2 != nil {
 				panic(err2)
 			}
-			var endLng, err3 = strconv.ParseFloat(query.Get("endLng"), 10)
+			var endLng, err3 = strconv.ParseFloat(query.Get("endLng"), 15)
 			if err3 != nil {
 				panic(err3)
 			}

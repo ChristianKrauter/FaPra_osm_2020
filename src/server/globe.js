@@ -163,8 +163,8 @@ function onLeftMouseClick(event) {
     if (Cesium.defined(earthPosition)) {
 
         const cartographic = viewer.scene.globe.ellipsoid.cartesianToCartographic(earthPosition);
-        const longitudeString = Cesium.Math.toDegrees(cartographic.longitude).toFixed(15);
-        const latitudeString = Cesium.Math.toDegrees(cartographic.latitude).toFixed(15);
+        const longitudeString = Cesium.Math.toDegrees(cartographic.longitude).toFixed(20);
+        const latitudeString = Cesium.Math.toDegrees(cartographic.latitude).toFixed(20);
 
         if (data["startLat"] == "") {
             data["startLat"] = latitudeString
