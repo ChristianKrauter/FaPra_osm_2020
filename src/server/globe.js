@@ -4,7 +4,7 @@ $("#clearButton").click(function() {
 
 $("#gridButton").click(function() {
     $.ajax({
-        url: "/grid",
+        url: "/Grid",
     }).done(function(data) {
         if (data != "false") {
             points = JSON.parse(data)

@@ -140,7 +140,7 @@ func Run(xSize, ySize int, basicPointInPolygon bool) {
 
 		} else if fileEnding == "js" || fileEnding == "html" || fileEnding == "css" {
 			http.ServeFile(w, r, r.URL.Path[1:])
-		} else if strings.Contains(r.URL.Path, "/basicGrid") {
+		} else if strings.Contains(r.URL.Path, "/Grid") {
 			pointsJSON, err := json.Marshal(points)
 			if err != nil {
 				panic(err)
@@ -288,7 +288,7 @@ func RunUnidistant(xSize, ySize int, basicPointInPolygon bool) {
 			}
 		} else if fileEnding == "js" || fileEnding == "html" || fileEnding == "css" {
 			http.ServeFile(w, r, r.URL.Path[1:])
-		} else if strings.Contains(r.URL.Path, "/grid") {
+		} else if strings.Contains(r.URL.Path, "/Grid") {
 			pointsJSON, err := json.Marshal(points)
 			if err != nil {
 				panic(err)
