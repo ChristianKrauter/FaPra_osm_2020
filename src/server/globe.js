@@ -11,7 +11,7 @@ $("#gridButton").click(function() {
             points = JSON.parse(data)
             console.log(points)
             for (i = 0; i < points.length; i++) {
-                createColoredPoint(Cesium.Cartesian3.fromDegrees(points[i][0], points[i][1]), Cesium.Color.RED)
+                createColoredPoint(Cesium.Cartesian3.fromDegrees(points[i][0], points[i][1]), Cesium.Color.RED, 4)
             }
         }
     });
@@ -47,7 +47,7 @@ viewer.cesiumWidget.screenSpaceEventHandler.removeInputAction(
 function createPoint(worldPosition, processed = false, start = false) {
     var point
     if (processed) {
-        createColoredPoint(worldPosition, Cesium.Color.RED)
+        createColoredPoint(worldPosition, Cesium.Color.RED, 4)
     } else {
         var text = "End"
         console.log(worldPosition)
@@ -233,12 +233,12 @@ var options = [{
     },
 ];
 
-function createColoredPoint(worldPosition, color) {
+function createColoredPoint(worldPosition, color, size) {
     var point = viewer.entities.add({
         position: worldPosition,
         point: {
             color: color,
-            pixelSize: 4,
+            pixelSize: size,
             heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
         },
     });
