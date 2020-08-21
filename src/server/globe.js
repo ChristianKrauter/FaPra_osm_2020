@@ -4,12 +4,10 @@ $("#clearButton").click(function() {
 
 $("#gridButton").click(function() {
     $.ajax({
-        url: "/basicGrid",
-        data: data
+        url: "/grid",
     }).done(function(data) {
         if (data != "false") {
             points = JSON.parse(data)
-            console.log(points)
             for (i = 0; i < points.length; i++) {
                 createColoredPoint(Cesium.Cartesian3.fromDegrees(points[i][0], points[i][1]), Cesium.Color.RED, 4)
             }
