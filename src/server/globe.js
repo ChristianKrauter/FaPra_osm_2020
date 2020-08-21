@@ -15,7 +15,7 @@ $("#gridButton").click(function() {
     });
 });
 
-var data = {
+var routeData = {
     startLat: "",
     startLng: "",
     endLat: "",
@@ -48,7 +48,6 @@ function createPoint(worldPosition, processed = false, start = false) {
         createColoredPoint(worldPosition, Cesium.Color.RED, 4)
     } else {
         var text = "End"
-        console.log(worldPosition)
         point = viewer.entities.add({
             position: worldPosition,
             point: {
@@ -119,7 +118,6 @@ function dijkstraProcessing(jsonData) {
     if (jsonData == "false") {
         //Todo
     } else {
-        createPoint(this.earthPosition.ep);
         var features = JSON.parse(jsonData).features
         var coord1d = []
         for (i = 0; i < features.length; i++) {
@@ -137,7 +135,6 @@ function dijkstraAllNodesProcessing(jsonData) {
         tempData = JSON.parse(jsonData)
         route = tempData.Route
         processedNodes = tempData.AllNodes
-        createPoint(this.earthPosition.ep);
         var features = route.features
         var coord1d = []
         for (i = 0; i < features.length; i++) {
@@ -164,33 +161,71 @@ function onLeftMouseClick(event) {
         const longitudeString = Cesium.Math.toDegrees(cartographic.longitude).toFixed(20);
         const latitudeString = Cesium.Math.toDegrees(cartographic.latitude).toFixed(20);
 
-        if (data["startLat"] == "") {
-            data["startLat"] = latitudeString
-            data["startLng"] = longitudeString
-            createPoint(earthPosition, false, true);
+        if (routeData["startLat"] == "") {
+            routeData["startLat"] = latitudeString
+            routeData["startLng"] = longitudeString
+            $.ajax({
+                url: "/getGridPoint",
+                data: {
+                    "lng": longitudeString,
+                    "lat": latitudeString
+                },
+                earthPosition: { ep: earthPosition },
+                'success': function(data) {
+                    if (data == "false") {
+                        alert("Please select a point on water connected with the oceans.")
+                        routeData = {
+                            startLat: "",
+                            startLng: "",
+                            endLat: "",
+                            endLng: ""
+                        }
+                    } else {
+                        data = JSON.parse(data).coordinates
+                        createPoint(Cesium.Cartesian3.fromDegrees(data[0], data[1]), false, true);
+                    }
+                }
+            })
         } else {
-            data["endLat"] = latitudeString
-            data["endLng"] = longitudeString
-
-            if (document.getElementById("processedNodes").checked) {
-                $.ajax({
-                    url: "/dijkstraAllNodes",
-                    data: data,
-                    earthPosition: { ep: earthPosition }
-                }).done(dijkstraAllNodesProcessing);
-            } else {
-                $.ajax({
-                    url: "/dijkstra",
-                    data: data,
-                    earthPosition: { ep: earthPosition }
-                }).done(dijkstraProcessing);
-            }
-            data = {
-                startLat: "",
-                startLng: "",
-                endLat: "",
-                endLng: ""
-            }
+            routeData["endLat"] = latitudeString
+            routeData["endLng"] = longitudeString
+            $.ajax({
+                url: "/getGridPoint",
+                data: {
+                    "lng": longitudeString,
+                    "lat": latitudeString
+                },
+                earthPosition: { ep: earthPosition },
+                'success': function(data) {
+                    if (data == "false") {
+                        alert("Please select a point on water connected with the oceans.")
+                        routeData["endLat"] = ""
+                        routeData["endLng"] = ""
+                    } else {
+                        data = JSON.parse(data).coordinates
+                        createPoint(Cesium.Cartesian3.fromDegrees(data[0], data[1]), false);
+                        if (document.getElementById("processedNodes").checked) {
+                            $.ajax({
+                                url: "/dijkstraAllNodes",
+                                data: routeData,
+                                earthPosition: { ep: earthPosition }
+                            }).done(dijkstraAllNodesProcessing);
+                        } else {
+                            $.ajax({
+                                url: "/dijkstra",
+                                data: routeData,
+                                earthPosition: { ep: earthPosition }
+                            }).done(dijkstraProcessing);
+                        }
+                        routeData = {
+                            startLat: "",
+                            startLng: "",
+                            endLat: "",
+                            endLng: ""
+                        }
+                    }
+                }
+            })
         }
     }
 }

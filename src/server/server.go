@@ -267,6 +267,25 @@ func RunUnidistant(xSize, ySize int, basicPointInPolygon bool) {
 				w.Write([]byte("false"))
 			}
 
+		} else if strings.Contains(r.URL.Path, "/getGridPoint") {
+			query := r.URL.Query()
+			var lat, err = strconv.ParseFloat(query.Get("lat"), 10)
+			if err != nil {
+				panic(err)
+			}
+			var lng, err1 = strconv.ParseFloat(query.Get("lng"), 10)
+			if err1 != nil {
+				panic(err1)
+			}
+			var grid = ug.CoordToGrid(lng, lat)
+			if ug.VertexData[grid[0]][grid[1]] {
+				w.Write([]byte("false"))
+			} else {
+				var coord = ug.GridToCoord(grid)
+				rawJSON, err := geojson.NewPointGeometry(coord).MarshalJSON()
+				check(err)
+				w.Write(rawJSON)
+			}
 		} else if fileEnding == "js" || fileEnding == "html" || fileEnding == "css" {
 			http.ServeFile(w, r, r.URL.Path[1:])
 		} else if strings.Contains(r.URL.Path, "/grid") {
