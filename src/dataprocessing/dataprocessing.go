@@ -4,6 +4,7 @@ import (
 	"../algorithms"
 	"fmt"
 	"github.com/paulmach/go.geojson"
+	"log"
 	"os"
 	"sort"
 	"time"
@@ -74,6 +75,10 @@ func createAndStoreCoastlineGeoJSON(allCoastlines *[][][]float64, filename strin
 
 // Start processing a pbf file to create a meshgrid
 func Start(pbfFileName string, xSize, ySize int, createCoastlineGeoJSON, lessMemory, noBoundingTree, basicGrid, basicPointInPolygon bool) map[string]string {
+	if basicGrid && (xSize < 360 || ySize < 360) {
+		log.Fatal("\n\nBasic grid not possibly for xSize or ySize under 360.")
+	}
+
 	fmt.Printf("\nStarting processing of %s\n\n", pbfFileName)
 	logging := make(map[string]string)
 	pbfFileName = fmt.Sprintf("data/%s", pbfFileName)
