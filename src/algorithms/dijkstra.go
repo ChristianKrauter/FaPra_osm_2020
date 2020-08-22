@@ -33,10 +33,10 @@ func UniformDijkstra(startLngInt, startLatInt, endLngInt, endLatInt int, ug *Uni
 			u := heap.Pop(&pq).(*Item).value
 
 			if u == (*ug).GridToID(endLngInt, endLatInt) {
-				return UniformExtractRoute(&prev, (*ug).GridToID(endLngInt, endLatInt), ug)
+				return ExtractRouteUg(&prev, (*ug).GridToID(endLngInt, endLatInt), ug)
 			}
 
-			neighbours := GetNeighboursUniformGrid(u, ug)
+			neighbours := NeighboursUg(u, ug)
 			for _, j := range neighbours {
 				var alt = dist[u] + distance((*ug).GridToCoord((*ug).IDToGrid(u)), (*ug).GridToCoord((*ug).IDToGrid(j)))
 				if alt < dist[j] {
@@ -51,7 +51,7 @@ func UniformDijkstra(startLngInt, startLatInt, endLngInt, endLatInt int, ug *Uni
 			}
 		}
 	}
-	return UniformExtractRoute(&prev, (*ug).GridToID(endLngInt, endLatInt), ug)
+	return ExtractRouteUg(&prev, (*ug).GridToID(endLngInt, endLatInt), ug)
 }
 
 // UniformDijkstraAllNodes additionally returns all visited nodes on uniform grid
@@ -84,12 +84,12 @@ func UniformDijkstraAllNodes(startLngInt, startLatInt, endLngInt, endLatInt int,
 			nodesProcessed = append(nodesProcessed, u)
 
 			if u == (*ug).GridToID(endLngInt, endLatInt) {
-				var route = UniformExtractRoute(&prev, (*ug).GridToID(endLngInt, endLatInt), ug)
-				var processedNodes = UniformExtractNodes(&nodesProcessed, ug)
+				var route = ExtractRouteUg(&prev, (*ug).GridToID(endLngInt, endLatInt), ug)
+				var processedNodes = ExtractNodesUg(&nodesProcessed, ug)
 				return route, processedNodes
 			}
 
-			neighbours := GetNeighboursUniformGrid(u, ug)
+			neighbours := NeighboursUg(u, ug)
 
 			for _, j := range neighbours {
 				var alt = dist[u] + distance((*ug).GridToCoord((*ug).IDToGrid(u)), (*ug).GridToCoord((*ug).IDToGrid(j)))
@@ -105,7 +105,7 @@ func UniformDijkstraAllNodes(startLngInt, startLatInt, endLngInt, endLatInt int,
 			}
 		}
 	}
-	var route = UniformExtractRoute(&prev, (*ug).GridToID(endLngInt, endLatInt), ug)
-	var processedNodes = UniformExtractNodes(&nodesProcessed, ug)
+	var route = ExtractRouteUg(&prev, (*ug).GridToID(endLngInt, endLatInt), ug)
+	var processedNodes = ExtractNodesUg(&nodesProcessed, ug)
 	return route, processedNodes
 }

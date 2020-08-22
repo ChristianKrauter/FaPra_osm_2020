@@ -50,8 +50,8 @@ func (ug UniformGrid) IDToGrid(id int) []int {
 	return []int{m - 1, n}
 }
 
-// UniformExtractRoute ...
-func UniformExtractRoute(prev *[]int, end int, ug *UniformGrid) [][][]float64 {
+// ExtractRouteUg ...
+func ExtractRouteUg(prev *[]int, end int, ug *UniformGrid) [][][]float64 {
 	var route [][][]float64
 	var tempRoute [][]float64
 	temp := ug.IDToGrid(end)
@@ -73,8 +73,8 @@ func UniformExtractRoute(prev *[]int, end int, ug *UniformGrid) [][][]float64 {
 	return route
 }
 
-// UniformExtractNodes ...
-func UniformExtractNodes(nodesProcessed *[]int, ug *UniformGrid) [][]float64 {
+// ExtractNodesUg ...
+func ExtractNodesUg(nodesProcessed *[]int, ug *UniformGrid) [][]float64 {
 	var nodesExtended [][]float64
 	for _, node := range *nodesProcessed {
 		x := ug.IDToGrid(node)
@@ -85,7 +85,7 @@ func UniformExtractNodes(nodesProcessed *[]int, ug *UniformGrid) [][]float64 {
 }
 
 // Gets neighours left and right in the same row
-func uniformNeighboursRow(in []float64, ug *UniformGrid) [][]int {
+func neighboursRowUg(in []float64, ug *UniformGrid) [][]int {
 	// Test if it still works with less than 3 points in one grid row
 	theta := (in[1] + 90) * math.Pi / 180
 	m := math.Round((theta * ug.MTheta / math.Pi) - 0.5)
@@ -100,8 +100,8 @@ func uniformNeighboursRow(in []float64, ug *UniformGrid) [][]int {
 	return [][]int{p1, p2, p3}
 }
 
-// GetNeighboursUniformGrid gets up to 8 neighbours
-func GetNeighboursUniformGrid(in int, ug *UniformGrid) []int {
+// NeighboursUg gets up to 8 neighbours
+func NeighboursUg(in int, ug *UniformGrid) []int {
 	var neighbours [][]int
 	var inGrid = ug.IDToGrid(in)
 	m := inGrid[0]
@@ -113,12 +113,12 @@ func GetNeighboursUniformGrid(in int, ug *UniformGrid) []int {
 
 	if m > 0 {
 		coordDown := ug.GridToCoord([]int{m - 1, n})
-		neighbours = append(neighbours, uniformNeighboursRow([]float64{coord[0], coordDown[1]}, ug)...)
+		neighbours = append(neighbours, neighboursRowUg([]float64{coord[0], coordDown[1]}, ug)...)
 	}
 
 	if m < len(ug.VertexData)-1 {
 		coordUp := ug.GridToCoord([]int{m + 1, n})
-		neighbours = append(neighbours, uniformNeighboursRow([]float64{coord[0], coordUp[1]}, ug)...)
+		neighbours = append(neighbours, neighboursRowUg([]float64{coord[0], coordUp[1]}, ug)...)
 	}
 	var neighbours1d []int
 	for _, neighbour := range neighbours {
