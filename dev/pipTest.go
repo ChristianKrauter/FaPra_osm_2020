@@ -1,7 +1,7 @@
 package main
 
 import (
-	"../src/algorithms"
+	"../src/grids"
 	"encoding/json"
 	"fmt"
 	"github.com/paulmach/go.geojson"
@@ -368,7 +368,7 @@ func main() {
 	//log.Fatal("Server with unidistant grid not implemented.")
 
 	var uniformgrid []bool
-	var uniformgrid2d algorithms.UniformGrid
+	var uniformgrid2d grids.UniformGrid
 
 	var filename string
 	if basicPointInPolygon {
@@ -395,7 +395,7 @@ func main() {
 	for i := 0; i < len(uniformgrid2d.VertexData); i++ {
 		for j := 0; j < len(uniformgrid2d.VertexData[i]); j++ {
 			if !uniformgrid2d.VertexData[i][j] {
-				points = append(points, algorithms.UniformGridToCoord([]int{int(i), int(j)}, int(xSize), int(ySize)))
+				points = append(points, uniformgrid2d.GridToCoord([]int{int(i), int(j)}))
 			}
 		}
 	}
