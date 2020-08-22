@@ -67,8 +67,8 @@ func ReadPBF(pbfFileName, note string) {
 // WayFindingBG is evaluated
 func WayFindingBG(xSize, ySize, nRuns int, basicPointInPolygon bool, note string) {
 	var filename string
-	var meshgrid []bool
-	var meshgrid2d [][]bool
+	var mg1D []bool
+	var mg [][]bool
 	var m runtime.MemStats
 	var sum time.Duration
 	var count int
@@ -99,20 +99,20 @@ func WayFindingBG(xSize, ySize, nRuns int, basicPointInPolygon bool, note string
 	}
 	defer meshgridRaw.Close()
 	byteValue, _ := ioutil.ReadAll(meshgridRaw)
-	json.Unmarshal(byteValue, &meshgrid2d)
+	json.Unmarshal(byteValue, &mg)
 
-	for i := 0; i < len(meshgrid2d[0]); i++ {
-		for j := 0; j < len(meshgrid2d); j++ {
-			meshgrid = append(meshgrid, meshgrid2d[j][i])
+	for i := 0; i < len(mg[0]); i++ {
+		for j := 0; j < len(mg); j++ {
+			mg1D = append(mg1D, mg[j][i])
 		}
 	}
 
 	rand.Seed(time.Now().UnixNano())
 	for i := 0; i < nRuns; i++ {
 		for {
-			from[i] = rand.Intn(len(meshgrid))
-			to[i] = rand.Intn(len(meshgrid))
-			if !meshgrid[from[i]] && !meshgrid[to[i]] {
+			from[i] = rand.Intn(len(mg1D))
+			to[i] = rand.Intn(len(mg1D))
+			if !mg1D[from[i]] && !mg1D[to[i]] {
 				break
 			}
 		}
@@ -127,7 +127,7 @@ func WayFindingBG(xSize, ySize, nRuns int, basicPointInPolygon bool, note string
 			var start = time.Now()
 			var a = algorithms.ExpandIndex(x, xSize)
 			var b = algorithms.ExpandIndex(y, xSize)
-			var _ = algorithms.Dijkstra(a[0], a[1], b[0], b[1], xSize, ySize, &meshgrid)
+			var _ = algorithms.Dijkstra(a[0], a[1], b[0], b[1], xSize, ySize, &mg1D)
 			t := time.Now()
 			var elapsed = t.Sub(start)
 			if elapsed > max {

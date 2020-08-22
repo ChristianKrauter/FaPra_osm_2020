@@ -14,7 +14,7 @@ func check(e error) {
 	}
 }
 
-func createMeshgrid(xSize int, ySize int, boundingTreeRoot *boundingTree, allCoastlines *[][][]float64, meshgrid *[][]bool, basicPointInPolygon bool) string {
+func createMeshgrid(xSize int, ySize int, boundingTreeRoot *boundingTree, allCoastlines *[][][]float64, mg *[][]bool, basicPointInPolygon bool) string {
 	start := time.Now()
 	var xStepSize = float64(360 / xSize)
 	var yStepSize = float64(360 / ySize)
@@ -28,9 +28,9 @@ func createMeshgrid(xSize int, ySize int, boundingTreeRoot *boundingTree, allCoa
 				var xs = x - 180
 				var ys = (y / 2) - 90
 				if basicPointInPolygon {
-					(*meshgrid)[int(x/xStepSize)][int(y/yStepSize)] = isLand(boundingTreeRoot, []float64{xs, ys}, allCoastlines)
+					(*mg)[int(x/xStepSize)][int(y/yStepSize)] = isLand(boundingTreeRoot, []float64{xs, ys}, allCoastlines)
 				} else {
-					(*meshgrid)[int(x/xStepSize)][int(y/yStepSize)] = isLandSphere(boundingTreeRoot, []float64{xs, ys}, allCoastlines)
+					(*mg)[int(x/xStepSize)][int(y/yStepSize)] = isLandSphere(boundingTreeRoot, []float64{xs, ys}, allCoastlines)
 				}
 			}(x, y)
 		}
@@ -44,7 +44,7 @@ func createMeshgrid(xSize int, ySize int, boundingTreeRoot *boundingTree, allCoa
 	return elapsed.String()
 }
 
-func createMeshgridNBT(xSize int, ySize int, allBoundingBoxes *[]map[string]float64, allCoastlines *[][][]float64, meshgrid *[][]bool, basicPointInPolygon bool) string {
+func createMeshgridNBT(xSize int, ySize int, allBoundingBoxes *[]map[string]float64, allCoastlines *[][][]float64, mg *[][]bool, basicPointInPolygon bool) string {
 	start := time.Now()
 	var xStepSize = float64(360 / xSize)
 	var yStepSize = float64(360 / ySize)
@@ -58,9 +58,9 @@ func createMeshgridNBT(xSize int, ySize int, allBoundingBoxes *[]map[string]floa
 				var xs = x - 180
 				var ys = (y / 2) - 90
 				if basicPointInPolygon {
-					(*meshgrid)[int(x/xStepSize)][int(y/yStepSize)] = isLandNBT(allBoundingBoxes, []float64{xs, ys}, allCoastlines)
+					(*mg)[int(x/xStepSize)][int(y/yStepSize)] = isLandNBT(allBoundingBoxes, []float64{xs, ys}, allCoastlines)
 				} else {
-					(*meshgrid)[int(x/xStepSize)][int(y/yStepSize)] = isLandSphereNBT(allBoundingBoxes, []float64{xs, ys}, allCoastlines)
+					(*mg)[int(x/xStepSize)][int(y/yStepSize)] = isLandSphereNBT(allBoundingBoxes, []float64{xs, ys}, allCoastlines)
 				}
 			}(x, y)
 		}
@@ -74,10 +74,10 @@ func createMeshgridNBT(xSize int, ySize int, allBoundingBoxes *[]map[string]floa
 	return elapsed.String()
 }
 
-func storeMeshgrid(meshgrid *[][]bool, filename string) string {
+func storeMeshgrid(mg *[][]bool, filename string) string {
 	start := time.Now()
 	var meshgridBytes []byte
-	meshgridBytes, err1 := json.Marshal(meshgrid)
+	meshgridBytes, err1 := json.Marshal(mg)
 	check(err1)
 	f, err2 := os.Create(filename)
 	check(err2)
