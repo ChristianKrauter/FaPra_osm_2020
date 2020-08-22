@@ -170,7 +170,7 @@ func Run(xSize, ySize int, basicPointInPolygon bool) {
 	})
 
 	var portStr = fmt.Sprintf(":%d", port)
-	fmt.Printf(" on localhost%s\n", portStr)
+	fmt.Printf("on localhost%s\n\n", portStr)
 	log.Fatal(http.ListenAndServe(portStr, nil))
 }
 
@@ -313,6 +313,6 @@ func RunUnidistant(xSize, ySize int, basicPointInPolygon bool) {
 	})
 
 	var portStr = fmt.Sprintf(":%d", port)
-	fmt.Printf(" on localhost%s\n", portStr)
+	fmt.Printf("on localhost%s\n\n", portStr)
 	log.Fatal(http.ListenAndServe(portStr, nil))
 }
