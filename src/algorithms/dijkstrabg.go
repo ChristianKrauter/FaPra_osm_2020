@@ -6,20 +6,20 @@ import (
 )
 
 // DijkstraBg implementation
-func DijkstraBg(startLngInt, startLatInt, endLngInt, endLatInt, xSize, ySize int, mg *[]bool) [][][]float64 {
+func DijkstraBg(startLngInt, startLatInt, endLngInt, endLatInt, xSize, ySize int, bg *BasicGrid) [][][]float64 {
 
 	var dist []float64
 	var prev []int
 	pq := make(priorityQueue, 1)
 
-	for i := 0; i < len((*mg)); i++ {
+	for i := 0; i < len((*bg).VertexData); i++ {
 		dist = append(dist, math.Inf(1))
 		prev = append(prev, -1)
 	}
 
-	dist[flattenIndex(startLngInt, startLatInt, xSize)] = 0
+	dist[bg.flattenIndex(startLngInt, startLatInt)] = 0
 	pq[0] = &Item{
-		value:    flattenIndex(startLngInt, startLatInt, xSize),
+		value:    bg.flattenIndex(startLngInt, startLatInt),
 		priority: 0,
 		index:    0,
 	}
@@ -31,14 +31,14 @@ func DijkstraBg(startLngInt, startLatInt, endLngInt, endLatInt, xSize, ySize int
 		} else {
 			u := heap.Pop(&pq).(*Item).value
 
-			if u == flattenIndex(endLngInt, endLatInt, xSize) {
-				return extractRoute(&prev, flattenIndex(endLngInt, endLatInt, xSize), xSize, ySize)
+			if u == bg.flattenIndex(endLngInt, endLatInt) {
+				return extractRoute(&prev, bg.flattenIndex(endLngInt, endLatInt), bg)
 			}
 
-			neighbours := neighboursBg(u, xSize, mg)
+			neighbours := neighboursBg(u, xSize, bg)
 
 			for _, j := range neighbours {
-				var alt = dist[u] + distance(GridToCoord(ExpandIndex(u, xSize), xSize, ySize), GridToCoord(ExpandIndex(j, xSize), xSize, ySize))
+				var alt = dist[u] + distance(bg.GridToCoord(bg.ExpandIndex(u)), bg.GridToCoord(bg.ExpandIndex(j)))
 				if alt < dist[j] {
 					dist[j] = alt
 					prev[j] = u
@@ -51,25 +51,25 @@ func DijkstraBg(startLngInt, startLatInt, endLngInt, endLatInt, xSize, ySize int
 			}
 		}
 	}
-	return extractRoute(&prev, flattenIndex(endLngInt, endLatInt, xSize), xSize, ySize)
+	return extractRoute(&prev, bg.flattenIndex(endLngInt, endLatInt), bg)
 }
 
 // DijkstraAllNodesBg additionally returns all visited nodes
-func DijkstraAllNodesBg(startLngInt, startLatInt, endLngInt, endLatInt, xSize, ySize int, mg *[]bool) ([][][]float64, [][]float64) {
+func DijkstraAllNodesBg(startLngInt, startLatInt, endLngInt, endLatInt, xSize, ySize int, bg *BasicGrid) ([][][]float64, [][]float64) {
 
 	var dist []float64
 	var prev []int
 	var nodesProcessed []int
 	pq := make(priorityQueue, 1)
 
-	for i := 0; i < len((*mg)); i++ {
+	for i := 0; i < len((*bg).VertexData); i++ {
 		dist = append(dist, math.Inf(1))
 		prev = append(prev, -1)
 	}
 
-	dist[flattenIndex(startLngInt, startLatInt, xSize)] = 0
+	dist[bg.flattenIndex(startLngInt, startLatInt)] = 0
 	pq[0] = &Item{
-		value:    flattenIndex(startLngInt, startLatInt, xSize),
+		value:    bg.flattenIndex(startLngInt, startLatInt),
 		priority: 0,
 		index:    0,
 	}
@@ -83,16 +83,16 @@ func DijkstraAllNodesBg(startLngInt, startLatInt, endLngInt, endLatInt, xSize, y
 			u := heap.Pop(&pq).(*Item).value
 			nodesProcessed = append(nodesProcessed, u)
 
-			if u == flattenIndex(endLngInt, endLatInt, xSize) {
-				var route = extractRoute(&prev, flattenIndex(endLngInt, endLatInt, xSize), xSize, ySize)
-				var processedNodes = extractNodes(&nodesProcessed, xSize, ySize)
+			if u == bg.flattenIndex(endLngInt, endLatInt) {
+				var route = extractRoute(&prev, bg.flattenIndex(endLngInt, endLatInt), bg)
+				var processedNodes = extractNodes(&nodesProcessed, bg)
 				return route, processedNodes
 			}
 
-			neighbours := neighboursBg(u, xSize, mg)
+			neighbours := neighboursBg(u, xSize, bg)
 
 			for _, j := range neighbours {
-				var alt = dist[u] + distance(GridToCoord(ExpandIndex(u, xSize), xSize, ySize), GridToCoord(ExpandIndex(j, xSize), xSize, ySize))
+				var alt = dist[u] + distance(bg.GridToCoord(bg.ExpandIndex(u)), bg.GridToCoord(bg.ExpandIndex(j)))
 				if alt < dist[j] {
 					dist[j] = alt
 					prev[j] = u
@@ -105,7 +105,7 @@ func DijkstraAllNodesBg(startLngInt, startLatInt, endLngInt, endLatInt, xSize, y
 			}
 		}
 	}
-	var route = extractRoute(&prev, flattenIndex(endLngInt, endLatInt, xSize), xSize, ySize)
-	var processedNodes = extractNodes(&nodesProcessed, xSize, ySize)
+	var route = extractRoute(&prev, bg.flattenIndex(endLngInt, endLatInt), bg)
+	var processedNodes = extractNodes(&nodesProcessed, bg)
 	return route, processedNodes
 }

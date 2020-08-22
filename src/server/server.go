@@ -39,9 +39,12 @@ func toGeojson(route [][][]float64) *geojson.FeatureCollection {
 
 // Run the server with the basic grid
 func Run(xSize, ySize int, basicPointInPolygon bool) {
-	var mg1D []bool
-	var mg [][]bool
+	var bg algorithms.BasicGrid
+	var bg2D [][]bool
 	var filename string
+
+	bg.XSize = xSize
+	bg.YSize = ySize
 
 	if basicPointInPolygon {
 		filename = fmt.Sprintf("data/output/meshgrid_%v_%v_bpip.json", xSize, ySize)
@@ -55,19 +58,19 @@ func Run(xSize, ySize int, basicPointInPolygon bool) {
 	}
 	defer meshgridRaw.Close()
 	byteValue, _ := ioutil.ReadAll(meshgridRaw)
-	json.Unmarshal(byteValue, &mg)
+	json.Unmarshal(byteValue, &bg2D)
 
-	for i := 0; i < len(mg[0]); i++ {
-		for j := 0; j < len(mg); j++ {
-			mg1D = append(mg1D, mg[j][i])
+	for i := 0; i < len(bg2D[0]); i++ {
+		for j := 0; j < len(bg2D); j++ {
+			bg.VertexData = append(bg.VertexData, bg2D[j][i])
 		}
 	}
 
 	var points [][]float64
 	for i := 0; i < xSize; i++ {
 		for j := 0; j < ySize; j++ {
-			if !mg[i][j] {
-				points = append(points, algorithms.GridToCoord([]int{int(i), int(j)}, int(xSize), int(ySize)))
+			if !bg2D[i][j] {
+				points = append(points, bg.GridToCoord([]int{int(i), int(j)}))
 			}
 		}
 	}
@@ -95,13 +98,13 @@ func Run(xSize, ySize int, basicPointInPolygon bool) {
 				panic(err3)
 			}
 
-			var from = algorithms.CoordToGrid([]float64{startLng, startLat}, int(xSize), int(ySize))
-			var to = algorithms.CoordToGrid([]float64{endLng, endLat}, int(xSize), int(ySize))
+			var from = bg.CoordToGrid([]float64{startLng, startLat})
+			var to = bg.CoordToGrid([]float64{endLng, endLat})
 
-			if !mg[from[0]][from[1]] && !mg[to[0]][to[1]] {
+			if !bg2D[from[0]][from[1]] && !bg2D[to[0]][to[1]] {
 				if strings.Contains(r.URL.Path, "/dijkstraAllNodes") {
 					var start = time.Now()
-					var route, nodesProcessed = algorithms.DijkstraAllNodesBg(from[0], from[1], to[0], to[1], int(xSize), int(ySize), &mg1D)
+					var route, nodesProcessed = algorithms.DijkstraAllNodesBg(from[0], from[1], to[0], to[1], int(xSize), int(ySize), &bg)
 					t := time.Now()
 					elapsed := t.Sub(start)
 					fmt.Printf("time: %s\n", elapsed)
@@ -120,7 +123,7 @@ func Run(xSize, ySize int, basicPointInPolygon bool) {
 					w.Write(jsonData)
 				} else {
 					var start = time.Now()
-					var route = algorithms.DijkstraBg(from[0], from[1], to[0], to[1], int(xSize), int(ySize), &mg1D)
+					var route = algorithms.DijkstraBg(from[0], from[1], to[0], to[1], int(xSize), int(ySize), &bg)
 					t := time.Now()
 					elapsed := t.Sub(start)
 					fmt.Printf("time: %s\n", elapsed)
@@ -144,11 +147,11 @@ func Run(xSize, ySize int, basicPointInPolygon bool) {
 			if err1 != nil {
 				panic(err1)
 			}
-			var grid = algorithms.CoordToGrid([]float64{lng, lat}, int(xSize), int(ySize))
-			if mg[grid[0]][grid[1]] {
+			var grid = bg.CoordToGrid([]float64{lng, lat})
+			if bg2D[grid[0]][grid[1]] {
 				w.Write([]byte("false"))
 			} else {
-				var coord = algorithms.GridToCoord(grid, int(xSize), int(ySize))
+				var coord = bg.GridToCoord(grid)
 				rawJSON, err := geojson.NewPointGeometry(coord).MarshalJSON()
 				check(err)
 				w.Write(rawJSON)
