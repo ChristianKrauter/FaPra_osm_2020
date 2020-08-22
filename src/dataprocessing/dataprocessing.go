@@ -1,7 +1,7 @@
 package dataprocessing
 
 import (
-	"../algorithms"
+	"../grids"
 	"fmt"
 	"github.com/paulmach/go.geojson"
 	"log"
@@ -163,7 +163,7 @@ func Start(pbfFileName string, xSize, ySize int, createCoastlineGeoJSON, lessMem
 		logging["time_meshgrid_store"] = string(meshgridStoreTime)
 
 	} else {
-		var uniformGrid algorithms.UniformGrid
+		var uniformGrid grids.UniformGrid
 
 		var uniformGridTime string
 		if noBoundingTree {

@@ -1,57 +1,12 @@
 package algorithms
 
 import (
+	"../grids"
 	"math"
-	"sort"
 )
 
-// UniformGrid structure
-type UniformGrid struct {
-	XSize        int
-	YSize        int
-	N            int
-	BigN         int
-	A            float64
-	D            float64
-	MTheta       float64
-	DTheta       float64
-	DPhi         float64
-	VertexData   [][]bool
-	FirstIndexOf []int
-}
-
-// GridToCoord takes grid indices and outputs lng lat
-func (ug UniformGrid) GridToCoord(in []int) []float64 {
-	theta := math.Pi * (float64(in[0]) + 0.5) / float64(ug.MTheta)
-	mPhi := math.Round(2.0 * math.Pi * math.Sin(theta) / ug.DPhi)
-	phi := 2 * math.Pi * float64(in[1]) / mPhi
-	return []float64{(phi / math.Pi) * 180, (theta/math.Pi)*180 - 90}
-}
-
-// CoordToGrid takes lng lat and outputs grid indices
-func (ug UniformGrid) CoordToGrid(lng, lat float64) []int {
-	theta := (lat + 90) * math.Pi / 180
-	m := math.Round((theta * ug.MTheta / math.Pi) - 0.5)
-	phi := lng * math.Pi / 180
-	mPhi := math.Round(2.0 * math.Pi * math.Sin(theta) / ug.DPhi)
-	n := math.Round(phi * mPhi / (2 * math.Pi))
-	return []int{mod(int(m), int(ug.MTheta)), mod(int(n), int(mPhi))}
-}
-
-// GridToID ...
-func (ug UniformGrid) GridToID(m, n int) int {
-	return ug.FirstIndexOf[m] + n
-}
-
-// IDToGrid ...
-func (ug UniformGrid) IDToGrid(id int) []int {
-	m := sort.Search(len(ug.FirstIndexOf)-1, func(i int) bool { return ug.FirstIndexOf[i] > id })
-	n := id - ug.FirstIndexOf[m-1]
-	return []int{m - 1, n}
-}
-
 // ExtractRouteUg ...
-func ExtractRouteUg(prev *[]int, end int, ug *UniformGrid) [][][]float64 {
+func ExtractRouteUg(prev *[]int, end int, ug *grids.UniformGrid) [][][]float64 {
 	var route [][][]float64
 	var tempRoute [][]float64
 	temp := ug.IDToGrid(end)
@@ -74,7 +29,7 @@ func ExtractRouteUg(prev *[]int, end int, ug *UniformGrid) [][][]float64 {
 }
 
 // ExtractNodesUg ...
-func ExtractNodesUg(nodesProcessed *[]int, ug *UniformGrid) [][]float64 {
+func ExtractNodesUg(nodesProcessed *[]int, ug *grids.UniformGrid) [][]float64 {
 	var nodesExtended [][]float64
 	for _, node := range *nodesProcessed {
 		x := ug.IDToGrid(node)
@@ -85,7 +40,7 @@ func ExtractNodesUg(nodesProcessed *[]int, ug *UniformGrid) [][]float64 {
 }
 
 // Gets neighours left and right in the same row
-func neighboursRowUg(in []float64, ug *UniformGrid) [][]int {
+func neighboursRowUg(in []float64, ug *grids.UniformGrid) [][]int {
 	// Test if it still works with less than 3 points in one grid row
 	theta := (in[1] + 90) * math.Pi / 180
 	m := math.Round((theta * ug.MTheta / math.Pi) - 0.5)
@@ -101,7 +56,7 @@ func neighboursRowUg(in []float64, ug *UniformGrid) [][]int {
 }
 
 // NeighboursUg gets up to 8 neighbours
-func NeighboursUg(in int, ug *UniformGrid) []int {
+func NeighboursUg(in int, ug *grids.UniformGrid) []int {
 	var neighbours [][]int
 	var inGrid = ug.IDToGrid(in)
 	m := inGrid[0]

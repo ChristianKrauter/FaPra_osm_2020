@@ -1,12 +1,13 @@
 package algorithms
 
 import (
+	"../grids"
 	"container/heap"
 	"math"
 )
 
 // Dijkstra implementation on uniform grid
-func Dijkstra(startLngInt, startLatInt, endLngInt, endLatInt int, ug *UniformGrid) [][][]float64 {
+func Dijkstra(startLngInt, startLatInt, endLngInt, endLatInt int, ug *grids.UniformGrid) [][][]float64 {
 
 	var dist []float64
 	var prev []int
@@ -54,7 +55,7 @@ func Dijkstra(startLngInt, startLatInt, endLngInt, endLatInt int, ug *UniformGri
 }
 
 // DijkstraAllNodes additionally returns all visited nodes on uniform grid
-func DijkstraAllNodes(startLngInt, startLatInt, endLngInt, endLatInt int, ug *UniformGrid) ([][][]float64, [][]float64) {
+func DijkstraAllNodes(startLngInt, startLatInt, endLngInt, endLatInt int, ug *grids.UniformGrid) ([][][]float64, [][]float64) {
 
 	var dist []float64
 	var prev []int

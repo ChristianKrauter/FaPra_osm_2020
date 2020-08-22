@@ -1,7 +1,7 @@
 package dataprocessing
 
 import (
-	"../algorithms"
+	"../grids"
 	"encoding/json"
 	"fmt"
 	"math"
@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func createUniformGrid(xSize, ySize int, boundingTreeRoot *boundingTree, allCoastlines *[][][]float64, ug *algorithms.UniformGrid, basicPointInPolygon bool) string {
+func createUniformGrid(xSize, ySize int, boundingTreeRoot *boundingTree, allCoastlines *[][][]float64, ug *grids.UniformGrid, basicPointInPolygon bool) string {
 	start := time.Now()
 
 	var grid [][]bool
@@ -62,7 +62,7 @@ func createUniformGrid(xSize, ySize int, boundingTreeRoot *boundingTree, allCoas
 	return elapsed.String()
 }
 
-func createUniformGridNBT(xSize, ySize int, allBoundingBoxes *[]map[string]float64, allCoastlines *[][][]float64, ug *algorithms.UniformGrid, basicPointInPolygon bool) string {
+func createUniformGridNBT(xSize, ySize int, allBoundingBoxes *[]map[string]float64, allCoastlines *[][][]float64, ug *grids.UniformGrid, basicPointInPolygon bool) string {
 	start := time.Now()
 
 	var grid [][]bool
@@ -115,7 +115,7 @@ func createUniformGridNBT(xSize, ySize int, allBoundingBoxes *[]map[string]float
 	return elapsed.String()
 }
 
-func storeUniformGrid(ug *algorithms.UniformGrid, filename string) string {
+func storeUniformGrid(ug *grids.UniformGrid, filename string) string {
 	start := time.Now()
 	var meshgridBytes []byte
 	meshgridBytes, err1 := json.Marshal(ug)

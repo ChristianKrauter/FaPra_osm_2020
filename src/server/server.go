@@ -2,6 +2,7 @@ package server
 
 import (
 	"../algorithms"
+	"../grids"
 	"encoding/json"
 	"fmt"
 	"github.com/paulmach/go.geojson"
@@ -173,7 +174,7 @@ func Run(xSize, ySize int, basicPointInPolygon bool) {
 // RunUnidistant server
 func RunUnidistant(xSize, ySize int, basicPointInPolygon bool) {
 	var ug1D []bool
-	var ug algorithms.UniformGrid
+	var ug grids.UniformGrid
 
 	ug.XSize = xSize
 	ug.YSize = ySize

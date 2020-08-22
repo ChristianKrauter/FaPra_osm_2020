@@ -3,6 +3,7 @@ package evaluate
 import (
 	"../algorithms"
 	"../dataprocessing"
+	"../grids"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -167,7 +168,7 @@ func WayFindingBG(xSize, ySize, nRuns int, basicPointInPolygon bool, note string
 func WayFinding(xSize, ySize, nRuns, algorithm int, basicPointInPolygon bool, note string) {
 	var filename string
 	var ug1D []bool
-	var ug algorithms.UniformGrid
+	var ug grids.UniformGrid
 	var m runtime.MemStats
 	var sum time.Duration
 	var count int
