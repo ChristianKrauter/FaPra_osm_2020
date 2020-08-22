@@ -2,9 +2,9 @@ package dataprocessing
 
 // Polygon structure
 type Polygon struct {
-	Points       [][]float64
-	PointsTNorth [][]float64
-	PointsTNext  [][]float64
+	Points    [][]float64
+	LngTNorth []float64
+	LngTNext  []float64
 }
 
 // Polygons structure

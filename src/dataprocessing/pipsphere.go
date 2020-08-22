@@ -50,13 +50,13 @@ func eastOrWest(aLon, bLon float64) int {
 }
 
 // Test if point is inside polygon, use north-pole for the known-to-be-outside point
-func pointInPolygonSphere(polygon *Polygon, point []float64) bool {
+func pointInPolygonSphere(poly *Polygon, point []float64) bool {
 	var inside = false
 	var strike = false
 	// Point is the south-pole
 	// Pontentially antipodal check
 	if point[1] == -90 {
-		//fmt.Printf("Tried to check point antipodal to the north pole.")
+		// fmt.Printf("Tried to check point antipodal to the north pole.")
 		return true
 	}
 
@@ -65,9 +65,9 @@ func pointInPolygonSphere(polygon *Polygon, point []float64) bool {
 		return false
 	}
 
-	for i := 0; i < len(polygon.Points); i++ {
-		var a = (polygon.Points)[i]
-		var b = (polygon.Points)[(i+1)%len(polygon.Points)]
+	for i := 0; i < len(poly.Points); i++ {
+		var a = (poly.Points)[i]
+		var b = (poly.Points)[(i+1)%len(poly.Points)]
 		strike = false
 
 		if point[0] == a[0] {
@@ -88,8 +88,8 @@ func pointInPolygonSphere(polygon *Polygon, point []float64) bool {
 				return true
 			}
 
-			// Possible to calculate once at polygon creation
-			var northPoleLonTransformed = transformLon(a, []float64{0.0, 90.0})
+			// Possible to calculate once at poly creation
+			// var northPoleLonTransformed = transformLon(a, []float64{0.0, 90.0})
 			var bLonTransformed = transformLon(a, b)
 			// Not possible
 			var pLonTransformed = transformLon(a, point)
@@ -98,7 +98,7 @@ func pointInPolygonSphere(polygon *Polygon, point []float64) bool {
 				return true
 			}
 
-			var bToX = eastOrWest(bLonTransformed, northPoleLonTransformed)
+			var bToX = eastOrWest(bLonTransformed, (poly.LngTNorth)[i])
 			var bToP = eastOrWest(bLonTransformed, pLonTransformed)
 			if bToX == -bToP {
 				inside = !inside

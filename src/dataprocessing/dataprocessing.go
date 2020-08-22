@@ -17,22 +17,36 @@ func getSomeKey(m *map[int64][]int64) int64 {
 	return 0
 }
 
-func createPolygons(polygons *Polygons, coastlineMap *map[int64][]int64, nodeMap *map[int64][]float64) string {
+func createPolygons(polygons *Polygons, coastlineMap *map[int64][]int64, nodeMap *map[int64][]float64, basicPointInPolygon bool) string {
 	start := time.Now()
 	var poly Polygon
 	for len(*coastlineMap) > 0 {
 		var key = getSomeKey(coastlineMap)
 		var nodeIDs = (*coastlineMap)[key]
 		poly = Polygon{}
-		for _, x := range nodeIDs {
-			poly.Points = append(poly.Points, []float64{(*nodeMap)[x][0], (*nodeMap)[x][1]})
+		for i, x := range nodeIDs {
+			var point = []float64{(*nodeMap)[x][0], (*nodeMap)[x][1]}
+			poly.Points = append(poly.Points, point)
+			if !basicPointInPolygon {
+				poly.LngTNorth = append(poly.LngTNorth, transformLon(point, []float64{0.0, 90.0}))
+				var nIDX = nodeIDs[(i+1)%len(nodeIDs)]
+				var nPoint = []float64{(*nodeMap)[nIDX][0], (*nodeMap)[nIDX][1]}
+				poly.LngTNext = append(poly.LngTNext, transformLon(point, nPoint))
+			}
 		}
 		delete(*coastlineMap, key)
 		key = nodeIDs[len(nodeIDs)-1]
 		for {
 			if val, ok := (*coastlineMap)[key]; ok {
-				for _, x := range val {
-					poly.Points = append(poly.Points, []float64{(*nodeMap)[x][0], (*nodeMap)[x][1]})
+				for i, x := range val {
+					var point = []float64{(*nodeMap)[x][0], (*nodeMap)[x][1]}
+					poly.Points = append(poly.Points, point)
+					if !basicPointInPolygon {
+						poly.LngTNorth = append(poly.LngTNorth, transformLon(point, []float64{0.0, 90.0}))
+						var nIDX = nodeIDs[(i+1)%len(nodeIDs)]
+						var nPoint = []float64{(*nodeMap)[nIDX][0], (*nodeMap)[nIDX][1]}
+						poly.LngTNext = append(poly.LngTNext, transformLon(point, nPoint))
+					}
 				}
 				delete(*coastlineMap, key)
 				key = val[len(val)-1]
@@ -97,7 +111,7 @@ func Start(pbfFileName string, xSize, ySize int, createCoastlineGeoJSON, lessMem
 
 	// Create coastline polygons
 	var polygons Polygons
-	var polygonTime = createPolygons(&polygons, &coastlineMap, &nodeMap)
+	var polygonTime = createPolygons(&polygons, &coastlineMap, &nodeMap, basicPointInPolygon)
 	logging["time_poly"] = string(polygonTime)
 
 	// Create bounding boxes
