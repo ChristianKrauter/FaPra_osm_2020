@@ -7,8 +7,9 @@ import (
 )
 
 // Dijkstra implementation on uniform grid
-func Dijkstra(startLngInt, startLatInt, endLngInt, endLatInt int, ug *grids.UniformGrid) [][][]float64 {
+func Dijkstra(startLngInt, startLatInt, endLngInt, endLatInt int, ug *grids.UniformGrid) ([][][]float64, int) {
 
+	var popped int
 	var dist []float64
 	var prev []int
 	pq := make(priorityQueue, 1)
@@ -31,9 +32,9 @@ func Dijkstra(startLngInt, startLatInt, endLngInt, endLatInt int, ug *grids.Unif
 			break
 		} else {
 			u := heap.Pop(&pq).(*Item).value
-
+			popped++
 			if u == (*ug).GridToID(endLngInt, endLatInt) {
-				return ExtractRouteUg(&prev, (*ug).GridToID(endLngInt, endLatInt), ug)
+				return ExtractRouteUg(&prev, (*ug).GridToID(endLngInt, endLatInt), ug), popped
 			}
 
 			neighbours := NeighboursUg(u, ug)
@@ -51,7 +52,7 @@ func Dijkstra(startLngInt, startLatInt, endLngInt, endLatInt int, ug *grids.Unif
 			}
 		}
 	}
-	return ExtractRouteUg(&prev, (*ug).GridToID(endLngInt, endLatInt), ug)
+	return ExtractRouteUg(&prev, (*ug).GridToID(endLngInt, endLatInt), ug), popped
 }
 
 // DijkstraAllNodes additionally returns all visited nodes on uniform grid

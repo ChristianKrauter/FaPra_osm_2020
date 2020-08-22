@@ -7,8 +7,9 @@ import (
 )
 
 // DijkstraBg implementation
-func DijkstraBg(startLngInt, startLatInt, endLngInt, endLatInt, xSize, ySize int, bg *grids.BasicGrid) [][][]float64 {
+func DijkstraBg(startLngInt, startLatInt, endLngInt, endLatInt, xSize, ySize int, bg *grids.BasicGrid) ([][][]float64, int) {
 
+	var popped int
 	var dist []float64
 	var prev []int
 	pq := make(priorityQueue, 1)
@@ -31,9 +32,10 @@ func DijkstraBg(startLngInt, startLatInt, endLngInt, endLatInt, xSize, ySize int
 			break
 		} else {
 			u := heap.Pop(&pq).(*Item).value
+			popped++
 
 			if u == bg.FlattenIndex(endLngInt, endLatInt) {
-				return extractRoute(&prev, bg.FlattenIndex(endLngInt, endLatInt), bg)
+				return extractRoute(&prev, bg.FlattenIndex(endLngInt, endLatInt), bg), popped
 			}
 
 			neighbours := neighboursBg(u, xSize, bg)
@@ -52,7 +54,7 @@ func DijkstraBg(startLngInt, startLatInt, endLngInt, endLatInt, xSize, ySize int
 			}
 		}
 	}
-	return extractRoute(&prev, bg.FlattenIndex(endLngInt, endLatInt), bg)
+	return extractRoute(&prev, bg.FlattenIndex(endLngInt, endLatInt), bg), popped
 }
 
 // DijkstraAllNodesBg additionally returns all visited nodes

@@ -32,7 +32,7 @@ func getSomeKey(m *map[int64][]int64) int64 {
 	return 0
 }
 
-func createPolygons(allCoastlines *[][][]float64, coastlineMap, nodeMap *map[int64][]float64) string {
+func createPolygons(allCoastlines *[][][]float64, coastlineMap *map[int64][]int64, nodeMap *map[int64][]float64) string {
 	start := time.Now()
 	var coastline [][]float64
 

@@ -123,7 +123,7 @@ func Run(xSize, ySize int, basicPointInPolygon bool) {
 					w.Write(jsonData)
 				} else {
 					var start = time.Now()
-					var route = algorithms.DijkstraBg(from[0], from[1], to[0], to[1], int(xSize), int(ySize), &bg)
+					var route, _ = algorithms.DijkstraBg(from[0], from[1], to[0], to[1], int(xSize), int(ySize), &bg)
 					t := time.Now()
 					elapsed := t.Sub(start)
 					fmt.Printf("time: %s\n", elapsed)
@@ -266,7 +266,7 @@ func RunUnidistant(xSize, ySize int, basicPointInPolygon bool) {
 					w.Write(jsonData)
 				} else {
 					var start = time.Now()
-					var route = algorithms.Dijkstra(from[0], from[1], to[0], to[1], &ug)
+					var route, _ = algorithms.Dijkstra(from[0], from[1], to[0], to[1], &ug)
 					t := time.Now()
 					elapsed := t.Sub(start)
 					fmt.Printf("time: %s\n", elapsed)

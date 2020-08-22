@@ -72,6 +72,7 @@ func WayFindingBG(xSize, ySize, nRuns int, basicPointInPolygon bool, note string
 	var bg2D [][]bool
 	var m runtime.MemStats
 	var sum time.Duration
+	var poppedSum int
 	var count int
 	var max = time.Duration(math.MinInt64)
 	var min = time.Duration(math.MaxInt64)
@@ -131,7 +132,8 @@ func WayFindingBG(xSize, ySize, nRuns int, basicPointInPolygon bool, note string
 			var start = time.Now()
 			var a = bg.ExpandIndex(x)
 			var b = bg.ExpandIndex(y)
-			var _ = algorithms.DijkstraBg(a[0], a[1], b[0], b[1], xSize, ySize, &bg)
+			var _, popped = algorithms.DijkstraBg(a[0], a[1], b[0], b[1], xSize, ySize, &bg)
+			poppedSum += popped
 			t := time.Now()
 			var elapsed = t.Sub(start)
 			if elapsed > max {
@@ -155,6 +157,7 @@ func WayFindingBG(xSize, ySize, nRuns int, basicPointInPolygon bool, note string
 	log["time_avg"] = (sum / time.Duration(count)).String()
 	log["time_min"] = min.String()
 	log["time_max"] = max.String()
+	log["nodes_popped_avg"] = strconv.Itoa(poppedSum / count)
 
 	jsonString, _ := json.MarshalIndent(log, "", "    ")
 	var outFilename string
@@ -174,6 +177,7 @@ func WayFinding(xSize, ySize, nRuns, algorithm int, basicPointInPolygon bool, no
 	var ug grids.UniformGrid
 	var m runtime.MemStats
 	var sum time.Duration
+	var poppedSum int
 	var count int
 	var max = time.Duration(math.MinInt64)
 	var min = time.Duration(math.MaxInt64)
@@ -248,7 +252,8 @@ func WayFinding(xSize, ySize, nRuns, algorithm int, basicPointInPolygon bool, no
 			var start = time.Now()
 			var a = ug.IDToGrid(x)
 			var b = ug.IDToGrid(y)
-			var _ = algorithms.Dijkstra(a[0], a[1], b[0], b[1], &ug)
+			var _, popped = algorithms.Dijkstra(a[0], a[1], b[0], b[1], &ug)
+			poppedSum += popped
 			t := time.Now()
 			var elapsed = t.Sub(start)
 			if elapsed > max {
@@ -272,6 +277,7 @@ func WayFinding(xSize, ySize, nRuns, algorithm int, basicPointInPolygon bool, no
 	log["time_avg"] = (sum / time.Duration(count)).String()
 	log["time_min"] = min.String()
 	log["time_max"] = max.String()
+	log["nodes_popped"] = strconv.Itoa(poppedSum / count)
 
 	jsonString, _ := json.MarshalIndent(log, "", "    ")
 	var outFilename string
