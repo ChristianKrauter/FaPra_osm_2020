@@ -74,18 +74,3 @@ func (pq *PriorityQueue) Pop() interface{} {
 	*pq = old[0 : n-1]
 	return item
 }
-
-// ArrayOfArrays sorting by length
-type ArrayOfArrays [][][]float64
-
-func (p ArrayOfArrays) Len() int {
-	return len(p)
-}
-
-func (p ArrayOfArrays) Swap(i, j int) {
-	p[i], p[j] = p[j], p[i]
-}
-
-func (p ArrayOfArrays) Less(i, j int) bool {
-	return len(p[i]) > len(p[j])
-}

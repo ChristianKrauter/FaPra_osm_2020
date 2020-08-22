@@ -10,6 +10,21 @@ import (
 	"time"
 )
 
+// arrayOfArrays sorting by length
+type arrayOfArrays [][][]float64
+
+func (p arrayOfArrays) Len() int {
+	return len(p)
+}
+
+func (p arrayOfArrays) Swap(i, j int) {
+	p[i], p[j] = p[j], p[i]
+}
+
+func (p arrayOfArrays) Less(i, j int) bool {
+	return len(p[i]) > len(p[j])
+}
+
 func getSomeKey(m *map[int64][]int64) int64 {
 	for k := range *m {
 		return k
@@ -44,7 +59,7 @@ func createPolygons(allCoastlines *[][][]float64, coastlineMap *map[int64][]int6
 		*allCoastlines = append(*allCoastlines, coastline)
 	}
 
-	sort.Sort(algorithms.ArrayOfArrays(*allCoastlines))
+	sort.Sort(algorithms.arrayOfArrays(*allCoastlines))
 
 	t := time.Now()
 	elapsed := t.Sub(start)
