@@ -1,0 +1,17 @@
+{
+    "basicGrid": "true",
+    "basicPointInPolygon": "false",
+    "filename": "_bg",
+    "note": "",
+    "numCPU": "24",
+    "pbfFileName": "antarctica-latest.osm.pbf",
+    "time_boundingTree": "448.603035ms",
+    "time_meshgrid": "7.888146256s",
+    "time_meshgrid_store": "68.910634ms",
+    "time_poly": "766.935943ms",
+    "time_read": "3.696321427s",
+    "time_total": "12.869654833s",
+    "totalAlloc": "3133",
+    "xSize": "360",
+    "ySize": "360"
+}
