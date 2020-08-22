@@ -52,7 +52,7 @@ func main() {
 
 	switch mode {
 	case 0:
-		fmt.Printf("Starting osmGW server with a %s", info)
+		fmt.Printf("Starting osmGW server with a %s\n", info)
 		if basicGrid {
 			server.Run(xSize, ySize, basicPointInPolygon)
 		} else {
