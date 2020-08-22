@@ -59,7 +59,7 @@ func createPolygons(allCoastlines *[][][]float64, coastlineMap *map[int64][]int6
 		*allCoastlines = append(*allCoastlines, coastline)
 	}
 
-	sort.Sort(algorithms.arrayOfArrays(*allCoastlines))
+	sort.Sort(arrayOfArrays(*allCoastlines))
 
 	t := time.Now()
 	elapsed := t.Sub(start)

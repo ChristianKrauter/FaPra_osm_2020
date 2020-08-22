@@ -10,7 +10,7 @@ func DijkstraBg(startLngInt, startLatInt, endLngInt, endLatInt, xSize, ySize int
 
 	var dist []float64
 	var prev []int
-	pq := make(PriorityQueue, 1)
+	pq := make(priorityQueue, 1)
 
 	for i := 0; i < len((*mg)); i++ {
 		dist = append(dist, math.Inf(1))
@@ -60,7 +60,7 @@ func DijkstraAllNodesBg(startLngInt, startLatInt, endLngInt, endLatInt, xSize, y
 	var dist []float64
 	var prev []int
 	var nodesProcessed []int
-	pq := make(PriorityQueue, 1)
+	pq := make(priorityQueue, 1)
 
 	for i := 0; i < len((*mg)); i++ {
 		dist = append(dist, math.Inf(1))

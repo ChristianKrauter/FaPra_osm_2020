@@ -10,7 +10,7 @@ func Dijkstra(startLngInt, startLatInt, endLngInt, endLatInt int, ug *UniformGri
 
 	var dist []float64
 	var prev []int
-	pq := make(PriorityQueue, 1)
+	pq := make(priorityQueue, 1)
 
 	for i := 0; i < (*ug).N; i++ {
 		dist = append(dist, math.Inf(1))
@@ -59,7 +59,7 @@ func DijkstraAllNodes(startLngInt, startLatInt, endLngInt, endLatInt int, ug *Un
 	var dist []float64
 	var prev []int
 	var nodesProcessed []int
-	pq := make(PriorityQueue, 1)
+	pq := make(priorityQueue, 1)
 
 	for i := 0; i < (*ug).N; i++ {
 		dist = append(dist, math.Inf(1))
