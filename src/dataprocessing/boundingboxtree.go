@@ -12,13 +12,13 @@ type boundingTree struct {
 	children    []boundingTree
 }
 
-func createBoundingTree(boundingTreeRoot *boundingTree, allCoastlines *[][][]float64) string {
+func createBoundingTree(boundingTreeRoot *boundingTree, polygons *Polygons) string {
 	start := time.Now()
 
 	*boundingTreeRoot = boundingTree{map[string]float64{"minX": math.Inf(-1), "maxX": math.Inf(1), "minY": math.Inf(-1), "maxY": math.Inf(1)}, -1, make([]boundingTree, 0)}
 
-	for j, i := range *allCoastlines {
-		bb := createBoundingBox(&i)
+	for j, i := range *polygons {
+		bb := createBoundingBox(&i.Points)
 		*boundingTreeRoot = addBoundingTree(boundingTreeRoot, &bb, j)
 	}
 
@@ -37,12 +37,12 @@ func boundingContains(bounding *map[string]float64, point []float64) bool {
 	return false
 }
 
-func createBoundingBox(polygon *[][]float64) map[string]float64 {
+func createBoundingBox(poly *[][]float64) map[string]float64 {
 	minX := math.Inf(1)
 	maxX := math.Inf(-1)
 	minY := math.Inf(1)
 	maxY := math.Inf(-1)
-	for _, coord := range *polygon {
+	for _, coord := range *poly {
 		if coord[0] < minX {
 			minX = coord[0]
 		} else if coord[0] > maxX {

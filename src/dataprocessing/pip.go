@@ -84,26 +84,26 @@ func polygonContains(polygon *[][]float64, point []float64) bool {
 	return b
 }
 
-func isLand(tree *boundingTree, point []float64, allCoastlines *[][][]float64) bool {
+func isLand(tree *boundingTree, point []float64, polygons *Polygons) bool {
 	land := false
 	if boundingContains(&tree.boundingBox, point) {
 		for _, child := range (*tree).children {
-			land = isLand(&child, point, allCoastlines)
+			land = isLand(&child, point, polygons)
 			if land {
 				return land
 			}
 		}
 		if (*tree).id >= 0 {
-			land = polygonContains(&(*allCoastlines)[(*tree).id], point)
+			land = polygonContains(&(*polygons)[(*tree).id].Points, point)
 		}
 	}
 	return land
 }
 
-func isLandNBT(allBoundingBoxes *[]map[string]float64, point []float64, allCoastlines *[][][]float64) bool {
+func isLandNBT(allBoundingBoxes *[]map[string]float64, point []float64, polygons *Polygons) bool {
 	for i, j := range *allBoundingBoxes {
 		if boundingContains(&j, []float64{point[0], point[1]}) {
-			if polygonContains(&(*allCoastlines)[i], []float64{point[0], point[1]}) {
+			if polygonContains(&(*polygons)[i].Points, []float64{point[0], point[1]}) {
 				return true
 			}
 		}

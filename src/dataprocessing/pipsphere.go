@@ -50,7 +50,7 @@ func eastOrWest(aLon, bLon float64) int {
 }
 
 // Test if point is inside polygon, use north-pole for the known-to-be-outside point
-func pointInPolygonSphere(polygon *[][]float64, point []float64) bool {
+func pointInPolygonSphere(polygon *Polygon, point []float64) bool {
 	var inside = false
 	var strike = false
 	// Point is the south-pole
@@ -64,10 +64,10 @@ func pointInPolygonSphere(polygon *[][]float64, point []float64) bool {
 	if point[1] == 90 {
 		return false
 	}
-	for i := 0; i < len(*polygon); i++ {
-		var a = (*polygon)[i]
-		var b = (*polygon)[(i+1)%len(*polygon)]
 
+	for i := 0; i < len(polygon.Points); i++ {
+		var a = (polygon.Points)[i]
+		var b = (polygon.Points)[(i+1)%len(polygon.Points)]
 		strike = false
 
 		if point[0] == a[0] {
@@ -108,17 +108,17 @@ func pointInPolygonSphere(polygon *[][]float64, point []float64) bool {
 	return inside
 }
 
-func isLandSphere(tree *boundingTree, point []float64, allCoastlines *[][][]float64) bool {
+func isLandSphere(tree *boundingTree, point []float64, polygons *Polygons) bool {
 	land := false
 	if boundingContains(&tree.boundingBox, point) {
 		if (*tree).id >= 0 {
-			land = pointInPolygonSphere(&(*allCoastlines)[(*tree).id], point)
+			land = pointInPolygonSphere(&(*polygons)[(*tree).id], point)
 			if land {
 				return land
 			}
 		}
 		for _, child := range (*tree).children {
-			land = isLandSphere(&child, point, allCoastlines)
+			land = isLandSphere(&child, point, polygons)
 			if land {
 				return land
 			}
@@ -127,10 +127,10 @@ func isLandSphere(tree *boundingTree, point []float64, allCoastlines *[][][]floa
 	return land
 }
 
-func isLandSphereNBT(allBoundingBoxes *[]map[string]float64, point []float64, allCoastlines *[][][]float64) bool {
+func isLandSphereNBT(allBoundingBoxes *[]map[string]float64, point []float64, polygons *Polygons) bool {
 	for i, j := range *allBoundingBoxes {
 		if boundingContains(&j, point) {
-			if pointInPolygonSphere(&(*allCoastlines)[i], point) {
+			if pointInPolygonSphere(&(*polygons)[i], point) {
 				return true
 			}
 		}

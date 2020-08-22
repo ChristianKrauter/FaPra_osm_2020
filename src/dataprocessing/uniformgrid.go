@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func createUniformGrid(xSize, ySize int, boundingTreeRoot *boundingTree, allCoastlines *[][][]float64, ug *grids.UniformGrid, basicPointInPolygon bool) string {
+func createUniformGrid(xSize, ySize int, boundingTreeRoot *boundingTree, polygons *Polygons, ug *grids.UniformGrid, basicPointInPolygon bool) string {
 	start := time.Now()
 
 	var grid [][]bool
@@ -35,9 +35,9 @@ func createUniformGrid(xSize, ySize int, boundingTreeRoot *boundingTree, allCoas
 				coords[0] = coords[0] - 360
 			}
 			if basicPointInPolygon {
-				gridRow = append(gridRow, isLand(boundingTreeRoot, coords, allCoastlines))
+				gridRow = append(gridRow, isLand(boundingTreeRoot, coords, polygons))
 			} else {
-				gridRow = append(gridRow, isLandSphere(boundingTreeRoot, coords, allCoastlines))
+				gridRow = append(gridRow, isLandSphere(boundingTreeRoot, coords, polygons))
 			}
 		}
 		grid = append(grid, gridRow)
@@ -62,7 +62,7 @@ func createUniformGrid(xSize, ySize int, boundingTreeRoot *boundingTree, allCoas
 	return elapsed.String()
 }
 
-func createUniformGridNBT(xSize, ySize int, allBoundingBoxes *[]map[string]float64, allCoastlines *[][][]float64, ug *grids.UniformGrid, basicPointInPolygon bool) string {
+func createUniformGridNBT(xSize, ySize int, allBoundingBoxes *[]map[string]float64, polygons *Polygons, ug *grids.UniformGrid, basicPointInPolygon bool) string {
 	start := time.Now()
 
 	var grid [][]bool
@@ -88,9 +88,9 @@ func createUniformGridNBT(xSize, ySize int, allBoundingBoxes *[]map[string]float
 				coords[0] = coords[0] - 360
 			}
 			if basicPointInPolygon {
-				gridRow = append(gridRow, isLandNBT(allBoundingBoxes, coords, allCoastlines))
+				gridRow = append(gridRow, isLandNBT(allBoundingBoxes, coords, polygons))
 			} else {
-				gridRow = append(gridRow, isLandSphereNBT(allBoundingBoxes, coords, allCoastlines))
+				gridRow = append(gridRow, isLandSphereNBT(allBoundingBoxes, coords, polygons))
 			}
 		}
 		grid = append(grid, gridRow)

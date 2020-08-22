@@ -10,21 +10,6 @@ import (
 	"time"
 )
 
-// arrayOfArrays sorting by length
-type arrayOfArrays [][][]float64
-
-func (p arrayOfArrays) Len() int {
-	return len(p)
-}
-
-func (p arrayOfArrays) Swap(i, j int) {
-	p[i], p[j] = p[j], p[i]
-}
-
-func (p arrayOfArrays) Less(i, j int) bool {
-	return len(p[i]) > len(p[j])
-}
-
 func getSomeKey(m *map[int64][]int64) int64 {
 	for k := range *m {
 		return k
@@ -32,23 +17,22 @@ func getSomeKey(m *map[int64][]int64) int64 {
 	return 0
 }
 
-func createPolygons(allCoastlines *[][][]float64, coastlineMap *map[int64][]int64, nodeMap *map[int64][]float64) string {
+func createPolygons(polygons *Polygons, coastlineMap *map[int64][]int64, nodeMap *map[int64][]float64) string {
 	start := time.Now()
-	var coastline [][]float64
-
+	var poly Polygon
 	for len(*coastlineMap) > 0 {
 		var key = getSomeKey(coastlineMap)
 		var nodeIDs = (*coastlineMap)[key]
-		coastline = nil
+		poly = Polygon{}
 		for _, x := range nodeIDs {
-			coastline = append(coastline, []float64{(*nodeMap)[x][0], (*nodeMap)[x][1]})
+			poly.Points = append(poly.Points, []float64{(*nodeMap)[x][0], (*nodeMap)[x][1]})
 		}
 		delete(*coastlineMap, key)
 		key = nodeIDs[len(nodeIDs)-1]
 		for {
 			if val, ok := (*coastlineMap)[key]; ok {
 				for _, x := range val {
-					coastline = append(coastline, []float64{(*nodeMap)[x][0], (*nodeMap)[x][1]})
+					poly.Points = append(poly.Points, []float64{(*nodeMap)[x][0], (*nodeMap)[x][1]})
 				}
 				delete(*coastlineMap, key)
 				key = val[len(val)-1]
@@ -56,10 +40,10 @@ func createPolygons(allCoastlines *[][][]float64, coastlineMap *map[int64][]int6
 				break
 			}
 		}
-		*allCoastlines = append(*allCoastlines, coastline)
+		*polygons = append(*polygons, poly)
 	}
 
-	sort.Sort(arrayOfArrays(*allCoastlines))
+	sort.Sort(Polygons(*polygons))
 
 	t := time.Now()
 	elapsed := t.Sub(start)
@@ -67,13 +51,13 @@ func createPolygons(allCoastlines *[][][]float64, coastlineMap *map[int64][]int6
 	return elapsed.String()
 }
 
-func createAndStoreCoastlineGeoJSON(allCoastlines *[][][]float64, filename string) string {
+func createAndStoreCoastlineGeoJSON(polygons *Polygons, filename string) string {
 	start := time.Now()
-	var polygons [][][]float64
-	for _, i := range *allCoastlines {
-		polygons = append(polygons, i)
+	var mpg [][][]float64
+	for _, i := range *polygons {
+		mpg = append(mpg, i.Points)
 	}
-	var fc = geojson.NewMultiPolygonGeometry(polygons)
+	var fc = geojson.NewMultiPolygonGeometry(mpg)
 	rawJSON, err := fc.MarshalJSON()
 	f, err := os.Create(filename)
 	check(err)
@@ -112,8 +96,8 @@ func Start(pbfFileName string, xSize, ySize int, createCoastlineGeoJSON, lessMem
 	}
 
 	// Create coastline polygons
-	var allCoastlines [][][]float64
-	var polygonTime = createPolygons(&allCoastlines, &coastlineMap, &nodeMap)
+	var polygons Polygons
+	var polygonTime = createPolygons(&polygons, &coastlineMap, &nodeMap)
 	logging["time_poly"] = string(polygonTime)
 
 	// Create bounding boxes
@@ -123,8 +107,8 @@ func Start(pbfFileName string, xSize, ySize int, createCoastlineGeoJSON, lessMem
 		logging["filename"] += "_nbt"
 
 		start := time.Now()
-		for _, i := range allCoastlines {
-			allBoundingBoxes = append(allBoundingBoxes, createBoundingBox(&i))
+		for _, i := range polygons {
+			allBoundingBoxes = append(allBoundingBoxes, createBoundingBox(&i.Points))
 		}
 		t := time.Now()
 		elapsed := t.Sub(start)
@@ -132,7 +116,7 @@ func Start(pbfFileName string, xSize, ySize int, createCoastlineGeoJSON, lessMem
 		logging["time_boundingBoxes"] = elapsed.String()
 
 	} else {
-		var boundingTreeTime = createBoundingTree(&boundingTreeRoot, &allCoastlines)
+		var boundingTreeTime = createBoundingTree(&boundingTreeRoot, &polygons)
 		logging["time_boundingTree"] = string(boundingTreeTime)
 	}
 
@@ -150,12 +134,11 @@ func Start(pbfFileName string, xSize, ySize int, createCoastlineGeoJSON, lessMem
 		for i := range bg {
 			bg[i] = make([]bool, ySize)
 		}
-
 		var meshgridTime string
 		if noBoundingTree {
-			meshgridTime = createMeshgridNBT(xSize, ySize, &allBoundingBoxes, &allCoastlines, &bg, basicPointInPolygon)
+			meshgridTime = createMeshgridNBT(xSize, ySize, &allBoundingBoxes, &polygons, &bg, basicPointInPolygon)
 		} else {
-			meshgridTime = createMeshgrid(xSize, ySize, &boundingTreeRoot, &allCoastlines, &bg, basicPointInPolygon)
+			meshgridTime = createMeshgrid(xSize, ySize, &boundingTreeRoot, &polygons, &bg, basicPointInPolygon)
 		}
 		logging["time_meshgrid"] = string(meshgridTime)
 
@@ -167,9 +150,9 @@ func Start(pbfFileName string, xSize, ySize int, createCoastlineGeoJSON, lessMem
 
 		var uniformGridTime string
 		if noBoundingTree {
-			uniformGridTime = createUniformGridNBT(xSize, ySize, &allBoundingBoxes, &allCoastlines, &uniformGrid, basicPointInPolygon)
+			uniformGridTime = createUniformGridNBT(xSize, ySize, &allBoundingBoxes, &polygons, &uniformGrid, basicPointInPolygon)
 		} else {
-			uniformGridTime = createUniformGrid(xSize, ySize, &boundingTreeRoot, &allCoastlines, &uniformGrid, basicPointInPolygon)
+			uniformGridTime = createUniformGrid(xSize, ySize, &boundingTreeRoot, &polygons, &uniformGrid, basicPointInPolygon)
 		}
 		logging["time_meshgrid"] = string(uniformGridTime)
 
@@ -179,7 +162,7 @@ func Start(pbfFileName string, xSize, ySize int, createCoastlineGeoJSON, lessMem
 
 	// Create and safe coastline
 	if createCoastlineGeoJSON {
-		var coastlineGeoJSONTime = createAndStoreCoastlineGeoJSON(&allCoastlines, fmt.Sprintf("data/output/coastlines_for_%d_%d.geojson", xSize, ySize))
+		var coastlineGeoJSONTime = createAndStoreCoastlineGeoJSON(&polygons, fmt.Sprintf("data/output/coastlines_for_%d_%d.geojson", xSize, ySize))
 		logging["time_coastlineGeoJSON"] = string(coastlineGeoJSONTime)
 	}
 

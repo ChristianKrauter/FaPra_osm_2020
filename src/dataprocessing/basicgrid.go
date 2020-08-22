@@ -14,7 +14,7 @@ func check(e error) {
 	}
 }
 
-func createMeshgrid(xSize, ySize int, boundingTreeRoot *boundingTree, allCoastlines *[][][]float64, bg *[][]bool, basicPointInPolygon bool) string {
+func createMeshgrid(xSize, ySize int, boundingTreeRoot *boundingTree, polygons *Polygons, bg *[][]bool, basicPointInPolygon bool) string {
 	start := time.Now()
 	var xStepSize = float64(360 / xSize)
 	var yStepSize = float64(360 / ySize)
@@ -28,9 +28,9 @@ func createMeshgrid(xSize, ySize int, boundingTreeRoot *boundingTree, allCoastli
 				var xs = x - 180
 				var ys = (y / 2) - 90
 				if basicPointInPolygon {
-					(*bg)[int(x/xStepSize)][int(y/yStepSize)] = isLand(boundingTreeRoot, []float64{xs, ys}, allCoastlines)
+					(*bg)[int(x/xStepSize)][int(y/yStepSize)] = isLand(boundingTreeRoot, []float64{xs, ys}, polygons)
 				} else {
-					(*bg)[int(x/xStepSize)][int(y/yStepSize)] = isLandSphere(boundingTreeRoot, []float64{xs, ys}, allCoastlines)
+					(*bg)[int(x/xStepSize)][int(y/yStepSize)] = isLandSphere(boundingTreeRoot, []float64{xs, ys}, polygons)
 				}
 			}(x, y)
 		}
@@ -44,7 +44,7 @@ func createMeshgrid(xSize, ySize int, boundingTreeRoot *boundingTree, allCoastli
 	return elapsed.String()
 }
 
-func createMeshgridNBT(xSize, ySize int, allBoundingBoxes *[]map[string]float64, allCoastlines *[][][]float64, bg *[][]bool, basicPointInPolygon bool) string {
+func createMeshgridNBT(xSize, ySize int, allBoundingBoxes *[]map[string]float64, polygons *Polygons, bg *[][]bool, basicPointInPolygon bool) string {
 	start := time.Now()
 	var xStepSize = float64(360 / xSize)
 	var yStepSize = float64(360 / ySize)
@@ -58,9 +58,9 @@ func createMeshgridNBT(xSize, ySize int, allBoundingBoxes *[]map[string]float64,
 				var xs = x - 180
 				var ys = (y / 2) - 90
 				if basicPointInPolygon {
-					(*bg)[int(x/xStepSize)][int(y/yStepSize)] = isLandNBT(allBoundingBoxes, []float64{xs, ys}, allCoastlines)
+					(*bg)[int(x/xStepSize)][int(y/yStepSize)] = isLandNBT(allBoundingBoxes, []float64{xs, ys}, polygons)
 				} else {
-					(*bg)[int(x/xStepSize)][int(y/yStepSize)] = isLandSphereNBT(allBoundingBoxes, []float64{xs, ys}, allCoastlines)
+					(*bg)[int(x/xStepSize)][int(y/yStepSize)] = isLandSphereNBT(allBoundingBoxes, []float64{xs, ys}, polygons)
 				}
 			}(x, y)
 		}
