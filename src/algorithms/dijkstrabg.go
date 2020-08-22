@@ -5,8 +5,8 @@ import (
 	"math"
 )
 
-// Dijkstra implementation
-func Dijkstra(startLngInt, startLatInt, endLngInt, endLatInt, xSize, ySize int, mg *[]bool) [][][]float64 {
+// DijkstraBg implementation
+func DijkstraBg(startLngInt, startLatInt, endLngInt, endLatInt, xSize, ySize int, mg *[]bool) [][][]float64 {
 
 	var dist []float64
 	var prev []int
@@ -54,8 +54,8 @@ func Dijkstra(startLngInt, startLatInt, endLngInt, endLatInt, xSize, ySize int, 
 	return extractRoute(&prev, flattenIndex(endLngInt, endLatInt, xSize), xSize, ySize)
 }
 
-// DijkstraAllNodes additionally returns all visited nodes
-func DijkstraAllNodes(startLngInt, startLatInt, endLngInt, endLatInt, xSize, ySize int, mg *[]bool) ([][][]float64, [][]float64) {
+// DijkstraAllNodesBg additionally returns all visited nodes
+func DijkstraAllNodesBg(startLngInt, startLatInt, endLngInt, endLatInt, xSize, ySize int, mg *[]bool) ([][][]float64, [][]float64) {
 
 	var dist []float64
 	var prev []int

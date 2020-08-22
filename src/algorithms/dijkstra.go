@@ -5,8 +5,8 @@ import (
 	"math"
 )
 
-// UniformDijkstra implementation on uniform grid
-func UniformDijkstra(startLngInt, startLatInt, endLngInt, endLatInt int, ug *UniformGrid) [][][]float64 {
+// Dijkstra implementation on uniform grid
+func Dijkstra(startLngInt, startLatInt, endLngInt, endLatInt int, ug *UniformGrid) [][][]float64 {
 
 	var dist []float64
 	var prev []int
@@ -53,8 +53,8 @@ func UniformDijkstra(startLngInt, startLatInt, endLngInt, endLatInt int, ug *Uni
 	return ExtractRouteUg(&prev, (*ug).GridToID(endLngInt, endLatInt), ug)
 }
 
-// UniformDijkstraAllNodes additionally returns all visited nodes on uniform grid
-func UniformDijkstraAllNodes(startLngInt, startLatInt, endLngInt, endLatInt int, ug *UniformGrid) ([][][]float64, [][]float64) {
+// DijkstraAllNodes additionally returns all visited nodes on uniform grid
+func DijkstraAllNodes(startLngInt, startLatInt, endLngInt, endLatInt int, ug *UniformGrid) ([][][]float64, [][]float64) {
 
 	var dist []float64
 	var prev []int
