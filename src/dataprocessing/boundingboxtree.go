@@ -58,7 +58,7 @@ func createBoundingBox(polygon *[][]float64) map[string]float64 {
 }
 
 //Check if a bounding box is inside another bounding box
-func checkBoundingBoxes(bb1 map[string]float64, bb2 map[string]float64) bool {
+func checkBoundingBoxes(bb1, bb2 map[string]float64) bool {
 	return bb1["minX"] >= bb2["minX"] && bb1["maxX"] <= bb2["maxX"] && bb1["minY"] >= bb2["minY"] && bb1["maxY"] <= bb2["maxY"]
 }
 

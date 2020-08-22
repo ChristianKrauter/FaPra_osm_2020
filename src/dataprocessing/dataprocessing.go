@@ -32,7 +32,7 @@ func getSomeKey(m *map[int64][]int64) int64 {
 	return 0
 }
 
-func createPolygons(allCoastlines *[][][]float64, coastlineMap *map[int64][]int64, nodeMap *map[int64][]float64) string {
+func createPolygons(allCoastlines *[][][]float64, coastlineMap, nodeMap *map[int64][]float64) string {
 	start := time.Now()
 	var coastline [][]float64
 
@@ -146,20 +146,20 @@ func Start(pbfFileName string, xSize, ySize int, createCoastlineGeoJSON, lessMem
 	if basicGrid {
 		logging["filename"] += "_bg"
 
-		mg := make([][]bool, xSize) // inits with false!
-		for i := range mg {
-			mg[i] = make([]bool, ySize)
+		bg := make([][]bool, xSize) // inits with false!
+		for i := range bg {
+			bg[i] = make([]bool, ySize)
 		}
 
 		var meshgridTime string
 		if noBoundingTree {
-			meshgridTime = createMeshgridNBT(xSize, ySize, &allBoundingBoxes, &allCoastlines, &mg, basicPointInPolygon)
+			meshgridTime = createMeshgridNBT(xSize, ySize, &allBoundingBoxes, &allCoastlines, &bg, basicPointInPolygon)
 		} else {
-			meshgridTime = createMeshgrid(xSize, ySize, &boundingTreeRoot, &allCoastlines, &mg, basicPointInPolygon)
+			meshgridTime = createMeshgrid(xSize, ySize, &boundingTreeRoot, &allCoastlines, &bg, basicPointInPolygon)
 		}
 		logging["time_meshgrid"] = string(meshgridTime)
 
-		var meshgridStoreTime = storeMeshgrid(&mg, fmt.Sprintf("data/output/meshgrid_%d_%d%s.json", xSize, ySize, filenameAdditions))
+		var meshgridStoreTime = storeMeshgrid(&bg, fmt.Sprintf("data/output/meshgrid_%d_%d%s.json", xSize, ySize, filenameAdditions))
 		logging["time_meshgrid_store"] = string(meshgridStoreTime)
 
 	} else {

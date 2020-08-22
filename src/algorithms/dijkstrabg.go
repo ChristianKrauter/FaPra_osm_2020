@@ -1,12 +1,13 @@
 package algorithms
 
 import (
+	"../grids"
 	"container/heap"
 	"math"
 )
 
 // DijkstraBg implementation
-func DijkstraBg(startLngInt, startLatInt, endLngInt, endLatInt, xSize, ySize int, bg *BasicGrid) [][][]float64 {
+func DijkstraBg(startLngInt, startLatInt, endLngInt, endLatInt, xSize, ySize int, bg *grids.BasicGrid) [][][]float64 {
 
 	var dist []float64
 	var prev []int
@@ -17,9 +18,9 @@ func DijkstraBg(startLngInt, startLatInt, endLngInt, endLatInt, xSize, ySize int
 		prev = append(prev, -1)
 	}
 
-	dist[bg.flattenIndex(startLngInt, startLatInt)] = 0
+	dist[bg.FlattenIndex(startLngInt, startLatInt)] = 0
 	pq[0] = &Item{
-		value:    bg.flattenIndex(startLngInt, startLatInt),
+		value:    bg.FlattenIndex(startLngInt, startLatInt),
 		priority: 0,
 		index:    0,
 	}
@@ -31,8 +32,8 @@ func DijkstraBg(startLngInt, startLatInt, endLngInt, endLatInt, xSize, ySize int
 		} else {
 			u := heap.Pop(&pq).(*Item).value
 
-			if u == bg.flattenIndex(endLngInt, endLatInt) {
-				return extractRoute(&prev, bg.flattenIndex(endLngInt, endLatInt), bg)
+			if u == bg.FlattenIndex(endLngInt, endLatInt) {
+				return extractRoute(&prev, bg.FlattenIndex(endLngInt, endLatInt), bg)
 			}
 
 			neighbours := neighboursBg(u, xSize, bg)
@@ -51,11 +52,11 @@ func DijkstraBg(startLngInt, startLatInt, endLngInt, endLatInt, xSize, ySize int
 			}
 		}
 	}
-	return extractRoute(&prev, bg.flattenIndex(endLngInt, endLatInt), bg)
+	return extractRoute(&prev, bg.FlattenIndex(endLngInt, endLatInt), bg)
 }
 
 // DijkstraAllNodesBg additionally returns all visited nodes
-func DijkstraAllNodesBg(startLngInt, startLatInt, endLngInt, endLatInt, xSize, ySize int, bg *BasicGrid) ([][][]float64, [][]float64) {
+func DijkstraAllNodesBg(startLngInt, startLatInt, endLngInt, endLatInt, xSize, ySize int, bg *grids.BasicGrid) ([][][]float64, [][]float64) {
 
 	var dist []float64
 	var prev []int
@@ -67,9 +68,9 @@ func DijkstraAllNodesBg(startLngInt, startLatInt, endLngInt, endLatInt, xSize, y
 		prev = append(prev, -1)
 	}
 
-	dist[bg.flattenIndex(startLngInt, startLatInt)] = 0
+	dist[bg.FlattenIndex(startLngInt, startLatInt)] = 0
 	pq[0] = &Item{
-		value:    bg.flattenIndex(startLngInt, startLatInt),
+		value:    bg.FlattenIndex(startLngInt, startLatInt),
 		priority: 0,
 		index:    0,
 	}
@@ -83,8 +84,8 @@ func DijkstraAllNodesBg(startLngInt, startLatInt, endLngInt, endLatInt, xSize, y
 			u := heap.Pop(&pq).(*Item).value
 			nodesProcessed = append(nodesProcessed, u)
 
-			if u == bg.flattenIndex(endLngInt, endLatInt) {
-				var route = extractRoute(&prev, bg.flattenIndex(endLngInt, endLatInt), bg)
+			if u == bg.FlattenIndex(endLngInt, endLatInt) {
+				var route = extractRoute(&prev, bg.FlattenIndex(endLngInt, endLatInt), bg)
 				var processedNodes = extractNodes(&nodesProcessed, bg)
 				return route, processedNodes
 			}
@@ -105,7 +106,7 @@ func DijkstraAllNodesBg(startLngInt, startLatInt, endLngInt, endLatInt, xSize, y
 			}
 		}
 	}
-	var route = extractRoute(&prev, bg.flattenIndex(endLngInt, endLatInt), bg)
+	var route = extractRoute(&prev, bg.FlattenIndex(endLngInt, endLatInt), bg)
 	var processedNodes = extractNodes(&nodesProcessed, bg)
 	return route, processedNodes
 }
