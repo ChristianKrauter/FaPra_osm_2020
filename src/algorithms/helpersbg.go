@@ -37,7 +37,7 @@ func ExpandIndex(indx, xSize int) []int {
     return []int{x, y}
 }
 
-func neighbours1d(indx, xSize int, mg *[]bool) []int {
+func neighboursBg(indx, xSize int, mg *[]bool) []int {
     var neighbours []int
     var temp []int
 

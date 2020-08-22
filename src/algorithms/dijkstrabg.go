@@ -36,7 +36,7 @@ func Dijkstra(startLngInt, startLatInt, endLngInt, endLatInt, xSize, ySize int, 
 				return extractRoute(&prev, flattenIndex(endLngInt, endLatInt, xSize), xSize, ySize)
 			}
 
-			neighbours := neighbours1d(u, xSize, mg)
+			neighbours := neighboursBg(u, xSize, mg)
 
 			for _, j := range neighbours {
 				var alt = dist[u] + distance(GridToCoord(ExpandIndex(u, xSize), xSize, ySize), GridToCoord(ExpandIndex(j, xSize), xSize, ySize))
@@ -90,7 +90,7 @@ func DijkstraAllNodes(startLngInt, startLatInt, endLngInt, endLatInt, xSize, ySi
 				return route, processedNodes
 			}
 
-			neighbours := neighbours1d(u, xSize, mg)
+			neighbours := neighboursBg(u, xSize, mg)
 
 			for _, j := range neighbours {
 				var alt = dist[u] + distance(GridToCoord(ExpandIndex(u, xSize), xSize, ySize), GridToCoord(ExpandIndex(j, xSize), xSize, ySize))
