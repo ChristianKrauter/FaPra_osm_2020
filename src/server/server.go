@@ -39,7 +39,7 @@ func toGeojson(route [][][]float64) *geojson.FeatureCollection {
 
 // Run the server with the basic grid
 func Run(xSize, ySize int, basicPointInPolygon bool) {
-	var bg algorithms.BasicGrid
+	var bg grids.BasicGrid
 	var bg2D [][]bool
 	var filename string
 
