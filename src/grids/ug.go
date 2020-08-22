@@ -39,8 +39,8 @@ func (ug UniformGrid) CoordToGrid(lng, lat float64) []int {
 }
 
 // GridToID ...
-func (ug UniformGrid) GridToID(m, n int) int {
-    return ug.FirstIndexOf[m] + n
+func (ug UniformGrid) GridToID(IDX []int) int {
+    return ug.FirstIndexOf[IDX[0]] + IDX[1]
 }
 
 // IDToGrid ...

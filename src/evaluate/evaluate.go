@@ -132,7 +132,7 @@ func WayFindingBG(xSize, ySize, nRuns int, basicPointInPolygon bool, note string
 			var start = time.Now()
 			var a = bg.ExpandIndex(x)
 			var b = bg.ExpandIndex(y)
-			var _, popped = algorithms.DijkstraBg(a[0], a[1], b[0], b[1], xSize, ySize, &bg)
+			var _, popped = algorithms.DijkstraBg(a, b, &bg)
 			poppedSum += popped
 			t := time.Now()
 			var elapsed = t.Sub(start)
@@ -250,9 +250,9 @@ func WayFinding(xSize, ySize, nRuns, algorithm int, basicPointInPolygon bool, no
 		go func(x, y int) {
 			defer wg.Done()
 			var start = time.Now()
-			var a = ug.IDToGrid(x)
-			var b = ug.IDToGrid(y)
-			var _, popped = algorithms.Dijkstra(a[0], a[1], b[0], b[1], &ug)
+			var from = ug.IDToGrid(x)
+			var to = ug.IDToGrid(y)
+			var _, popped = algorithms.Dijkstra(from, to, &ug)
 			poppedSum += popped
 			t := time.Now()
 			var elapsed = t.Sub(start)

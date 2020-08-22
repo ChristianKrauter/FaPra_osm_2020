@@ -78,7 +78,7 @@ func NeighboursUg(in int, ug *grids.UniformGrid) []int {
 	var neighbours1d []int
 	for _, neighbour := range neighbours {
 		if !ug.VertexData[neighbour[0]][neighbour[1]] {
-			neighbours1d = append(neighbours1d, ug.GridToID(neighbour[0], neighbour[1]))
+			neighbours1d = append(neighbours1d, ug.GridToID(neighbour))
 		}
 	}
 	return neighbours1d

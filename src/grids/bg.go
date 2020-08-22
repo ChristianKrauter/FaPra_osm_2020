@@ -32,8 +32,8 @@ func (bg BasicGrid) CoordToGrid(in []float64) []int {
 }
 
 // FlattenIndex from 2d to 1d
-func (bg BasicGrid) FlattenIndex(x, y int) int {
-    return ((bg.XSize * y) + x)
+func (bg BasicGrid) FlattenIndex(IDX []int) int {
+    return ((bg.XSize * IDX[1]) + IDX[0])
 }
 
 // ExpandIndex from 1d to 2d

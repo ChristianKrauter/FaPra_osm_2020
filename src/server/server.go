@@ -104,7 +104,7 @@ func Run(xSize, ySize int, basicPointInPolygon bool) {
 			if !bg2D[from[0]][from[1]] && !bg2D[to[0]][to[1]] {
 				if strings.Contains(r.URL.Path, "/dijkstraAllNodes") {
 					var start = time.Now()
-					var route, nodesProcessed = algorithms.DijkstraAllNodesBg(from[0], from[1], to[0], to[1], int(xSize), int(ySize), &bg)
+					var route, nodesProcessed = algorithms.DijkstraAllNodesBg(from, to, &bg)
 					t := time.Now()
 					elapsed := t.Sub(start)
 					fmt.Printf("time: %s\n", elapsed)
@@ -123,7 +123,7 @@ func Run(xSize, ySize int, basicPointInPolygon bool) {
 					w.Write(jsonData)
 				} else {
 					var start = time.Now()
-					var route, _ = algorithms.DijkstraBg(from[0], from[1], to[0], to[1], int(xSize), int(ySize), &bg)
+					var route, _ = algorithms.DijkstraBg(from, to, &bg)
 					t := time.Now()
 					elapsed := t.Sub(start)
 					fmt.Printf("time: %s\n", elapsed)
@@ -247,7 +247,7 @@ func RunUnidistant(xSize, ySize int, basicPointInPolygon bool) {
 			if !ug.VertexData[from[0]][from[1]] && !ug.VertexData[to[0]][to[1]] {
 				if strings.Contains(r.URL.Path, "/dijkstraAllNodes") {
 					var start = time.Now()
-					var route, nodesProcessed = algorithms.DijkstraAllNodes(from[0], from[1], to[0], to[1], &ug)
+					var route, nodesProcessed = algorithms.DijkstraAllNodes(from, to, &ug)
 					t := time.Now()
 					elapsed := t.Sub(start)
 					fmt.Printf("time: %s\n", elapsed)
@@ -266,7 +266,7 @@ func RunUnidistant(xSize, ySize int, basicPointInPolygon bool) {
 					w.Write(jsonData)
 				} else {
 					var start = time.Now()
-					var route, _ = algorithms.Dijkstra(from[0], from[1], to[0], to[1], &ug)
+					var route, _ = algorithms.Dijkstra(from, to, &ug)
 					t := time.Now()
 					elapsed := t.Sub(start)
 					fmt.Printf("time: %s\n", elapsed)
