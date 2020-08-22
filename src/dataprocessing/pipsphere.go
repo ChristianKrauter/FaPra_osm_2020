@@ -1,7 +1,6 @@
 package dataprocessing
 
 import (
-	//"fmt"
 	"math"
 )
 
@@ -102,12 +101,10 @@ func pointInPolygonSphere(polygon *[][]float64, point []float64) bool {
 			var bToX = eastOrWest(bLonTransformed, northPoleLonTransformed)
 			var bToP = eastOrWest(bLonTransformed, pLonTransformed)
 			if bToX == -bToP {
-
 				inside = !inside
 			}
 		}
 	}
-
 	return inside
 }
 

@@ -3,7 +3,6 @@ package evaluate
 import (
 	"../algorithms"
 	"../dataprocessing"
-	//"../server"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"

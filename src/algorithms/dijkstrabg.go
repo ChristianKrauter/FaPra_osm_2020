@@ -2,7 +2,6 @@ package algorithms
 
 import (
 	"container/heap"
-	//"fmt"
 	"math"
 )
 

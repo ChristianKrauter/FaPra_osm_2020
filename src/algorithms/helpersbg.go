@@ -39,7 +39,7 @@ func ExpandIndex(indx, xSize int) []int {
 
 func neighboursBg(indx, xSize int, mg *[]bool) []int {
     var neighbours []int
-    var temp []int
+    var result []int
 
     neighbours = append(neighbours, indx-xSize-1) // top left
     neighbours = append(neighbours, indx-xSize)   // top
@@ -53,11 +53,11 @@ func neighboursBg(indx, xSize int, mg *[]bool) []int {
     for _, j := range neighbours {
         if j >= 0 && j < int(len((*mg))) {
             if !(*mg)[j] {
-                temp = append(temp, j)
+                result = append(result, j)
             }
         }
     }
-    return temp
+    return result
 }
 
 func extractRoute(prev *[]int, end, xSize, ySize int) [][][]float64 {
