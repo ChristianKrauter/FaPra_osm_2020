@@ -174,7 +174,7 @@ func Run(xSize, ySize int, basicPointInPolygon bool) {
 }
 
 // RunUnidistant server
-func RunUnidistant(xSize, ySize int, basicPointInPolygon bool) {
+func RunUnidistant(xSize, ySize, algorithm int, basicPointInPolygon bool) {
 	var ug1D []bool
 	var ug grids.UniformGrid
 
@@ -206,6 +206,14 @@ func RunUnidistant(xSize, ySize int, basicPointInPolygon bool) {
 				points = append(points, ug.GridToCoord([]int{int(i), int(j)}))
 			}
 		}
+	}
+
+	var algostring string
+	switch algorithm {
+	case 0:
+		algostring = "_dij"
+	default:
+		algostring = "_dij"
 	}
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {

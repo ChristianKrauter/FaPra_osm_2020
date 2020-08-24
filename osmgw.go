@@ -56,7 +56,7 @@ func main() {
 		if basicGrid {
 			server.Run(xSize, ySize, basicPointInPolygon)
 		} else {
-			server.RunUnidistant(xSize, ySize, basicPointInPolygon)
+			server.RunUnidistant(xSize, ySize, 0, basicPointInPolygon)
 		}
 	case 1:
 		fmt.Printf("Starting data processing for a %s", info)
