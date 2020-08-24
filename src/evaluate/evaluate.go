@@ -13,7 +13,6 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 )
 
@@ -78,7 +77,6 @@ func WayFindingBG(xSize, ySize, nRuns int, basicPointInPolygon bool, note string
 	var min = time.Duration(math.MaxInt64)
 	from := make([]int, nRuns)
 	to := make([]int, nRuns)
-	var wg sync.WaitGroup
 
 	bg.XSize = xSize
 	bg.YSize = ySize
@@ -124,30 +122,23 @@ func WayFindingBG(xSize, ySize, nRuns int, basicPointInPolygon bool, note string
 	}
 
 	for i := 0; i < len(from); i++ {
-		var x = from[i]
-		var y = to[i]
-		wg.Add(1)
-		go func(x, y int) {
-			defer wg.Done()
-			var start = time.Now()
-			var a = bg.ExpandIndex(x)
-			var b = bg.ExpandIndex(y)
-			var _, popped = algorithms.DijkstraBg(a, b, &bg)
-			poppedSum += popped
-			t := time.Now()
-			var elapsed = t.Sub(start)
-			if elapsed > max {
-				max = elapsed
-			}
-			if elapsed < min {
-				min = elapsed
-			}
-			sum += elapsed
-			count++
-		}(x, y)
+		var start = time.Now()
+		var a = bg.ExpandIndex(from[i])
+		var b = bg.ExpandIndex(to[i])
+		var _, popped = algorithms.DijkstraBg(a, b, &bg)
+		poppedSum += popped
+		t := time.Now()
+		var elapsed = t.Sub(start)
+		if elapsed > max {
+			max = elapsed
+		}
+		if elapsed < min {
+			min = elapsed
+		}
+		sum += elapsed
+		count++
 	}
 
-	wg.Wait()
 	fmt.Printf("Total Time: %v\nNumber of routings: %v\nAverage duration: %v\nMin, Max: %v, %v", sum, count, sum/time.Duration(count), min, max)
 
 	runtime.ReadMemStats(&m)
@@ -183,7 +174,6 @@ func WayFinding(xSize, ySize, nRuns, algorithm int, basicPointInPolygon bool, no
 	var min = time.Duration(math.MaxInt64)
 	from := make([]int, nRuns)
 	to := make([]int, nRuns)
-	var wg sync.WaitGroup
 
 	log := make(map[string]string)
 	log["note"] = note
@@ -235,30 +225,23 @@ func WayFinding(xSize, ySize, nRuns, algorithm int, basicPointInPolygon bool, no
 	}
 
 	for i := 0; i < len(from); i++ {
-		var x = from[i]
-		var y = to[i]
-		wg.Add(1)
-		go func(x, y int) {
-			defer wg.Done()
-			var start = time.Now()
-			var from = ug.IDToGrid(x)
-			var to = ug.IDToGrid(y)
-			var _, popped = algorithms.Dijkstra(from, to, &ug)
-			poppedSum += popped
-			t := time.Now()
-			var elapsed = t.Sub(start)
-			if elapsed > max {
-				max = elapsed
-			}
-			if elapsed < min {
-				min = elapsed
-			}
-			sum += elapsed
-			count++
-		}(x, y)
+		var start = time.Now()
+		var from = ug.IDToGrid(from[i])
+		var to = ug.IDToGrid(to[i])
+		var _, popped = algorithms.Dijkstra(from, to, &ug)
+		poppedSum += popped
+		t := time.Now()
+		var elapsed = t.Sub(start)
+		if elapsed > max {
+			max = elapsed
+		}
+		if elapsed < min {
+			min = elapsed
+		}
+		sum += elapsed
+		count++
 	}
 
-	wg.Wait()
 	fmt.Printf("Total Time: %v\nNumber of routings: %v\nAverage duration: %v\nMin, Max: %v, %v", sum, count, sum/time.Duration(count), min, max)
 
 	runtime.ReadMemStats(&m)
