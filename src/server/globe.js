@@ -204,7 +204,22 @@ function onLeftMouseClick(event) {
                     } else {
                         data = JSON.parse(data).coordinates
                         createPoint(Cesium.Cartesian3.fromDegrees(data[0], data[1]), false);
-                        if (document.getElementById("processedNodes").checked) {
+                        if(document.getElementById("astern").checked){
+                            if (document.getElementById("processedNodes").checked) {
+                            $.ajax({
+                                url: "/asternAllNodes",
+                                data: routeData,
+                                earthPosition: { ep: earthPosition }
+                            }).done(dijkstraAllNodesProcessing);
+                        } else {
+                            $.ajax({
+                                url: "/astern",
+                                data: routeData,
+                                earthPosition: { ep: earthPosition }
+                            }).done(dijkstraProcessing);
+                        }
+                        } else {
+                            if (document.getElementById("processedNodes").checked) {
                             $.ajax({
                                 url: "/dijkstraAllNodes",
                                 data: routeData,
@@ -216,7 +231,9 @@ function onLeftMouseClick(event) {
                                 data: routeData,
                                 earthPosition: { ep: earthPosition }
                             }).done(dijkstraProcessing);
+                        }    
                         }
+                        
                         routeData = {
                             startLat: "",
                             startLng: "",
