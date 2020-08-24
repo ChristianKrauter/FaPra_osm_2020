@@ -345,7 +345,7 @@ type TestData struct {
 
 func main() {
 
-	pbfFileName := "antarctica-latest.osm.pbf"
+	pbfFileName := "planet-coastlines.pbf"
 	fmt.Printf("\nStarting processing of %s\n\n", pbfFileName)
 	pbfFileName = fmt.Sprintf("../data/%s", pbfFileName)
 
