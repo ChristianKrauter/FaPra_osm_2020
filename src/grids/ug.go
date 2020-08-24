@@ -20,6 +20,19 @@ type UniformGrid struct {
     FirstIndexOf []int
 }
 
+// NewUG inits UniformGrid
+func NewUG(xSize, ySize int) *UniformGrid {
+    ug := UniformGrid{XSize: xSize, YSize: ySize}
+
+    ug.BigN = xSize * ySize
+    ug.A = 4.0 * math.Pi / float64(ug.BigN)
+    ug.D = math.Sqrt(ug.A)
+    ug.MTheta = math.Round(math.Pi / ug.D)
+    ug.DTheta = math.Pi / ug.MTheta
+    ug.DPhi = ug.A / ug.DTheta
+    return &ug
+}
+
 // GridToCoord takes grid indices and outputs lng lat
 func (ug UniformGrid) GridToCoord(in []int) []float64 {
     theta := math.Pi * (float64(in[0]) + 0.5) / float64(ug.MTheta)

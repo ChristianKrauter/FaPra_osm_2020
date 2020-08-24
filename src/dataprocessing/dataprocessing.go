@@ -160,17 +160,17 @@ func Start(pbfFileName string, xSize, ySize int, createCoastlineGeoJSON, lessMem
 		logging["time_meshgrid_store"] = string(meshgridStoreTime)
 
 	} else {
-		var uniformGrid grids.UniformGrid
+		var uniformGrid = grids.NewUG(xSize, ySize)
 
 		var uniformGridTime string
 		if noBoundingTree {
-			uniformGridTime = createUniformGridNBT(xSize, ySize, &allBoundingBoxes, &polygons, &uniformGrid, basicPointInPolygon)
+			uniformGridTime = createUniformGridNBT(xSize, ySize, &allBoundingBoxes, &polygons, uniformGrid, basicPointInPolygon)
 		} else {
-			uniformGridTime = createUniformGrid(xSize, ySize, &boundingTreeRoot, &polygons, &uniformGrid, basicPointInPolygon)
+			uniformGridTime = createUniformGrid(xSize, ySize, &boundingTreeRoot, &polygons, uniformGrid, basicPointInPolygon)
 		}
 		logging["time_meshgrid"] = string(uniformGridTime)
 
-		var uniformGridStoreTime = storeUniformGrid(&uniformGrid, fmt.Sprintf("data/output/uniformGrid_%v_%v%s.json", xSize, ySize, filenameAdditions))
+		var uniformGridStoreTime = storeUniformGrid(uniformGrid, fmt.Sprintf("data/output/uniformGrid_%v_%v%s.json", xSize, ySize, filenameAdditions))
 		logging["time_meshgrid_store"] = string(uniformGridStoreTime)
 	}
 

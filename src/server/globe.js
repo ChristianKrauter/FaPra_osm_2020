@@ -85,8 +85,6 @@ function drawLine(viewer, coords) {
             positions: Cesium.Cartesian3.fromDegreesArray(coords),
             width: 2,
             material: Cesium.Color.DEEPSKYBLUE,
-            // granularity: Cesium.Math.toRadians(0.001)
-            // distanceDisplayCondition: Cesium.Cartesian3(0, 0, 100000000)
         }
     })
 }
@@ -284,8 +282,6 @@ function createColoredPoint(worldPosition, color, size) {
 
 // Zoom in to an area with mountains
 viewer.camera.lookAt(
-    //Cesium.Cartesian3.fromDegrees(-122.2058, 46.1955, 1000.0),
-    //new Cesium.Cartesian3(5000.0, 5000.0, 5000.0)
     Cesium.Cartesian3.fromDegrees(0, 0, 0.0),
     new Cesium.Cartesian3(0.0, 0.0, 42000000.0)
 );
@@ -294,7 +290,6 @@ viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
 viewer.timeline.destroy()
 viewer.sceneModePicker.destroy()
 viewer.navigationHelpButton.destroy()
-//viewer.baseLayerPicker.destroy()
 viewer.homeButton.destroy()
 viewer.geocoder.destroy()
 viewer.animation.destroy()

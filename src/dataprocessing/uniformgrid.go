@@ -14,17 +14,11 @@ func createUniformGrid(xSize, ySize int, boundingTreeRoot *boundingTree, polygon
 
 	var grid [][]bool
 	var firstIndexOf []int
-	N := float64(xSize * ySize)
 	nCount := 0
-	a := 4.0 * math.Pi / N
-	d := math.Sqrt(a)
-	mTheta := math.Round(math.Pi / d)
-	dTheta := math.Pi / mTheta
-	dPhi := a / dTheta
 
-	for m := 0.0; m < mTheta; m += 1.0 {
-		theta := math.Pi * (m + 0.5) / mTheta
-		mPhi := math.Round(2.0 * math.Pi * math.Sin(theta) / dPhi)
+	for m := 0.0; m < ug.MTheta; m += 1.0 {
+		theta := math.Pi * (m + 0.5) / ug.MTheta
+		mPhi := math.Round(2.0 * math.Pi * math.Sin(theta) / ug.DPhi)
 		var gridRow []bool
 		firstIndexOf = append(firstIndexOf, int(nCount))
 		for n := 0.0; n < mPhi; n += 1.0 {
@@ -46,14 +40,6 @@ func createUniformGrid(xSize, ySize int, boundingTreeRoot *boundingTree, polygon
 	(*ug).N = nCount
 	(*ug).FirstIndexOf = firstIndexOf
 	(*ug).VertexData = grid
-	(*ug).XSize = xSize
-	(*ug).YSize = ySize
-	(*ug).BigN = int(N)
-	(*ug).A = a
-	(*ug).D = d
-	(*ug).MTheta = mTheta
-	(*ug).DTheta = dTheta
-	(*ug).DPhi = dPhi
 
 	t := time.Now()
 	elapsed := t.Sub(start)
@@ -67,17 +53,11 @@ func createUniformGridNBT(xSize, ySize int, allBoundingBoxes *[]map[string]float
 
 	var grid [][]bool
 	var firstIndexOf []int
-	N := float64(xSize * ySize)
 	nCount := 0
-	a := 4.0 * math.Pi / N
-	d := math.Sqrt(a)
-	mTheta := math.Round(math.Pi / d)
-	dTheta := math.Pi / mTheta
-	dPhi := a / dTheta
 
-	for m := 0.0; m < mTheta; m += 1.0 {
-		theta := math.Pi * (m + 0.5) / mTheta
-		mPhi := math.Round(2.0 * math.Pi * math.Sin(theta) / dPhi)
+	for m := 0.0; m < ug.MTheta; m += 1.0 {
+		theta := math.Pi * (m + 0.5) / ug.MTheta
+		mPhi := math.Round(2.0 * math.Pi * math.Sin(theta) / ug.DPhi)
 		var gridRow []bool
 		firstIndexOf = append(firstIndexOf, int(nCount))
 		for n := 0.0; n < mPhi; n += 1.0 {
@@ -99,14 +79,6 @@ func createUniformGridNBT(xSize, ySize int, allBoundingBoxes *[]map[string]float
 	(*ug).N = nCount
 	(*ug).FirstIndexOf = firstIndexOf
 	(*ug).VertexData = grid
-	(*ug).XSize = xSize
-	(*ug).YSize = ySize
-	(*ug).BigN = int(N)
-	(*ug).A = a
-	(*ug).D = d
-	(*ug).MTheta = mTheta
-	(*ug).DTheta = dTheta
-	(*ug).DPhi = dPhi
 
 	t := time.Now()
 	elapsed := t.Sub(start)

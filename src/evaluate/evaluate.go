@@ -234,15 +234,6 @@ func WayFinding(xSize, ySize, nRuns, algorithm int, basicPointInPolygon bool, no
 		}
 	}
 
-	ug.XSize = xSize
-	ug.YSize = ySize
-	ug.BigN = xSize * ySize
-	ug.A = 4.0 * math.Pi / float64(ug.BigN)
-	ug.D = math.Sqrt(ug.A)
-	ug.MTheta = math.Round(math.Pi / ug.D)
-	ug.DTheta = math.Pi / ug.MTheta
-	ug.DPhi = ug.A / ug.DTheta
-
 	for i := 0; i < len(from); i++ {
 		var x = from[i]
 		var y = to[i]

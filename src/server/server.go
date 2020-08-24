@@ -8,7 +8,6 @@ import (
 	"github.com/paulmach/go.geojson"
 	"io/ioutil"
 	"log"
-	"math"
 	"net/http"
 	"os"
 	"strconv"
@@ -178,15 +177,6 @@ func Run(xSize, ySize int, basicPointInPolygon bool) {
 func RunUnidistant(xSize, ySize int, basicPointInPolygon bool) {
 	var ug1D []bool
 	var ug grids.UniformGrid
-
-	ug.XSize = xSize
-	ug.YSize = ySize
-	ug.BigN = xSize * ySize
-	ug.A = 4.0 * math.Pi / float64(ug.BigN)
-	ug.D = math.Sqrt(ug.A)
-	ug.MTheta = math.Round(math.Pi / ug.D)
-	ug.DTheta = math.Pi / ug.MTheta
-	ug.DPhi = ug.A / ug.DTheta
 
 	var filename string
 	if basicPointInPolygon {
