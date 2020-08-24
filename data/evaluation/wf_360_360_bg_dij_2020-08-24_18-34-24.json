@@ -3,7 +3,7 @@
     "basicPointInPolygon": "false",
     "count_runs": "1000",
     "nodes_popped_avg": "64221",
-    "note": "",
+    "note": "BASELINE DIJKSTRA",
     "numCPU": "4",
     "time_avg": "250.819602ms",
     "time_max": "518.3361ms",

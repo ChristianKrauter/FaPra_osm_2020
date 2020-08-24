@@ -45,7 +45,16 @@ viewer.cesiumWidget.screenSpaceEventHandler.removeInputAction(
 function createPoint(worldPosition, processed = false, start = false) {
     var point
     if (processed) {
-        createColoredPoint(worldPosition, Cesium.Color.RED, 4)
+        var x = document.getElementById("algos").value
+        console.log(x)
+        switch (x) {
+            case "0":
+                createColoredPoint(worldPosition, Cesium.Color.RED, 4)
+                break
+            case "1":
+                createColoredPoint(worldPosition, Cesium.Color.GREEN, 4)
+                break
+        }
     } else {
         var text = "End"
         point = viewer.entities.add({
@@ -158,7 +167,7 @@ function onLeftMouseClick(event) {
         const cartographic = viewer.scene.globe.ellipsoid.cartesianToCartographic(earthPosition);
         const longitudeString = Cesium.Math.toDegrees(cartographic.longitude).toFixed(20);
         const latitudeString = Cesium.Math.toDegrees(cartographic.latitude).toFixed(20);
-
+        routeData["algo"] = document.getElementById("algos").value
         if (routeData["startLat"] == "") {
             routeData["startLat"] = latitudeString
             routeData["startLng"] = longitudeString
@@ -206,13 +215,13 @@ function onLeftMouseClick(event) {
                         createPoint(Cesium.Cartesian3.fromDegrees(data[0], data[1]), false);
                         if (document.getElementById("processedNodes").checked) {
                             $.ajax({
-                                url: "/dijkstraAllNodes",
+                                url: "/wayfindingAllNodes",
                                 data: routeData,
                                 earthPosition: { ep: earthPosition }
                             }).done(dijkstraAllNodesProcessing);
                         } else {
                             $.ajax({
-                                url: "/dijkstra",
+                                url: "/wayfinding",
                                 data: routeData,
                                 earthPosition: { ep: earthPosition }
                             }).done(dijkstraProcessing);

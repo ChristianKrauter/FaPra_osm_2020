@@ -78,7 +78,7 @@ func Run(xSize, ySize int, basicPointInPolygon bool) {
 
 		var fileEnding = strings.Split(r.URL.Path[1:], ".")[len(strings.Split(r.URL.Path[1:], "."))-1]
 
-		if strings.Contains(r.URL.Path, "/dijkstra") {
+		if strings.Contains(r.URL.Path, "/wayfinding") {
 			query := r.URL.Query()
 			var startLat, err = strconv.ParseFloat(query.Get("startLat"), 10)
 			if err != nil {
@@ -96,14 +96,27 @@ func Run(xSize, ySize int, basicPointInPolygon bool) {
 			if err3 != nil {
 				panic(err3)
 			}
+			var algorithm, err4 = strconv.ParseInt(query.Get("algo"), 10, 32)
+			if err4 != nil {
+				panic(err4)
+			}
 
 			var from = bg.CoordToGrid([]float64{startLng, startLat})
 			var to = bg.CoordToGrid([]float64{endLng, endLat})
 
 			if !bg2D[from[0]][from[1]] && !bg2D[to[0]][to[1]] {
-				if strings.Contains(r.URL.Path, "/dijkstraAllNodes") {
+				if strings.Contains(r.URL.Path, "/wayfindingAllNodes") {
 					var start = time.Now()
-					var route, nodesProcessed = algorithms.DijkstraAllNodesBg(from, to, &bg)
+					var route [][][]float64
+					var nodesProcessed [][]float64
+					switch algorithm {
+					case 0:
+						route, nodesProcessed = algorithms.DijkstraAllNodesBg(from, to, &bg)
+					case 1:
+						route, nodesProcessed = algorithms.AStarAllNodesBg(from, to, &bg)
+					default:
+						route, nodesProcessed = algorithms.DijkstraAllNodesBg(from, to, &bg)
+					}
 					t := time.Now()
 					elapsed := t.Sub(start)
 					fmt.Printf("time: %s\n", elapsed)
@@ -122,7 +135,15 @@ func Run(xSize, ySize int, basicPointInPolygon bool) {
 					w.Write(jsonData)
 				} else {
 					var start = time.Now()
-					var route, _ = algorithms.DijkstraBg(from, to, &bg)
+					var route [][][]float64
+					switch algorithm {
+					case 0:
+						route, _ = algorithms.DijkstraBg(from, to, &bg)
+					case 1:
+						route, _ = algorithms.AStarBg(from, to, &bg)
+					default:
+						route, _ = algorithms.DijkstraBg(from, to, &bg)
+					}
 					t := time.Now()
 					elapsed := t.Sub(start)
 					fmt.Printf("time: %s\n", elapsed)
@@ -174,7 +195,7 @@ func Run(xSize, ySize int, basicPointInPolygon bool) {
 }
 
 // RunUnidistant server
-func RunUnidistant(xSize, ySize, algorithm int, basicPointInPolygon bool) {
+func RunUnidistant(xSize, ySize int, basicPointInPolygon bool) {
 	var ug1D []bool
 	var ug grids.UniformGrid
 
@@ -208,20 +229,11 @@ func RunUnidistant(xSize, ySize, algorithm int, basicPointInPolygon bool) {
 		}
 	}
 
-	var algoStr string
-	switch algorithm {
-	case 0:
-		algoStr = "_dij"
-	default:
-		algoStr = "_dij"
-	}
-	fmt.Printf("Algo: %v\n", algoStr)
-
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 
 		var fileEnding = strings.Split(r.URL.Path[1:], ".")[len(strings.Split(r.URL.Path[1:], "."))-1]
 
-		if strings.Contains(r.URL.Path, "/dijkstra") {
+		if strings.Contains(r.URL.Path, "/wayfinding") {
 			query := r.URL.Query()
 			var startLat, err = strconv.ParseFloat(query.Get("startLat"), 15)
 			if err != nil {
@@ -239,14 +251,28 @@ func RunUnidistant(xSize, ySize, algorithm int, basicPointInPolygon bool) {
 			if err3 != nil {
 				panic(err3)
 			}
+			var algorithm, err4 = strconv.ParseInt(query.Get("algo"), 10, 32)
+			if err4 != nil {
+				panic(err4)
+			}
 
 			var from = ug.CoordToGrid(startLng, startLat)
 			var to = ug.CoordToGrid(endLng, endLat)
 
 			if !ug.VertexData[from[0]][from[1]] && !ug.VertexData[to[0]][to[1]] {
-				if strings.Contains(r.URL.Path, "/dijkstraAllNodes") {
+				if strings.Contains(r.URL.Path, "/wayfindingAllNodes") {
 					var start = time.Now()
-					var route, nodesProcessed = algorithms.DijkstraAllNodes(from, to, &ug)
+					var route [][][]float64
+					var nodesProcessed [][]float64
+					switch algorithm {
+					case 0:
+						route, nodesProcessed = algorithms.DijkstraAllNodes(from, to, &ug)
+					case 1:
+						route, nodesProcessed = algorithms.AStarAllNodes(from, to, &ug)
+					default:
+						route, nodesProcessed = algorithms.DijkstraAllNodes(from, to, &ug)
+					}
+
 					t := time.Now()
 					elapsed := t.Sub(start)
 					fmt.Printf("time: %s\n", elapsed)
@@ -265,7 +291,15 @@ func RunUnidistant(xSize, ySize, algorithm int, basicPointInPolygon bool) {
 					w.Write(jsonData)
 				} else {
 					var start = time.Now()
-					var route, _ = algorithms.Dijkstra(from, to, &ug)
+					var route [][][]float64
+					switch algorithm {
+					case 0:
+						route, _ = algorithms.Dijkstra(from, to, &ug)
+					case 1:
+						route, _ = algorithms.AStar(from, to, &ug)
+					default:
+						route, _ = algorithms.Dijkstra(from, to, &ug)
+					}
 					t := time.Now()
 					elapsed := t.Sub(start)
 					fmt.Printf("time: %s\n", elapsed)

@@ -65,7 +65,7 @@ func ReadPBF(pbfFileName, note string) {
 }
 
 // WayFindingBG is evaluated
-func WayFindingBG(xSize, ySize, nRuns int, basicPointInPolygon bool, note string) {
+func WayFindingBG(xSize, ySize, nRuns, algorithm int, basicPointInPolygon bool, note string) {
 	var filename string
 	var bg grids.BasicGrid
 	var bg2D [][]bool
@@ -88,6 +88,22 @@ func WayFindingBG(xSize, ySize, nRuns int, basicPointInPolygon bool, note string
 	log["xSize"] = strconv.Itoa(xSize)
 	log["ySize"] = strconv.Itoa(ySize)
 	log["numCPU"] = strconv.Itoa(runtime.NumCPU())
+
+	var algoStr, algoStrPrint string
+	switch algorithm {
+	case 0:
+		algoStr = "_dij"
+		algoStrPrint = "Dijkstra"
+	case 1:
+		algoStr = "_as"
+		algoStrPrint = "A-Star"
+	default:
+		algoStr = "_dij"
+		algoStrPrint = "Dijkstra"
+	}
+
+	fmt.Printf("using %s.\n", algoStrPrint)
+	log["filename"] = algoStr
 
 	if basicPointInPolygon {
 		filename = fmt.Sprintf("data/output/meshgrid_%v_%v_bpip.json", xSize, ySize)
@@ -123,9 +139,17 @@ func WayFindingBG(xSize, ySize, nRuns int, basicPointInPolygon bool, note string
 
 	for i := 0; i < len(from); i++ {
 		var start = time.Now()
-		var a = bg.ExpandIndex(from[i])
-		var b = bg.ExpandIndex(to[i])
-		var _, popped = algorithms.DijkstraBg(a, b, &bg)
+
+		var popped int
+		switch algorithm {
+		case 0:
+			_, popped = algorithms.DijkstraBg(bg.ExpandIndex(from[i]), bg.ExpandIndex(to[i]), &bg)
+		case 1:
+			_, popped = algorithms.AStarBg(bg.ExpandIndex(from[i]), bg.ExpandIndex(to[i]), &bg)
+		default:
+			_, popped = algorithms.DijkstraBg(bg.ExpandIndex(from[i]), bg.ExpandIndex(to[i]), &bg)
+		}
+
 		poppedSum += popped
 		t := time.Now()
 		var elapsed = t.Sub(start)
@@ -154,9 +178,9 @@ func WayFindingBG(xSize, ySize, nRuns int, basicPointInPolygon bool, note string
 	var outFilename string
 	var timestamp = time.Now().Format("2006-01-02_15-04-05")
 	if val, ok := log["filename"]; ok {
-		outFilename = fmt.Sprintf("data/evaluation/wf_%s_%s_bg_dij%s_%s.json", log["xSize"], log["ySize"], val, timestamp)
+		outFilename = fmt.Sprintf("data/evaluation/wf_%s_%s_bg%s_%s.json", log["xSize"], log["ySize"], val, timestamp)
 	} else {
-		outFilename = fmt.Sprintf("data/evaluation/wf_%s_%s_bg_dij_%s.json", log["xSize"], log["ySize"], timestamp)
+		outFilename = fmt.Sprintf("data/evaluation/wf_%s_%s_bg_%s.json", log["xSize"], log["ySize"], timestamp)
 	}
 	saveLog(outFilename, jsonString)
 }
@@ -183,15 +207,21 @@ func WayFinding(xSize, ySize, nRuns, algorithm int, basicPointInPolygon bool, no
 	log["ySize"] = strconv.Itoa(ySize)
 	log["numCPU"] = strconv.Itoa(runtime.NumCPU())
 
-	var algostring string
+	var algoStr, algoStrPrint string
 	switch algorithm {
 	case 0:
-		algostring = "_dij"
+		algoStr = "_dij"
+		algoStrPrint = "Dijkstra"
+	case 1:
+		algoStr = "_as"
+		algoStrPrint = "A-Star"
 	default:
-		algostring = "_dij"
+		algoStr = "_dij"
+		algoStrPrint = "Dijkstra"
 	}
 
-	log["filename"] = algostring
+	fmt.Printf("using %s.\n", algoStrPrint)
+	log["filename"] = algoStr
 
 	if basicPointInPolygon {
 		filename = fmt.Sprintf("data/output/uniformGrid_%v_%v_bpip.json", xSize, ySize)
@@ -228,7 +258,15 @@ func WayFinding(xSize, ySize, nRuns, algorithm int, basicPointInPolygon bool, no
 		var start = time.Now()
 		var from = ug.IDToGrid(from[i])
 		var to = ug.IDToGrid(to[i])
-		var _, popped = algorithms.Dijkstra(from, to, &ug)
+		var popped int
+		switch algorithm {
+		case 0:
+			_, popped = algorithms.Dijkstra(from, to, &ug)
+		case 1:
+			_, popped = algorithms.AStar(from, to, &ug)
+		default:
+			_, popped = algorithms.Dijkstra(from, to, &ug)
+		}
 		poppedSum += popped
 		t := time.Now()
 		var elapsed = t.Sub(start)

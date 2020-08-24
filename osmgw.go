@@ -22,6 +22,7 @@ func main() {
 	var basicGrid bool
 	var basicPointInPolygon bool
 
+	var algo int
 	var nRuns int
 
 	flag.StringVar(&pbfFileName, "f", "antarctica-latest.osm.pbf", "Name of the pbf file inside data/")
@@ -35,6 +36,7 @@ func main() {
 	flag.BoolVar(&basicGrid, "bg", false, "Create a basic (non-unidistant) grid.")
 	flag.BoolVar(&basicPointInPolygon, "bpip", false, "Use a basic 2D point in polygon test.")
 
+	flag.IntVar(&algo, "a", 0, "Select Algorithm:\n  0: Dijkstra \n  1: A*")
 	flag.IntVar(&nRuns, "r", 1000, "Number of runs for wayfinding evaluation.")
 	flag.Parse()
 
@@ -56,7 +58,7 @@ func main() {
 		if basicGrid {
 			server.Run(xSize, ySize, basicPointInPolygon)
 		} else {
-			server.RunUnidistant(xSize, ySize, 0, basicPointInPolygon)
+			server.RunUnidistant(xSize, ySize, basicPointInPolygon)
 		}
 	case 1:
 		fmt.Printf("Starting data processing for a %s", info)
@@ -67,9 +69,9 @@ func main() {
 	case 3:
 		fmt.Printf("Starting evaluation of wayfinding for %s\n", info)
 		if basicGrid {
-			evaluate.WayFindingBG(xSize, ySize, nRuns, basicPointInPolygon, note)
+			evaluate.WayFindingBG(xSize, ySize, nRuns, algo, basicPointInPolygon, note)
 		} else {
-			evaluate.WayFinding(xSize, ySize, nRuns, 0, basicPointInPolygon, note)
+			evaluate.WayFinding(xSize, ySize, nRuns, algo, basicPointInPolygon, note)
 		}
 	case 4:
 		fmt.Printf("Starting evaluation of pbf reading for %s\n", pbfFileName)
