@@ -46,7 +46,8 @@ func (ug UniformGrid) CoordToGrid(lng, lat float64) []int {
     theta := (lat + 90.0) * math.Pi / 180.0
     m := math.Round((theta * ug.MTheta / math.Pi) - 0.5)
     theta = math.Pi * (float64(m) + 0.5) / float64(ug.MTheta)
-   if(lng < 0){
+    var phi float64
+    if(lng < 0){
         phi = float64(lng+360.0) * math.Pi / 180.0  
     } else {
         phi = lng * math.Pi / 180.0 

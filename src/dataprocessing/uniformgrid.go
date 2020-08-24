@@ -25,7 +25,7 @@ func createUniformGrid(xSize, ySize int, boundingTreeRoot *boundingTree, polygon
 			phi := 2.0 * math.Pi * n / mPhi
 			nCount++
 			coords := []float64{(phi / math.Pi) * 180.0, (theta/math.Pi)*180.0 - 90.0}
-			if coords[0] > 180.0 {
+			if coords[0] >= 180.0 {
 				coords[0] = coords[0] - 360.0
 			}
 			if basicPointInPolygon {
@@ -64,7 +64,7 @@ func createUniformGridNBT(xSize, ySize int, allBoundingBoxes *[]map[string]float
 			phi := 2.0 * math.Pi * n / mPhi
 			nCount++
 			coords := []float64{(phi / math.Pi) * 180.0, (theta/math.Pi)*180.0 - 90.0}
-			if coords[0] > 180.0 {
+			if coords[0] >= 180.0 {
 				coords[0] = coords[0] - 360.0
 			}
 			if basicPointInPolygon {
