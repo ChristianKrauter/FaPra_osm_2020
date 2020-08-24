@@ -16,8 +16,8 @@ func check(e error) {
 
 func createMeshgrid(xSize, ySize int, boundingTreeRoot *boundingTree, polygons *Polygons, bg *[][]bool, basicPointInPolygon bool) string {
 	start := time.Now()
-	var xStepSize = float64(360 / xSize)
-	var yStepSize = float64(360 / ySize)
+	var xStepSize float64 = 360.0 / float64(xSize)
+	var yStepSize float64 = 360.0 / float64(ySize)
 
 	var wg sync.WaitGroup
 	for x := 0.0; x < 360; x += xStepSize {
@@ -46,8 +46,8 @@ func createMeshgrid(xSize, ySize int, boundingTreeRoot *boundingTree, polygons *
 
 func createMeshgridNBT(xSize, ySize int, allBoundingBoxes *[]map[string]float64, polygons *Polygons, bg *[][]bool, basicPointInPolygon bool) string {
 	start := time.Now()
-	var xStepSize = float64(360 / xSize)
-	var yStepSize = float64(360 / ySize)
+	var xStepSize float64 = 360.0 / float64(xSize)
+	var yStepSize float64 = 360.0 / float64(ySize)
 
 	var wg sync.WaitGroup
 	for x := 0.0; x < 360; x += xStepSize {
