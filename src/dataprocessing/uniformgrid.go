@@ -28,11 +28,11 @@ func createUniformGrid(xSize, ySize int, boundingTreeRoot *boundingTree, polygon
 		var gridRow []bool
 		firstIndexOf = append(firstIndexOf, int(nCount))
 		for n := 0.0; n < mPhi; n += 1.0 {
-			phi := 2 * math.Pi * n / mPhi
+			phi := 2.0 * math.Pi * n / mPhi
 			nCount++
-			coords := []float64{(phi / math.Pi) * 180, (theta/math.Pi)*180 - 90}
-			if coords[0] > 180 {
-				coords[0] = coords[0] - 360
+			coords := []float64{(phi / math.Pi) * 180.0, (theta/math.Pi)*180.0 - 90.0}
+			if coords[0] > 180.0 {
+				coords[0] = coords[0] - 360.0
 			}
 			if basicPointInPolygon {
 				gridRow = append(gridRow, isLand(boundingTreeRoot, coords, polygons))
@@ -81,11 +81,11 @@ func createUniformGridNBT(xSize, ySize int, allBoundingBoxes *[]map[string]float
 		var gridRow []bool
 		firstIndexOf = append(firstIndexOf, int(nCount))
 		for n := 0.0; n < mPhi; n += 1.0 {
-			phi := 2 * math.Pi * n / mPhi
+			phi := 2.0 * math.Pi * n / mPhi
 			nCount++
-			coords := []float64{(phi / math.Pi) * 180, (theta/math.Pi)*180 - 90}
-			if coords[0] > 180 {
-				coords[0] = coords[0] - 360
+			coords := []float64{(phi / math.Pi) * 180.0, (theta/math.Pi)*180.0 - 90.0}
+			if coords[0] > 180.0 {
+				coords[0] = coords[0] - 360.0
 			}
 			if basicPointInPolygon {
 				gridRow = append(gridRow, isLandNBT(allBoundingBoxes, coords, polygons))

@@ -20,10 +20,10 @@ func transformLon(newNorth, point []float64) float64 {
 		transformedLon = math.Atan2(t, b) / dtr
 	}
 	if transformedLon < -180 {
-		transformedLon += 360
+		transformedLon += 360.0
 	}
 	if transformedLon > 180 {
-		transformedLon -= 360
+		transformedLon -= 360.0
 	}
 	return transformedLon
 }
