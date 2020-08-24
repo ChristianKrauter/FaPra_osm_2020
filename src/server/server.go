@@ -1,6 +1,8 @@
 package server
 
 import (
+	"../algorithms"
+	"../grids"
 	"encoding/json"
 	"fmt"
 	"github.com/paulmach/go.geojson"
@@ -8,18 +10,12 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"math"
 	"strconv"
 	"strings"
 	"time"
-	"../algorithms/dijkstra"
-	"../algorithms/astern"
 )
 
 var port int = 8081
-var meshWidth int64
-var meshgrid []bool
-var meshgrid2d [][]bool
 
 type dijkstraData struct {
 	Route    *geojson.FeatureCollection
@@ -32,84 +28,56 @@ func check(e error) {
 	}
 }
 
-func gridToCoord(in []int64) []float64 {
-	var out []float64
-	// big grid
-	//out = append(out, float64((float64(in[0])/10)-180))
-	//out = append(out, float64(((float64(in[1])/10)/2)-90))
-	// small grid
-	out = append(out, float64(in[0]-180))
-	out = append(out, float64((float64(in[1])/2)-90))
-	return out
-}
-
-func coordToGrid(in []float64) []int64 {
-	var out []int64
-	// big grid
-	//out = append(out, int64(((math.Round(in[0]*10)/10)+180)*10))
-	//out = append(out, int64(((math.Round(in[1]*10)/10)+90)*2*10))
-	// small grid
-	out = append(out, int64(math.Round(in[0]))+180)
-	out = append(out, (int64(math.Round(in[1]))+90)*2)
-	return out
-}
-
-func expandIndx(indx int64) []int64 {
-	var x = indx % meshWidth
-	var y = indx / meshWidth
-	return []int64{x, y}
-}
-
-func toGeojson(route [][][]float64) []byte {
-	var rawJSON []byte
+func toGeojson(route [][][]float64) *geojson.FeatureCollection {
 	routes := geojson.NewFeatureCollection()
 	for _, j := range route {
-		//fmt.Printf("%v\n", geojson.NewFeature(geojson.NewLineStringGeometry(j)))
 		routes = routes.AddFeature(geojson.NewFeature(geojson.NewLineStringGeometry(j)))
 	}
-	rawJSON, err := routes.MarshalJSON()
-	check(err)
-	return rawJSON
+	return routes
 }
 
+// Run the server with the basic grid
+func Run(xSize, ySize int, basicPointInPolygon bool) {
+	var bg grids.BasicGrid
+	var bg2D [][]bool
+	var filename string
 
-func testExtractRoute(points *[][]int64) [][][]float64 {
-	//print("started extracting route\n")
-	var route [][][]float64
+	bg.XSize = xSize
+	bg.YSize = ySize
 
-	for _, j := range *points {
-		coordPoints := make([][]float64, 0)
-		for _, l := range j {
-			point := expandIndx(int64(l))
-			coordPoints = append(coordPoints, gridToCoord([]int64{point[0], point[1]}))
-		}
-		route = append(route, coordPoints)
+	if basicPointInPolygon {
+		filename = fmt.Sprintf("data/output/meshgrid_%v_%v_bpip.json", xSize, ySize)
+	} else {
+		filename = fmt.Sprintf("data/output/meshgrid_%v_%v.json", xSize, ySize)
 	}
-	return route
-}
 
-
-
-// Run ...
-func Run(xSize,ySize int) {
-	//meshgridRaw, errJSON := os.Open("tmp/meshgrid__planet_big.json")
-	filename := fmt.Sprintf("data/output/meshgrid_%v_%v.json",xSize,ySize)
 	meshgridRaw, errJSON := os.Open(filename)
 	if errJSON != nil {
-		panic(errJSON)
+		log.Fatal(fmt.Sprintf("\nThe meshgrid '%s'\ncould not be found. Please create it first.\n", filename))
 	}
 	defer meshgridRaw.Close()
 	byteValue, _ := ioutil.ReadAll(meshgridRaw)
-	json.Unmarshal(byteValue, &meshgrid2d)
+	json.Unmarshal(byteValue, &bg2D)
 
-	meshWidth = int64(len(meshgrid2d[0]))
-	for i := 0; i < len(meshgrid2d[0]); i++ {
-		for j := 0; j < len(meshgrid2d); j++ {
-			meshgrid = append(meshgrid, meshgrid2d[j][i])
+	for i := 0; i < len(bg2D[0]); i++ {
+		for j := 0; j < len(bg2D); j++ {
+			bg.VertexData = append(bg.VertexData, bg2D[j][i])
+		}
+	}
+
+	var points [][]float64
+	for i := 0; i < xSize; i++ {
+		for j := 0; j < ySize; j++ {
+			if !bg2D[i][j] {
+				points = append(points, bg.GridToCoord([]int{int(i), int(j)}))
+			}
 		}
 	}
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+
+		var fileEnding = strings.Split(r.URL.Path[1:], ".")[len(strings.Split(r.URL.Path[1:], "."))-1]
+
 		if strings.Contains(r.URL.Path, "/dijkstra") {
 			query := r.URL.Query()
 			var startLat, err = strconv.ParseFloat(query.Get("startLat"), 10)
@@ -129,145 +97,221 @@ func Run(xSize,ySize int) {
 				panic(err3)
 			}
 
-			var start = coordToGrid([]float64{startLng, startLat})
-			var startLngInt = start[0]
-			var startLatInt = start[1]
+			var from = bg.CoordToGrid([]float64{startLng, startLat})
+			var to = bg.CoordToGrid([]float64{endLng, endLat})
 
-			var end = coordToGrid([]float64{endLng, endLat})
-			var endLngInt = end[0]
-			var endLatInt = end[1]
-
-			//fmt.Printf("\n%v/%v, %v/%v\n", startLngInt, startLatInt, endLngInt, endLatInt)
-			//fmt.Printf("%v/%v\n", meshgrid2d[startLngInt][startLatInt], meshgrid2d[endLngInt][endLatInt])
-
-			if !meshgrid2d[startLngInt][startLatInt] && !meshgrid2d[endLngInt][endLatInt] {
-				//fmt.Printf("start: %d / %d ", int64(math.Round(startLat)), int64(math.Round(startLng)))
-				//fmt.Printf("end: %d / %d\n", int64(math.Round(endLat)), int64(math.Round(endLng)))
-				
-				//
+			if !bg2D[from[0]][from[1]] && !bg2D[to[0]][to[1]] {
 				if strings.Contains(r.URL.Path, "/dijkstraAllNodes") {
 					var start = time.Now()
-					var route,nodesProcessed = dijkstra.DijkstraAllNodes(startLngInt, startLatInt, endLngInt, endLatInt, meshWidth, &meshgrid)
+					var route, nodesProcessed = algorithms.DijkstraAllNodesBg(from, to, &bg)
 					t := time.Now()
 					elapsed := t.Sub(start)
 					fmt.Printf("time: %s\n", elapsed)
 
-					var result,errUnmarsch = geojson.UnmarshalFeatureCollection(toGeojson(route))
-					if errUnmarsch != nil {
-						panic(errUnmarsch)
-					}
-
+					var result = toGeojson(route)
 					data := dijkstraData{
-						Route: result,
+						Route:    result,
 						AllNodes: nodesProcessed,
 					}
-					
-					var jsonData,errJd = json.Marshal(data)
+
+					var jsonData, errJd = json.Marshal(data)
 					if errJd != nil {
 						panic(errJd)
 					}
-					
+
 					w.Write(jsonData)
 				} else {
 					var start = time.Now()
-					var route = dijkstra.Dijkstra(startLngInt, startLatInt, endLngInt, endLatInt, meshWidth, &meshgrid)
+					var route, _ = algorithms.DijkstraBg(from, to, &bg)
 					t := time.Now()
 					elapsed := t.Sub(start)
 					fmt.Printf("time: %s\n", elapsed)
 					var result = toGeojson(route)
-					w.Write(result)
+					rawJSON, err := result.MarshalJSON()
+					check(err)
+					w.Write(rawJSON)
 				}
-				
 
 			} else {
 				w.Write([]byte("false"))
 			}
 
-		} else if strings.Contains(r.URL.Path, "/astern") {
+		} else if strings.Contains(r.URL.Path, "/getGridPoint") {
 			query := r.URL.Query()
-			var startLat, err = strconv.ParseFloat(query.Get("startLat"), 10)
+			var lat, err = strconv.ParseFloat(query.Get("lat"), 10)
 			if err != nil {
 				panic(err)
 			}
-			var startLng, err1 = strconv.ParseFloat(query.Get("startLng"), 10)
+			var lng, err1 = strconv.ParseFloat(query.Get("lng"), 10)
 			if err1 != nil {
 				panic(err1)
 			}
-			var endLat, err2 = strconv.ParseFloat(query.Get("endLat"), 10)
+			var grid = bg.CoordToGrid([]float64{lng, lat})
+			if bg2D[grid[0]][grid[1]] {
+				w.Write([]byte("false"))
+			} else {
+				var coord = bg.GridToCoord(grid)
+				rawJSON, err := geojson.NewPointGeometry(coord).MarshalJSON()
+				check(err)
+				w.Write(rawJSON)
+			}
+		} else if fileEnding == "js" || fileEnding == "html" || fileEnding == "css" || fileEnding == "ico" {
+			http.ServeFile(w, r, r.URL.Path[1:])
+		} else if strings.Contains(r.URL.Path, "/Grid") {
+			pointsJSON, err := json.Marshal(points)
+			if err != nil {
+				panic(err)
+			}
+			w.Write(pointsJSON)
+		} else {
+			http.ServeFile(w, r, "src/server/globe.html")
+		}
+	})
+
+	var portStr = fmt.Sprintf(":%d", port)
+	fmt.Printf("on localhost%s\n\n", portStr)
+	log.Fatal(http.ListenAndServe(portStr, nil))
+}
+
+// RunUnidistant server
+func RunUnidistant(xSize, ySize, algorithm int, basicPointInPolygon bool) {
+	var ug1D []bool
+	var ug grids.UniformGrid
+
+	var filename string
+	if basicPointInPolygon {
+		filename = fmt.Sprintf("data/output/uniformgrid_%v_%v_bpip.json", xSize, ySize)
+	} else {
+		filename = fmt.Sprintf("data/output/uniformgrid_%v_%v.json", xSize, ySize)
+	}
+
+	uniformgridRaw, errJSON := os.Open(filename)
+	if errJSON != nil {
+		log.Fatal(fmt.Sprintf("\nThe meshgrid '%s'\ncould not be found. Please create it first.\n", filename))
+	}
+	defer uniformgridRaw.Close()
+	byteValue, _ := ioutil.ReadAll(uniformgridRaw)
+	json.Unmarshal(byteValue, &ug)
+
+	for i := 0; i < len(ug.VertexData); i++ {
+		for j := 0; j < len(ug.VertexData[i]); j++ {
+			ug1D = append(ug1D, ug.VertexData[i][j])
+		}
+	}
+
+	var points [][]float64
+	for i := 0; i < len(ug.VertexData); i++ {
+		for j := 0; j < len(ug.VertexData[i]); j++ {
+			if !ug.VertexData[i][j] {
+				points = append(points, ug.GridToCoord([]int{int(i), int(j)}))
+			}
+		}
+	}
+
+	var algoStr string
+	switch algorithm {
+	case 0:
+		algoStr = "_dij"
+	default:
+		algoStr = "_dij"
+	}
+	fmt.Printf("Algo: %v\n", algoStr)
+
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+
+		var fileEnding = strings.Split(r.URL.Path[1:], ".")[len(strings.Split(r.URL.Path[1:], "."))-1]
+
+		if strings.Contains(r.URL.Path, "/dijkstra") {
+			query := r.URL.Query()
+			var startLat, err = strconv.ParseFloat(query.Get("startLat"), 15)
+			if err != nil {
+				panic(err)
+			}
+			var startLng, err1 = strconv.ParseFloat(query.Get("startLng"), 15)
+			if err1 != nil {
+				panic(err1)
+			}
+			var endLat, err2 = strconv.ParseFloat(query.Get("endLat"), 15)
 			if err2 != nil {
 				panic(err2)
 			}
-			var endLng, err3 = strconv.ParseFloat(query.Get("endLng"), 10)
+			var endLng, err3 = strconv.ParseFloat(query.Get("endLng"), 15)
 			if err3 != nil {
 				panic(err3)
 			}
 
-			var start = coordToGrid([]float64{startLng, startLat})
-			var startLngInt = start[0]
-			var startLatInt = start[1]
+			var from = ug.CoordToGrid(startLng, startLat)
+			var to = ug.CoordToGrid(endLng, endLat)
 
-			var end = coordToGrid([]float64{endLng, endLat})
-			var endLngInt = end[0]
-			var endLatInt = end[1]
-
-			//fmt.Printf("\n%v/%v, %v/%v\n", startLngInt, startLatInt, endLngInt, endLatInt)
-			//fmt.Printf("%v/%v\n", meshgrid2d[startLngInt][startLatInt], meshgrid2d[endLngInt][endLatInt])
-
-			if !meshgrid2d[startLngInt][startLatInt] && !meshgrid2d[endLngInt][endLatInt] {
-				//fmt.Printf("start: %d / %d ", int64(math.Round(startLat)), int64(math.Round(startLng)))
-				//fmt.Printf("end: %d / %d\n", int64(math.Round(endLat)), int64(math.Round(endLng)))
-				
-				//
-				if strings.Contains(r.URL.Path, "/asternAllNodes") {
+			if !ug.VertexData[from[0]][from[1]] && !ug.VertexData[to[0]][to[1]] {
+				if strings.Contains(r.URL.Path, "/dijkstraAllNodes") {
 					var start = time.Now()
-					var route,nodesProcessed = astern.AsternAllNodes(startLngInt, startLatInt, endLngInt, endLatInt, meshWidth, &meshgrid)
+					var route, nodesProcessed = algorithms.DijkstraAllNodes(from, to, &ug)
 					t := time.Now()
 					elapsed := t.Sub(start)
 					fmt.Printf("time: %s\n", elapsed)
 
-					var result,errUnmarsch = geojson.UnmarshalFeatureCollection(toGeojson(route))
-					if errUnmarsch != nil {
-						panic(errUnmarsch)
-					}
-
+					var result = toGeojson(route)
 					data := dijkstraData{
-						Route: result,
+						Route:    result,
 						AllNodes: nodesProcessed,
 					}
-					
-					var jsonData,errJd = json.Marshal(data)
+
+					var jsonData, errJd = json.Marshal(data)
 					if errJd != nil {
 						panic(errJd)
 					}
-					
+
 					w.Write(jsonData)
 				} else {
 					var start = time.Now()
-					var route = astern.Astern(startLngInt, startLatInt, endLngInt, endLatInt, meshWidth, &meshgrid)
+					var route, _ = algorithms.Dijkstra(from, to, &ug)
 					t := time.Now()
 					elapsed := t.Sub(start)
 					fmt.Printf("time: %s\n", elapsed)
 					var result = toGeojson(route)
-					w.Write(result)
+					rawJSON, err := result.MarshalJSON()
+					check(err)
+					w.Write(rawJSON)
 				}
-				
 
 			} else {
 				w.Write([]byte("false"))
 			}
 
-		} else if(strings.Contains(r.URL.Path[1:],".") && (strings.Split(r.URL.Path[1:],".")[len(strings.Split(r.URL.Path[1:],"."))-1] == "js" || strings.Split(r.URL.Path[1:],".")[len(strings.Split(r.URL.Path[1:],"."))-1] == "html" || strings.Split(r.URL.Path[1:],".")[len(strings.Split(r.URL.Path[1:],"."))-1] == "css")) {
+		} else if strings.Contains(r.URL.Path, "/getGridPoint") {
+			query := r.URL.Query()
+			var lat, err = strconv.ParseFloat(query.Get("lat"), 10)
+			if err != nil {
+				panic(err)
+			}
+			var lng, err1 = strconv.ParseFloat(query.Get("lng"), 10)
+			if err1 != nil {
+				panic(err1)
+			}
+			var grid = ug.CoordToGrid(lng, lat)
+			if ug.VertexData[grid[0]][grid[1]] {
+				w.Write([]byte("false"))
+			} else {
+				var coord = ug.GridToCoord(grid)
+				rawJSON, err := geojson.NewPointGeometry(coord).MarshalJSON()
+				check(err)
+				w.Write(rawJSON)
+			}
+		} else if fileEnding == "js" || fileEnding == "html" || fileEnding == "css" || fileEnding == "ico" {
 			http.ServeFile(w, r, r.URL.Path[1:])
+		} else if strings.Contains(r.URL.Path, "/Grid") {
+			pointsJSON, err := json.Marshal(points)
+			if err != nil {
+				panic(err)
+			}
+			w.Write(pointsJSON)
 		} else {
-			//fmt.Printf("%v\n", "default")
 			http.ServeFile(w, r, "src/server/globe.html")
 		}
-
 	})
 
 	var portStr = fmt.Sprintf(":%d", port)
-	fmt.Printf("Starting server on localhost%s\n", portStr)
+	fmt.Printf("on localhost%s\n\n", portStr)
 	log.Fatal(http.ListenAndServe(portStr, nil))
-	//log.Fatal(http.ListenAndServe(portStr, http.FileServer(http.Dir("src/server"))))
-	//http.FileServer(http.Dir("/Users/sergiotapia/go"))
 }

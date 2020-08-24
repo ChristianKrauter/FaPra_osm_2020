@@ -1,0 +1,16 @@
+{
+    "filename": "_bpip_bg",
+    "note": "",
+    "numCPU": "4",
+    "pbfFileName": "planet-coastlines.pbf",
+    "time_boundingTree": "27m0.7734587s",
+    "time_coastlineGeoJSON": "38m19.371101s",
+    "time_meshgrid": "19m14.1416437s",
+    "time_meshgrid_store": "19.9465ms",
+    "time_poly": "1m27.5445838s",
+    "time_read": "2m9.4483837s",
+    "time_total": "1h28m11.3131647s",
+    "totalAlloc": "60346",
+    "xSize": "360",
+    "ySize": "360"
+}

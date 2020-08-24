@@ -1,0 +1,8 @@
+{
+    "note": "",
+    "numCPU": "24",
+    "pbfFileName": "antarctica-latest.osm.pbf",
+    "time_read": "4.039629513s",
+    "time_readLessMemory": "4.142142307s",
+    "totalAlloc": "7665"
+}

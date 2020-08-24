@@ -1,0 +1,8 @@
+{
+    "note": "",
+    "numCPU": "4",
+    "pbfFileName": "planet-coastlines.pbf",
+    "time_read": "1m51.3746665s",
+    "time_readLessMemory": "4m32.161592s",
+    "totalAlloc": "141271"
+}

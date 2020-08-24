@@ -417,14 +417,14 @@ func main() {
 	}
 
 	createMeshgrid(xSize, ySize, &boundingTreeRoot, &allCoastlines, &testGeoJSON, &meshgrid, createTestGeoJSON)
-	storeMeshgrid(&meshgrid, fmt.Sprintf("tmp/meshgrid_%d_%d.json", xSize, ySize))
+	storeMeshgrid(&meshgrid, fmt.Sprintf("../data/output/meshgrid_%d_%d.json", xSize, ySize))
 
 	if createTestGeoJSON {
-		storeTestGeoJSON(&testGeoJSON, fmt.Sprintf("tmp/test_for_%d_%d.geojson", xSize, ySize))
+		storeTestGeoJSON(&testGeoJSON, fmt.Sprintf("../data/output/test_for_%d_%d.geojson", xSize, ySize))
 	}
 
 	if createCoastlineGeoJSON {
-		createAndStoreCoastlineGeoJSON(&allCoastlines, fmt.Sprintf("tmp/coastlines_for_%d_%d.geojson", xSize, ySize))
+		createAndStoreCoastlineGeoJSON(&allCoastlines, fmt.Sprintf("../data/output/coastlines_for_%d_%d.geojson", xSize, ySize))
 	}
 
 	t := time.Now()
