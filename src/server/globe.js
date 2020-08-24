@@ -186,6 +186,8 @@ function onLeftMouseClick(event) {
                     }
                 }
             })
+            // click-to-grid debug
+            // createPoint(Cesium.Cartesian3.fromDegrees(routeData["startLng"], routeData["startLat"]), false, true);
         } else {
             routeData["endLat"] = latitudeString
             routeData["endLng"] = longitudeString
@@ -226,6 +228,8 @@ function onLeftMouseClick(event) {
                     }
                 }
             })
+            // click-to-grid debug
+            // createPoint(Cesium.Cartesian3.fromDegrees(routeData["endLng"], routeData["endLat"]), false, true);
         }
     }
 }
