@@ -9,12 +9,26 @@ $("#gridButton").click(function() {
     }).done(function(data) {
         if (data != "false") {
             points = JSON.parse(data)
-            console.log(points)
+            //console.log(points)
             for (i = 0; i < points.length; i++) {
-                createColoredPoint(Cesium.Cartesian3.fromDegrees(points[i][0], points[i][1]), Cesium.Color.RED)
+                createColoredPoint(Cesium.Cartesian3.fromDegrees(points[i][0], points[i][1]), Cesium.Color.ALICEBLUE)
             }
         }
     });
+});
+
+$("#showGridNode").click(function() {
+    x = document.getElementById("gridX").value
+    y = document.getElementById("gridY").value
+    data = {
+        x:x,
+        y:y
+    }
+    console.log(data)
+    $.ajax({
+            url: "/gridPoint",
+            data: data,
+        }).done(showGridNode);
 });
 
 var data = {
@@ -99,6 +113,25 @@ function pipTest(testData) {
 
 }
 
+function gridFinderTest(testData) {
+    point = this.earthPosition.ep
+    var td = JSON.parse(testData)
+    console.log(td.Point)
+    console.log(point)
+    girdPoint = td.Point
+    //drawLine(viewer, point)
+    createColoredPoint(Cesium.Cartesian3.fromDegrees(point[0],point[1]), Cesium.Color.RED)
+    createColoredPoint(Cesium.Cartesian3.fromDegrees(girdPoint[0],girdPoint[1]), Cesium.Color.CHARTREUSE)
+}
+
+function showGridNode(testData) {
+    var td = JSON.parse(testData);
+    console.log(td.Point)
+    girdPoint = td.Point
+    createColoredPoint(Cesium.Cartesian3.fromDegrees(girdPoint[0],girdPoint[1]), Cesium.Color.CHARTREUSE)
+}
+
+
 function drawLine(viewer, coords) {
     viewer.entities.add({
         positions: coords.slice(0, 2),
@@ -153,7 +186,7 @@ function onLeftMouseClick(event) {
             url: "/point",
             data: data,
             earthPosition: { ep: [longitudeString, latitudeString] }
-        }).done(pipTest);
+        }).done(gridFinderTest);
 
     }
 }
