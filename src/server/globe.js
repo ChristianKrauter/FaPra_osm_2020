@@ -146,6 +146,14 @@ function dijkstraAllNodesProcessing(jsonData) {
         }
     }
 }
+function requestProcessing(jsonData) {
+    url = this.url
+    if(url.includes("AllNodes")){
+        dijkstraAllNodesProcessing(jsonData)
+    } else {
+        dijkstraProcessing(jsonData)
+    }
+}
 
 function onLeftMouseClick(event) {
     // We use `viewer.scene.pickPosition` here instead of `viewer.camera.pickEllipsoid` so that
@@ -204,20 +212,38 @@ function onLeftMouseClick(event) {
                     } else {
                         data = JSON.parse(data).coordinates
                         createPoint(Cesium.Cartesian3.fromDegrees(data[0], data[1]), false);
+                        url = ""
+                        if(document.getElementById("astern").checked){
+                            url = "/astern"
+                        } else {
+                            url = "/dijkstra"
+                        }
+                        if(document.getElementById("processedNodes").checked){
+                            url += "AllNodes"
+                        }
+                        if(document.getElementById("bidirectional").checked){
+                            url += "Bi"
+                        }
+                        $.ajax({
+                            url: url,
+                            data: routeData,
+                            earthPosition: { ep: earthPosition }
+                        }).done(requestProcessing);
+                        /*
                         if(document.getElementById("astern").checked){
                             if (document.getElementById("processedNodes").checked) {
-                            $.ajax({
-                                url: "/asternAllNodes",
-                                data: routeData,
-                                earthPosition: { ep: earthPosition }
-                            }).done(dijkstraAllNodesProcessing);
-                        } else {
-                            $.ajax({
-                                url: "/astern",
-                                data: routeData,
-                                earthPosition: { ep: earthPosition }
-                            }).done(dijkstraProcessing);
-                        }
+                                $.ajax({
+                                    url: "/asternAllNodes",
+                                    data: routeData,
+                                    earthPosition: { ep: earthPosition }
+                                }).done(dijkstraAllNodesProcessing);
+                            } else {
+                                $.ajax({
+                                    url: "/astern",
+                                    data: routeData,
+                                    earthPosition: { ep: earthPosition }
+                                }).done(dijkstraProcessing);
+                            }
                         } else {
                             if (document.getElementById("processedNodes").checked) {
                             $.ajax({
@@ -231,8 +257,8 @@ function onLeftMouseClick(event) {
                                 data: routeData,
                                 earthPosition: { ep: earthPosition }
                             }).done(dijkstraProcessing);
-                        }    
                         }
+                        }*/
                         
                         routeData = {
                             startLat: "",

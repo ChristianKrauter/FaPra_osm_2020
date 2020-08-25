@@ -244,7 +244,37 @@ func RunUnidistant(xSize, ySize, algorithm int, basicPointInPolygon bool) {
 			var to = ug.CoordToGrid(endLng, endLat)
 
 			if !ug.VertexData[from[0]][from[1]] && !ug.VertexData[to[0]][to[1]] {
-				if strings.Contains(r.URL.Path, "/asternAllNodes") {
+				if strings.Contains(r.URL.Path, "/asternBi") {
+					var start = time.Now()
+					var route, _ = algorithms.BiAstern(from, to, &ug)
+					t := time.Now()
+					elapsed := t.Sub(start)
+					fmt.Printf("time: %s\n", elapsed)
+					var result = toGeojson(route)
+					rawJSON, err := result.MarshalJSON()
+					check(err)
+					w.Write(rawJSON)
+					
+				} else if strings.Contains(r.URL.Path, "/asternAllNodesBi") {
+					var start = time.Now()
+					var route, nodesProcessed = algorithms.BiAsternAllNodes(from, to, &ug)
+					t := time.Now()
+					elapsed := t.Sub(start)
+					fmt.Printf("time: %s\n", elapsed)
+
+					var result = toGeojson(route)
+					data := dijkstraData{
+						Route:    result,
+						AllNodes: nodesProcessed,
+					}
+
+					var jsonData, errJd = json.Marshal(data)
+					if errJd != nil {
+						panic(errJd)
+					}
+
+					w.Write(jsonData)
+				} else if strings.Contains(r.URL.Path, "/asternAllNodes") {
 					var start = time.Now()
 					var route, nodesProcessed = algorithms.AsternAllNodes(from, to, &ug)
 					t := time.Now()
@@ -302,7 +332,37 @@ func RunUnidistant(xSize, ySize, algorithm int, basicPointInPolygon bool) {
 			var to = ug.CoordToGrid(endLng, endLat)
 
 			if !ug.VertexData[from[0]][from[1]] && !ug.VertexData[to[0]][to[1]] {
-				if strings.Contains(r.URL.Path, "/dijkstraAllNodes") {
+				if strings.Contains(r.URL.Path, "/dijkstraBi") {
+					var start = time.Now()
+					var route, _ = algorithms.BiDijkstra(from, to, &ug)
+					t := time.Now()
+					elapsed := t.Sub(start)
+					fmt.Printf("time: %s\n", elapsed)
+					var result = toGeojson(route)
+					rawJSON, err := result.MarshalJSON()
+					check(err)
+					w.Write(rawJSON)
+					
+				} else if strings.Contains(r.URL.Path, "/dijkstraAllNodesBi") {
+					var start = time.Now()
+					var route, nodesProcessed = algorithms.BiDijkstraAllNodes(from, to, &ug)
+					t := time.Now()
+					elapsed := t.Sub(start)
+					fmt.Printf("time: %s\n", elapsed)
+
+					var result = toGeojson(route)
+					data := dijkstraData{
+						Route:    result,
+						AllNodes: nodesProcessed,
+					}
+
+					var jsonData, errJd = json.Marshal(data)
+					if errJd != nil {
+						panic(errJd)
+					}
+
+					w.Write(jsonData)
+				} else if strings.Contains(r.URL.Path, "/dijkstraAllNodes") {
 					var start = time.Now()
 					var route, nodesProcessed = algorithms.DijkstraAllNodes(from, to, &ug)
 					t := time.Now()

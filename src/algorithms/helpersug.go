@@ -3,6 +3,7 @@ package algorithms
 import (
 	"../grids"
 	"math"
+	//"fmt"
 )
 
 // ExtractRouteUg ...
@@ -25,6 +26,45 @@ func ExtractRouteUg(prev *[]int, end int, ug *grids.UniformGrid) [][][]float64 {
 		temp = x
 	}
 	route = append(route, tempRoute)
+	return route
+}
+
+func Reverse(numbers [][]float64) [][]float64 {
+	for i := 0; i < len(numbers)/2; i++ {
+		j := len(numbers) - i - 1
+		numbers[i], numbers[j] = numbers[j], numbers[i]
+	}
+	return numbers
+}
+
+//ExtractRouteBiUg..
+func ExtractRouteBiUg(prev1,prev2 *[]int, meet int, ug *grids.UniformGrid) [][]float64 {
+	var route [][]float64
+	var tempRoute [][]float64
+	
+	end := meet
+	for {
+		x := ug.IDToGrid(end)
+		route = append(route, ug.GridToCoord([]int{x[0], x[1]}))
+		if (*prev1)[end] == -1 {
+			break
+		}
+		end = (*prev1)[end]	
+	}
+
+	end = (*prev2)[meet]
+	for {
+		x := ug.IDToGrid(end)
+		tempRoute = append(tempRoute, ug.GridToCoord([]int{x[0], x[1]}))
+		if (*prev2)[end] == -1 {
+			break
+		}
+		end = (*prev2)[end]	
+	}
+
+	route = Reverse(route)
+	route = append(route,tempRoute...)
+
 	return route
 }
 
