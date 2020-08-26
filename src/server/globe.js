@@ -126,12 +126,12 @@ function dijkstraProcessing(jsonData) {
         //Todo
     } else {
         var features = JSON.parse(jsonData).features
-        var coord1d = []
         for (i = 0; i < features.length; i++) {
+            var coord1d = []
             var coordinates = features[i].geometry.coordinates;
             coordinates.forEach(element => coord1d.push(element[0], element[1]))
+            drawLine(viewer, coord1d)
         }
-        drawLine(viewer, coord1d)
     }
 }
 
@@ -141,14 +141,15 @@ function dijkstraAllNodesProcessing(jsonData) {
     } else {
         tempData = JSON.parse(jsonData)
         route = tempData.Route
+        console.log(route)
         processedNodes = tempData.AllNodes
         var features = route.features
-        var coord1d = []
         for (i = 0; i < features.length; i++) {
+            var coord1d = []
             var coordinates = features[i].geometry.coordinates;
             coordinates.forEach(element => coord1d.push(element[0], element[1]))
+            drawLine(viewer, coord1d)
         }
-        drawLine(viewer, coord1d)
         for (i = 0; i < processedNodes.length; i++) {
             point = processedNodes[i]
             createPoint(Cesium.Cartesian3.fromDegrees(point[0], point[1]), true)
