@@ -184,11 +184,10 @@ func BiDijkstraAllNodes(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]floa
 	procR := make(map[int]bool)
 
 	var meeting int
-	var bestDist = math.Inf(1)
 
 	for i := 0; i < (*ug).N; i++ {
 		dist = append(dist, math.Inf(1))
-		distR = append(dist, math.Inf(1))
+		distR = append(distR, math.Inf(1))
 		prev = append(prev, []int{-1, -1})
 	}
 
@@ -217,35 +216,27 @@ func BiDijkstraAllNodes(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]floa
 			proc[u] = true
 
 			if procR[u] {
-				var minF = math.Inf(1)
-				var minR = math.Inf(1)
-				bestDist = math.Min(bestDist, dist[u]+distR[u])
+				var bestDist = dist[u] + distR[u]
+				meeting = u
 
 				for _, k := range pqR {
-					//if proc[k.value] {
-					if distR[k.value] < minR {
-						minR = distR[k.value]
-						meeting = k.value
+					if proc[k.value] {
+						if distR[k.value]+dist[k.value] < bestDist {
+							bestDist = distR[k.value] + dist[k.value]
+							meeting = k.value
+						}
 					}
-					//}
 				}
 
 				for _, k := range pq {
-					//if procR[k.value] {
-					if dist[k.value] < minF {
-						minF = dist[k.value]
-						meeting = k.value
+					if procR[k.value] {
+						if dist[k.value]+distR[k.value] < bestDist {
+							bestDist = distR[k.value] + dist[k.value]
+							meeting = k.value
+						}
 					}
-					//}
 				}
-
-				fmt.Printf("minR+minF >=? bestDist: %v - %v\n", minR+minF, bestDist)
-				if minR+minF >= bestDist {
-					meeting = u
-					fmt.Printf("prev[meeting][0]: %v\n", prev[meeting][0])
-					fmt.Printf("prev[meeting][1]: %v\n", prev[meeting][1])
-					break
-				}
+				break
 			}
 
 			neighbours := NeighboursUg(u, ug)
@@ -271,35 +262,27 @@ func BiDijkstraAllNodes(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]floa
 			procR[u] = true
 
 			if proc[u] {
-				var minF = math.Inf(1)
-				var minR = math.Inf(1)
-				bestDist = math.Min(bestDist, dist[u]+distR[u])
-
-				for _, k := range pqR {
-					//if proc[k.value] {
-					if distR[k.value] < minR {
-						minR = distR[k.value]
-						meeting = k.value
-					}
-					//}
-				}
+				var bestDist = dist[u] + distR[u]
+				meeting = u
 
 				for _, k := range pq {
-					//if procR[k.value] {
-					if dist[k.value] < minF {
-						minF = dist[k.value]
-						meeting = k.value
+					if procR[k.value] {
+						if dist[k.value]+distR[k.value] < bestDist {
+							bestDist = dist[k.value] + distR[k.value]
+							meeting = k.value
+						}
 					}
-					//}
+				}
+				for _, k := range pqR {
+					if proc[k.value] {
+						if dist[k.value]+distR[k.value] < bestDist {
+							bestDist = dist[k.value] + distR[k.value]
+							meeting = k.value
+						}
+					}
 				}
 
-				fmt.Printf("minR+minF >=? bestDist: %v - %v\n", minR+minF, bestDist)
-				if minR+minF >= bestDist {
-					meeting = u
-					fmt.Printf("prev[meeting][0]: %v\n", prev[meeting][0])
-					fmt.Printf("prev[meeting][1]: %v\n", prev[meeting][1])
-					break
-				}
+				break
 			}
 
 			neighbours := NeighboursUg(u, ug)
@@ -316,7 +299,6 @@ func BiDijkstraAllNodes(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]floa
 				}
 			}
 		}
-
 	}
 
 	keys := make([]int, len(proc)+len(procR))

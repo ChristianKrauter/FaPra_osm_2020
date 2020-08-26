@@ -91,8 +91,6 @@ func ExtractRouteUgBi(prev *[][]int, end int, ug *grids.UniformGrid) [][][]float
 	var routes = make([][][]float64, 2)
 
 	var secondEnd = end
-	fmt.Printf("prev[end][0] %v\n", (*prev)[end][0])
-	fmt.Printf("prev[end][1] %v\n", (*prev)[end][1])
 	for {
 		routes[0] = append(routes[0], ug.GridToCoord(ug.IDToGrid(end)))
 		if (*prev)[end][0] == -1 {
