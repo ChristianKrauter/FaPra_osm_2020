@@ -1,0 +1,17 @@
+{
+    "basicGrid": "true",
+    "basicPointInPolygon": "false",
+    "filename": "_bg",
+    "note": "",
+    "numCPU": "24",
+    "pbfFileName": "planet-coastlines.pbf",
+    "time_boundingTree": "37m29.590080369s",
+    "time_meshgrid": "1h18m21.163984619s",
+    "time_meshgrid_store": "197.487904ms",
+    "time_poly": "55.81395829s",
+    "time_read": "59.939551533s",
+    "time_total": "1h57m46.706448084s",
+    "totalAlloc": "61088",
+    "xSize": "1000",
+    "ySize": "1000"
+}
