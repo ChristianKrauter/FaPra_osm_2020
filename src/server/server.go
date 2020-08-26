@@ -269,6 +269,8 @@ func RunUnidistant(xSize, ySize int, basicPointInPolygon bool) {
 						route, nodesProcessed = algorithms.DijkstraAllNodes(from, to, &ug)
 					case 1:
 						route, nodesProcessed = algorithms.AStarAllNodes(from, to, &ug)
+					case 2:
+						route, nodesProcessed = algorithms.BiDijkstraAllNodes(from, to, &ug)
 					default:
 						route, nodesProcessed = algorithms.DijkstraAllNodes(from, to, &ug)
 					}
@@ -297,6 +299,8 @@ func RunUnidistant(xSize, ySize int, basicPointInPolygon bool) {
 						route, _ = algorithms.Dijkstra(from, to, &ug)
 					case 1:
 						route, _ = algorithms.AStar(from, to, &ug)
+					case 2:
+						route, _ = algorithms.BiDijkstra(from, to, &ug)
 					default:
 						route, _ = algorithms.Dijkstra(from, to, &ug)
 					}

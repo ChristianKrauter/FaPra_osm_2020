@@ -46,13 +46,15 @@ function createPoint(worldPosition, processed = false, start = false) {
     var point
     if (processed) {
         var x = document.getElementById("algos").value
-        console.log(x)
         switch (x) {
             case "0":
                 createColoredPoint(worldPosition, Cesium.Color.RED, 4)
                 break
             case "1":
                 createColoredPoint(worldPosition, Cesium.Color.GREEN, 4)
+                break
+            case "2":
+                createColoredPoint(worldPosition, Cesium.Color.YELLOW, 4)
                 break
         }
     } else {

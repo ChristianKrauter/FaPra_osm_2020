@@ -2,6 +2,7 @@ package algorithms
 
 import (
     "../grids"
+    "fmt"
     "math"
 )
 
@@ -35,6 +36,7 @@ func extractRoute(prev *[]int, end int, bg *grids.BasicGrid) [][][]float64 {
     for {
         x := bg.ExpandIndex(end)
         if math.Abs(float64(temp[0]-x[0])) > 1 {
+            fmt.Printf("helpersBG\n")
             route = append(route, tempRoute)
             tempRoute = make([][]float64, 0)
         }

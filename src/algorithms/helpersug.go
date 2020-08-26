@@ -2,6 +2,7 @@ package algorithms
 
 import (
 	"../grids"
+	"fmt"
 	"math"
 )
 
@@ -13,6 +14,7 @@ func ExtractRouteUg(prev *[]int, end int, ug *grids.UniformGrid) [][][]float64 {
 	for {
 		x := ug.IDToGrid(end)
 		if math.Abs(float64(temp[0]-x[0])) > 1 {
+			fmt.Printf("helpersUG\n")
 			route = append(route, tempRoute)
 			tempRoute = make([][]float64, 0)
 		}
@@ -82,4 +84,33 @@ func NeighboursUg(in int, ug *grids.UniformGrid) []int {
 		}
 	}
 	return neighbours1d
+}
+
+// ExtractRouteUgBi ...
+func ExtractRouteUgBi(prev *[][]int, end int, ug *grids.UniformGrid) [][][]float64 {
+	var routes = make([][][]float64, 2)
+
+	var secondEnd = end
+	fmt.Printf("prev[end][0] %v\n", (*prev)[end][0])
+	fmt.Printf("prev[end][1] %v\n", (*prev)[end][1])
+	for {
+		routes[0] = append(routes[0], ug.GridToCoord(ug.IDToGrid(end)))
+		if (*prev)[end][0] == -1 {
+			break
+		}
+		end = (*prev)[end][0]
+	}
+
+	end = secondEnd
+	for {
+		routes[1] = append(routes[1], ug.GridToCoord(ug.IDToGrid(end)))
+
+		if (*prev)[end][1] == -1 {
+
+			break
+		}
+		end = (*prev)[end][1]
+	}
+	fmt.Printf("route %v\n", routes)
+	return routes
 }
