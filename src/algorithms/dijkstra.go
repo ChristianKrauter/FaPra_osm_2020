@@ -4,6 +4,7 @@ import (
 	"../grids"
 	"container/heap"
 	"math"
+	"fmt"
 )
 
 // Dijkstra implementation on uniform grid
@@ -34,6 +35,7 @@ func Dijkstra(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64, int) 
 			u := heap.Pop(&pq).(*Item).value
 			popped++
 			if u == (*ug).GridToID(toIDX) {
+				fmt.Printf("dist: %v\n", dist[u]+ distance((*ug).GridToCoord((*ug).IDToGrid(u)), (*ug).GridToCoord(toIDX)))
 				return ExtractRouteUg(&prev, (*ug).GridToID(toIDX), ug), popped
 			}
 
@@ -52,6 +54,7 @@ func Dijkstra(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64, int) 
 			}
 		}
 	}
+	//fmt.Printf("dist: %v\n", dist[u]+ distance((*ug).GridToCoord((*ug).IDToGrid(u)), (*ug).GridToID(toIDX)))
 	return ExtractRouteUg(&prev, (*ug).GridToID(toIDX), ug), popped
 }
 
@@ -85,6 +88,7 @@ func DijkstraAllNodes(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float6
 			nodesProcessed = append(nodesProcessed, u)
 
 			if u == (*ug).GridToID(toIDX) {
+				fmt.Printf("dist: %v\n", dist[u]+ distance((*ug).GridToCoord((*ug).IDToGrid(u)), (*ug).GridToCoord(toIDX)))
 				var route = ExtractRouteUg(&prev, (*ug).GridToID(toIDX), ug)
 				var processedNodes = ExtractNodesUg(&nodesProcessed, ug)
 				return route, processedNodes

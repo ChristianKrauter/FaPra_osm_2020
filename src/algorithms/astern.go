@@ -4,6 +4,7 @@ import(
 	"../grids"
 	"container/heap"
 	"math"
+	"fmt"
 )
 
 
@@ -35,6 +36,7 @@ func Astern(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64, int) {
 			u := heap.Pop(&pq).(*Item).value
 			popped++
 			if u == (*ug).GridToID(toIDX) {
+				fmt.Printf("astern dist: %v\n", dist[u]+ distance((*ug).GridToCoord((*ug).IDToGrid(u)), (*ug).GridToCoord(toIDX)))
 				return ExtractRouteUg(&prev, (*ug).GridToID(toIDX), ug), popped
 			}
 
@@ -46,7 +48,7 @@ func Astern(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64, int) {
 					prev[j] = u
 					item := &Item{
 						value:    j,
-						priority: -dist[j] - distance((*ug).GridToCoord((*ug).IDToGrid(u)), (*ug).GridToCoord(toIDX)),
+						priority: -dist[j] - distance((*ug).GridToCoord((*ug).IDToGrid(j)), (*ug).GridToCoord(toIDX)),
 					}
 					heap.Push(&pq, item)
 				}
@@ -86,6 +88,7 @@ func AsternAllNodes(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64,
 			nodesProcessed = append(nodesProcessed, u)
 
 			if u == (*ug).GridToID(toIDX) {
+				fmt.Printf("astern dist: %v\n", dist[u]+ distance((*ug).GridToCoord((*ug).IDToGrid(u)), (*ug).GridToCoord(toIDX)))
 				var route = ExtractRouteUg(&prev, (*ug).GridToID(toIDX), ug)
 				var processedNodes = ExtractNodesUg(&nodesProcessed, ug)
 				return route, processedNodes
@@ -100,7 +103,7 @@ func AsternAllNodes(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64,
 					prev[j] = u
 					item := &Item{
 						value:    j,
-						priority: -dist[j] - distance((*ug).GridToCoord((*ug).IDToGrid(u)), (*ug).GridToCoord(toIDX)),
+						priority: -dist[j] - distance((*ug).GridToCoord((*ug).IDToGrid(j)), (*ug).GridToCoord(toIDX)),
 					}
 					heap.Push(&pq, item)
 				}

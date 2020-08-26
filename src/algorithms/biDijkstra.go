@@ -4,7 +4,7 @@ import (
 	"../grids"
 	"container/heap"
 	"math"
-	//"fmt"
+	"fmt"
 )
 
 // Dijkstra implementation on uniform grid
@@ -54,21 +54,34 @@ func BiDijkstra(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64, int
 		} else {
 			u1 := heap.Pop(&pq1).(*Item).value
 			nodesProcessed1[u1] = true;
-			u2 := heap.Pop(&pq2).(*Item).value
-			nodesProcessed2[u2] = true;
+			
 			popped1++
-			popped2++
+			
 
 			if _, ok := nodesProcessed2[u1]; ok {
-				
-				return [][][]float64{ExtractRouteBiUg(&prev1, &prev2, u1, ug)}, popped1+popped2
+				meet := u1
+				bestDist := dist1[u1]  + dist2[u1]
+				for _,node := range pq1 {
+					if _,ok := nodesProcessed2[node.value]; ok {
+						if dist1[node.value] + dist2[node.value] < bestDist{
+							bestDist = dist1[node.value] + dist2[node.value]
+							meet = node.value
+						}
+					}
+				}
+				for _,node := range pq2 {
+					if _,ok := nodesProcessed1[node.value]; ok {
+						if dist1[node.value] + dist2[node.value] < bestDist{
+							bestDist = dist1[node.value] + dist2[node.value]
+							meet = node.value
+						}
+					}
+				}
+
+				fmt.Printf("bi dist: %v\n", bestDist)
+				return [][][]float64{ExtractRouteBiUg(&prev1, &prev2, meet, ug)}, popped1+popped2
 			}
-			if _, ok := nodesProcessed1[u2]; ok {
-				
-				return [][][]float64{ExtractRouteBiUg(&prev1, &prev2, u2, ug)}, popped1+popped2
-			}
-			
-			
+
 			neighbours1 := NeighboursUg(u1, ug)
 			for _, j := range neighbours1 {
 				var alt1 = dist1[u1] + distance((*ug).GridToCoord((*ug).IDToGrid(u1)), (*ug).GridToCoord((*ug).IDToGrid(j)))
@@ -82,6 +95,35 @@ func BiDijkstra(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64, int
 					heap.Push(&pq1, item)
 				}
 			}
+
+			u2 := heap.Pop(&pq2).(*Item).value
+			nodesProcessed2[u2] = true;
+			popped2++
+
+			if _, ok := nodesProcessed1[u2]; ok {
+				meet := u2
+				bestDist := dist1[u2]  + dist2[u2]
+				for _,node := range pq2 {
+					if _,ok := nodesProcessed1[node.value]; ok {
+						if dist1[node.value] + dist2[node.value] < bestDist{
+							bestDist = dist1[node.value] + dist2[node.value]
+							meet = node.value
+						}
+					}
+				}
+				for _,node := range pq1 {
+					if _,ok := nodesProcessed2[node.value]; ok {
+						if dist1[node.value] + dist2[node.value] < bestDist{
+							bestDist = dist1[node.value] + dist2[node.value]
+							meet = node.value
+						}
+					}
+				}
+				fmt.Printf("bi dist: %v\n", bestDist)
+				return [][][]float64{ExtractRouteBiUg(&prev1, &prev2, meet, ug)}, popped1+popped2
+			}
+			
+			
 
 			neighbours2 := NeighboursUg(u2, ug)
 			for _, j := range neighbours2 {
@@ -154,7 +196,27 @@ func BiDijkstraAllNodes(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]floa
 			popped2++
 
 			if _, ok := nodesProcessed2[u1]; ok {
-				var route = [][][]float64{ExtractRouteBiUg(&prev1, &prev2, u1, ug)}
+				meet := u1
+				bestDist := dist1[u1]  + dist2[u1]
+				for _,node := range pq1 {
+					if _,ok := nodesProcessed2[node.value]; ok {
+						if dist1[node.value] + dist2[node.value] < bestDist{
+							bestDist = dist1[node.value] + dist2[node.value]
+							meet = node.value
+						}
+					}
+				}
+				for _,node := range pq2 {
+					if _,ok := nodesProcessed1[node.value]; ok {
+						if dist1[node.value] + dist2[node.value] < bestDist{
+							bestDist = dist1[node.value] + dist2[node.value]
+							meet = node.value
+						}
+					}
+				}
+
+				fmt.Printf("bi dist: %v\n", bestDist)
+				var route = [][][]float64{ExtractRouteBiUg(&prev1, &prev2, meet, ug)}
 				for k,v := range nodesProcessed1 {
 					nodesProcessed2[k] = v
 				}
@@ -166,8 +228,26 @@ func BiDijkstraAllNodes(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]floa
 				return route,processedNodes
 			}
 			if _, ok := nodesProcessed1[u2]; ok {
-				
-				var route = [][][]float64{ExtractRouteBiUg(&prev1, &prev2, u2, ug)}
+				meet := u2
+				bestDist := dist1[u2]  + dist2[u2]
+				for _,node := range pq2 {
+					if _,ok := nodesProcessed1[node.value]; ok {
+						if dist1[node.value] + dist2[node.value] < bestDist{
+							bestDist = dist1[node.value] + dist2[node.value]
+							meet = node.value
+						}
+					}
+				}
+				for _,node := range pq1 {
+					if _,ok := nodesProcessed2[node.value]; ok {
+						if dist1[node.value] + dist2[node.value] < bestDist{
+							bestDist = dist1[node.value] + dist2[node.value]
+							meet = node.value
+						}
+					}
+				}
+				fmt.Printf("bi dist: %v\n", bestDist)
+				var route = [][][]float64{ExtractRouteBiUg(&prev1, &prev2, meet, ug)}
 				for k,v := range nodesProcessed1 {
 					nodesProcessed2[k] = v
 				}
