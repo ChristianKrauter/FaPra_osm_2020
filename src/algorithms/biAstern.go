@@ -54,18 +54,10 @@ func BiAstern(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64, int) 
 		} else {
 			u1 := heap.Pop(&pq1).(*Item).value
 			nodesProcessed1[u1] = true;
-			u2 := heap.Pop(&pq2).(*Item).value
-			nodesProcessed2[u2] = true;
 			popped1++
-			popped2++
-
 			if _, ok := nodesProcessed2[u1]; ok {
 				
 				return [][][]float64{ExtractRouteBiUg(&prev1, &prev2, u1, ug)}, popped1+popped2
-			}
-			if _, ok := nodesProcessed1[u2]; ok {
-				
-				return [][][]float64{ExtractRouteBiUg(&prev1, &prev2, u2, ug)}, popped1+popped2
 			}
 			
 			
@@ -77,10 +69,18 @@ func BiAstern(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64, int) 
 					prev1[j] = u1
 					item := &Item{
 						value:    j,
-						priority: -dist1[j] - distance((*ug).GridToCoord((*ug).IDToGrid(u1)), (*ug).GridToCoord(toIDX)),
+						priority: -dist1[j] - distance((*ug).GridToCoord((*ug).IDToGrid(j)), (*ug).GridToCoord(toIDX)),
 					}
 					heap.Push(&pq1, item)
 				}
+			}
+
+			u2 := heap.Pop(&pq2).(*Item).value
+			nodesProcessed2[u2] = true;
+			popped2++
+			if _, ok := nodesProcessed1[u2]; ok {
+				
+				return [][][]float64{ExtractRouteBiUg(&prev1, &prev2, u2, ug)}, popped1+popped2
 			}
 
 			neighbours2 := NeighboursUg(u2, ug)
@@ -91,7 +91,7 @@ func BiAstern(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64, int) 
 					prev2[j] = u2
 					item := &Item{
 						value:    j,
-						priority: -dist2[j] - distance((*ug).GridToCoord((*ug).IDToGrid(u2)), (*ug).GridToCoord(fromIDX)),
+						priority: -dist2[j] - distance((*ug).GridToCoord((*ug).IDToGrid(j)), (*ug).GridToCoord(fromIDX)),
 					}
 					heap.Push(&pq2, item)
 				}
@@ -197,7 +197,7 @@ func BiAsternAllNodes(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float6
 					prev1[j] = u1
 					item := &Item{
 						value:    j,
-						priority: -dist1[j] - distance((*ug).GridToCoord((*ug).IDToGrid(u1)), (*ug).GridToCoord(toIDX)),
+						priority: -dist1[j] - distance((*ug).GridToCoord((*ug).IDToGrid(j)), (*ug).GridToCoord(toIDX)),
 					}
 					heap.Push(&pq1, item)
 				}
@@ -211,7 +211,7 @@ func BiAsternAllNodes(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float6
 					prev2[j] = u2
 					item := &Item{
 						value:    j,
-						priority: -dist2[j] - distance((*ug).GridToCoord((*ug).IDToGrid(u2)), (*ug).GridToCoord(fromIDX)),
+						priority: -dist2[j] - distance((*ug).GridToCoord((*ug).IDToGrid(j)), (*ug).GridToCoord(fromIDX)),
 					}
 					heap.Push(&pq2, item)
 				}
