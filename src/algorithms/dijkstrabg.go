@@ -14,7 +14,7 @@ func DijkstraBg(fromIDX, toIDX []int, bg *grids.BasicGrid) ([][][]float64, int) 
 	var prev []int
 	pq := make(priorityQueue, 1)
 
-	for i := 0; i < len((*bg).VertexData); i++ {
+	for i := 0; i < len(bg.VertexData); i++ {
 		dist = append(dist, math.Inf(1))
 		prev = append(prev, -1)
 	}
@@ -38,7 +38,7 @@ func DijkstraBg(fromIDX, toIDX []int, bg *grids.BasicGrid) ([][][]float64, int) 
 				return extractRoute(&prev, bg.FlattenIndex(toIDX), bg), popped
 			}
 
-			neighbours := neighboursBg(u, bg.XSize, bg)
+			neighbours := neighboursBg(u, bg)
 
 			for _, j := range neighbours {
 				var alt = dist[u] + distance(bg.GridToCoord(bg.ExpandIndex(u)), bg.GridToCoord(bg.ExpandIndex(j)))
@@ -65,7 +65,7 @@ func DijkstraAllNodesBg(fromIDX, toIDX []int, bg *grids.BasicGrid) ([][][]float6
 	var nodesProcessed []int
 	pq := make(priorityQueue, 1)
 
-	for i := 0; i < len((*bg).VertexData); i++ {
+	for i := 0; i < len(bg.VertexData); i++ {
 		dist = append(dist, math.Inf(1))
 		prev = append(prev, -1)
 	}
@@ -92,7 +92,7 @@ func DijkstraAllNodesBg(fromIDX, toIDX []int, bg *grids.BasicGrid) ([][][]float6
 				return route, processedNodes
 			}
 
-			neighbours := neighboursBg(u, bg.XSize, bg)
+			neighbours := neighboursBg(u, bg)
 
 			for _, j := range neighbours {
 				var alt = dist[u] + distance(bg.GridToCoord(bg.ExpandIndex(u)), bg.GridToCoord(bg.ExpandIndex(j)))

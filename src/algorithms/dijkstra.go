@@ -14,14 +14,14 @@ func Dijkstra(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64, int) 
 	var prev []int
 	pq := make(priorityQueue, 1)
 
-	for i := 0; i < (*ug).N; i++ {
+	for i := 0; i < ug.N; i++ {
 		dist = append(dist, math.Inf(1))
 		prev = append(prev, -1)
 	}
 
-	dist[(*ug).GridToID(fromIDX)] = 0
+	dist[ug.GridToID(fromIDX)] = 0
 	pq[0] = &Item{
-		value:    (*ug).GridToID(fromIDX),
+		value:    ug.GridToID(fromIDX),
 		priority: 0,
 		index:    0,
 	}
@@ -33,13 +33,13 @@ func Dijkstra(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64, int) 
 		} else {
 			u := heap.Pop(&pq).(*Item).value
 			popped++
-			if u == (*ug).GridToID(toIDX) {
-				return ExtractRouteUg(&prev, (*ug).GridToID(toIDX), ug), popped
+			if u == ug.GridToID(toIDX) {
+				return ExtractRouteUg(&prev, ug.GridToID(toIDX), ug), popped
 			}
 
 			neighbours := NeighboursUg(u, ug)
 			for _, j := range neighbours {
-				var alt = dist[u] + distance((*ug).GridToCoord((*ug).IDToGrid(u)), (*ug).GridToCoord((*ug).IDToGrid(j)))
+				var alt = dist[u] + distance(ug.GridToCoord(ug.IDToGrid(u)), ug.GridToCoord(ug.IDToGrid(j)))
 				if alt < dist[j] {
 					dist[j] = alt
 					prev[j] = u
@@ -52,7 +52,7 @@ func Dijkstra(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64, int) 
 			}
 		}
 	}
-	return ExtractRouteUg(&prev, (*ug).GridToID(toIDX), ug), popped
+	return ExtractRouteUg(&prev, ug.GridToID(toIDX), ug), popped
 }
 
 // DijkstraAllNodes additionally returns all visited nodes on uniform grid
@@ -63,14 +63,14 @@ func DijkstraAllNodes(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float6
 	var nodesProcessed []int
 	pq := make(priorityQueue, 1)
 
-	for i := 0; i < (*ug).N; i++ {
+	for i := 0; i < ug.N; i++ {
 		dist = append(dist, math.Inf(1))
 		prev = append(prev, -1)
 	}
 
-	dist[(*ug).GridToID(fromIDX)] = 0
+	dist[ug.GridToID(fromIDX)] = 0
 	pq[0] = &Item{
-		value:    (*ug).GridToID(fromIDX),
+		value:    ug.GridToID(fromIDX),
 		priority: 0,
 		index:    0,
 	}
@@ -84,8 +84,8 @@ func DijkstraAllNodes(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float6
 			u := heap.Pop(&pq).(*Item).value
 			nodesProcessed = append(nodesProcessed, u)
 
-			if u == (*ug).GridToID(toIDX) {
-				var route = ExtractRouteUg(&prev, (*ug).GridToID(toIDX), ug)
+			if u == ug.GridToID(toIDX) {
+				var route = ExtractRouteUg(&prev, ug.GridToID(toIDX), ug)
 				var processedNodes = ExtractNodesUg(&nodesProcessed, ug)
 				return route, processedNodes
 			}
@@ -93,7 +93,7 @@ func DijkstraAllNodes(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float6
 			neighbours := NeighboursUg(u, ug)
 
 			for _, j := range neighbours {
-				var alt = dist[u] + distance((*ug).GridToCoord((*ug).IDToGrid(u)), (*ug).GridToCoord((*ug).IDToGrid(j)))
+				var alt = dist[u] + distance(ug.GridToCoord(ug.IDToGrid(u)), ug.GridToCoord(ug.IDToGrid(j)))
 				if alt < dist[j] {
 					dist[j] = alt
 					prev[j] = u
@@ -106,7 +106,7 @@ func DijkstraAllNodes(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float6
 			}
 		}
 	}
-	var route = ExtractRouteUg(&prev, (*ug).GridToID(toIDX), ug)
+	var route = ExtractRouteUg(&prev, ug.GridToID(toIDX), ug)
 	var processedNodes = ExtractNodesUg(&nodesProcessed, ug)
 	return route, processedNodes
 }

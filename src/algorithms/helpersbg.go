@@ -6,22 +6,22 @@ import (
     "math"
 )
 
-func neighboursBg(idx, xSize int, bg *grids.BasicGrid) []int {
+func neighboursBg(idx int, bg *grids.BasicGrid) []int {
     var neighbours []int
     var result []int
 
-    neighbours = append(neighbours, idx-xSize-1) // top left
-    neighbours = append(neighbours, idx-xSize)   // top
-    neighbours = append(neighbours, idx-xSize+1) // top right
-    neighbours = append(neighbours, idx-1)       // left
-    neighbours = append(neighbours, idx+1)       // right
-    neighbours = append(neighbours, idx+xSize-1) // bottom left
-    neighbours = append(neighbours, idx+xSize)   // bottom
-    neighbours = append(neighbours, idx+xSize+1) // bottom right
+    neighbours = append(neighbours, idx-bg.XSize-1) // top left
+    neighbours = append(neighbours, idx-bg.XSize)   // top
+    neighbours = append(neighbours, idx-bg.XSize+1) // top right
+    neighbours = append(neighbours, idx-1)          // left
+    neighbours = append(neighbours, idx+1)          // right
+    neighbours = append(neighbours, idx+bg.XSize-1) // bottom left
+    neighbours = append(neighbours, idx+bg.XSize)   // bottom
+    neighbours = append(neighbours, idx+bg.XSize+1) // bottom right
 
     for _, j := range neighbours {
-        if j >= 0 && j < len((*bg).VertexData) {
-            if !(*bg).VertexData[j] {
+        if j >= 0 && j < len(bg.VertexData) {
+            if !bg.VertexData[j] {
                 result = append(result, j)
             }
         }

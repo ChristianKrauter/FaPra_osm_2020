@@ -37,9 +37,9 @@ func createUniformGrid(xSize, ySize int, boundingTreeRoot *boundingTree, polygon
 		grid = append(grid, gridRow)
 	}
 
-	(*ug).N = nCount
-	(*ug).FirstIndexOf = firstIndexOf
-	(*ug).VertexData = grid
+	ug.N = nCount
+	ug.FirstIndexOf = firstIndexOf
+	ug.VertexData = grid
 
 	t := time.Now()
 	elapsed := t.Sub(start)
@@ -76,9 +76,9 @@ func createUniformGridNBT(xSize, ySize int, allBoundingBoxes *[]map[string]float
 		grid = append(grid, gridRow)
 	}
 
-	(*ug).N = nCount
-	(*ug).FirstIndexOf = firstIndexOf
-	(*ug).VertexData = grid
+	ug.N = nCount
+	ug.FirstIndexOf = firstIndexOf
+	ug.VertexData = grid
 
 	t := time.Now()
 	elapsed := t.Sub(start)

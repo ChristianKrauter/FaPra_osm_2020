@@ -15,23 +15,23 @@ func BiDijkstra(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64, int
 	var meeting int
 
 	// Init
-	for i := 0; i < (*ug).N; i++ {
+	for i := 0; i < ug.N; i++ {
 		dist[0] = append(dist[0], math.Inf(1))
 		dist[1] = append(dist[1], math.Inf(1))
 		prev = append(prev, []int{-1, -1})
 	}
 
-	dist[0][(*ug).GridToID(fromIDX)] = 0
+	dist[0][ug.GridToID(fromIDX)] = 0
 	pq[0][0] = &Item{
-		value:    (*ug).GridToID(fromIDX),
+		value:    ug.GridToID(fromIDX),
 		priority: 0,
 		index:    0,
 	}
 	heap.Init(&pq[0])
 
-	dist[1][(*ug).GridToID(toIDX)] = 0
+	dist[1][ug.GridToID(toIDX)] = 0
 	pq[1][0] = &Item{
-		value:    (*ug).GridToID(toIDX),
+		value:    ug.GridToID(toIDX),
 		priority: 0,
 		index:    0,
 	}
@@ -72,7 +72,7 @@ func BiDijkstra(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64, int
 
 			neighbours := NeighboursUg(u, ug)
 			for _, j := range neighbours {
-				var alt = dist[dir][u] + distance((*ug).GridToCoord((*ug).IDToGrid(u)), (*ug).GridToCoord((*ug).IDToGrid(j)))
+				var alt = dist[dir][u] + distance(ug.GridToCoord(ug.IDToGrid(u)), ug.GridToCoord(ug.IDToGrid(j)))
 				if alt < dist[dir][j] {
 					dist[dir][j] = alt
 					prev[j][dir] = u
@@ -101,23 +101,23 @@ func BiDijkstraAllNodes(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]floa
 	var meeting int
 
 	// Init
-	for i := 0; i < (*ug).N; i++ {
+	for i := 0; i < ug.N; i++ {
 		dist[0] = append(dist[0], math.Inf(1))
 		dist[1] = append(dist[1], math.Inf(1))
 		prev = append(prev, []int{-1, -1})
 	}
 
-	dist[0][(*ug).GridToID(fromIDX)] = 0
+	dist[0][ug.GridToID(fromIDX)] = 0
 	pq[0][0] = &Item{
-		value:    (*ug).GridToID(fromIDX),
+		value:    ug.GridToID(fromIDX),
 		priority: 0,
 		index:    0,
 	}
 	heap.Init(&pq[0])
 
-	dist[1][(*ug).GridToID(toIDX)] = 0
+	dist[1][ug.GridToID(toIDX)] = 0
 	pq[1][0] = &Item{
-		value:    (*ug).GridToID(toIDX),
+		value:    ug.GridToID(toIDX),
 		priority: 0,
 		index:    0,
 	}
@@ -158,7 +158,7 @@ func BiDijkstraAllNodes(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]floa
 
 			neighbours := NeighboursUg(u, ug)
 			for _, j := range neighbours {
-				var alt = dist[dir][u] + distance((*ug).GridToCoord((*ug).IDToGrid(u)), (*ug).GridToCoord((*ug).IDToGrid(j)))
+				var alt = dist[dir][u] + distance(ug.GridToCoord(ug.IDToGrid(u)), ug.GridToCoord(ug.IDToGrid(j)))
 				if alt < dist[dir][j] {
 					dist[dir][j] = alt
 					prev[j][dir] = u
