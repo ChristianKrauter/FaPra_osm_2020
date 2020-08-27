@@ -61,3 +61,30 @@ func extractNodes(nodesProcessed *[]int, bg *grids.BasicGrid) [][]float64 {
     }
     return nodesExtended
 }
+
+// ExtractRouteUgBi ...
+func ExtractRouteBi(prev *[][]int, end int, bg *grids.BasicGrid) [][][]float64 {
+    var routes = make([][][]float64, 2)
+
+    var secondEnd = end
+    for {
+        routes[0] = append(routes[0], bg.GridToCoord(bg.ExpandIndex(end)))
+        if (*prev)[end][0] == -1 {
+            break
+        }
+        end = (*prev)[end][0]
+    }
+
+    end = secondEnd
+    for {
+        routes[1] = append(routes[1], bg.GridToCoord(bg.ExpandIndex(end)))
+
+        if (*prev)[end][1] == -1 {
+
+            break
+        }
+        end = (*prev)[end][1]
+    }
+    fmt.Printf("route %v\n", routes)
+    return routes
+}

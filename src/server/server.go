@@ -114,6 +114,8 @@ func Run(xSize, ySize int, basicPointInPolygon bool) {
 						route, nodesProcessed = algorithms.DijkstraAllNodesBg(from, to, &bg)
 					case 1:
 						route, nodesProcessed = algorithms.AStarAllNodesBg(from, to, &bg)
+					case 2:
+						route, nodesProcessed = algorithms.BiDijkstraAllNodesBg(from, to, &bg)
 					default:
 						route, nodesProcessed = algorithms.DijkstraAllNodesBg(from, to, &bg)
 					}
@@ -141,6 +143,8 @@ func Run(xSize, ySize int, basicPointInPolygon bool) {
 						route, _ = algorithms.DijkstraBg(from, to, &bg)
 					case 1:
 						route, _ = algorithms.AStarBg(from, to, &bg)
+					case 2:
+						route, _ = algorithms.BiDijkstraBg(from, to, &bg)
 					default:
 						route, _ = algorithms.DijkstraBg(from, to, &bg)
 					}
