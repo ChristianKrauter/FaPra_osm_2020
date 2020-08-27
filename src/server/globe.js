@@ -56,6 +56,9 @@ function createPoint(worldPosition, processed = false, start = false) {
             case "2":
                 createColoredPoint(worldPosition, Cesium.Color.YELLOW, 4)
                 break
+            case "3":
+                createColoredPoint(worldPosition, Cesium.Color.PURPLE, 4)
+                break
         }
     } else {
         var text = "End"
