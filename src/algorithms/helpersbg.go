@@ -2,8 +2,6 @@ package algorithms
 
 import (
     "../grids"
-    "fmt"
-    "math"
 )
 
 func neighboursBg(idx int, bg *grids.BasicGrid) []int {
@@ -30,25 +28,14 @@ func neighboursBg(idx int, bg *grids.BasicGrid) []int {
 }
 
 func extractRoute(prev *[]int, end int, bg *grids.BasicGrid) [][][]float64 {
-    var route [][][]float64
-    var tempRoute [][]float64
-    temp := bg.ExpandIndex(end)
+    var route = make([][][]float64, 1)
     for {
-        x := bg.ExpandIndex(end)
-        if math.Abs(float64(temp[0]-x[0])) > 1 {
-            fmt.Printf("helpersBG\n")
-            route = append(route, tempRoute)
-            tempRoute = make([][]float64, 0)
-        }
-        tempRoute = append(tempRoute, bg.GridToCoord([]int{x[0], x[1]}))
-
+        route[0] = append(route[0], bg.GridToCoord(bg.ExpandIndex(end)))
         if (*prev)[end] == -1 {
             break
         }
         end = (*prev)[end]
-        temp = x
     }
-    route = append(route, tempRoute)
     return route
 }
 
@@ -63,28 +50,27 @@ func extractNodes(nodesProcessed *[]int, bg *grids.BasicGrid) [][]float64 {
 }
 
 // ExtractRouteUgBi ...
-func ExtractRouteBi(prev *[][]int, end int, bg *grids.BasicGrid) [][][]float64 {
+func ExtractRouteBi(prev *[][]int, meeting int, bg *grids.BasicGrid) [][][]float64 {
     var routes = make([][][]float64, 2)
 
-    var secondEnd = end
+    var secondMeeting = meeting
     for {
-        routes[0] = append(routes[0], bg.GridToCoord(bg.ExpandIndex(end)))
-        if (*prev)[end][0] == -1 {
+        routes[0] = append(routes[0], bg.GridToCoord(bg.ExpandIndex(meeting)))
+        if (*prev)[meeting][0] == -1 {
             break
         }
-        end = (*prev)[end][0]
+        meeting = (*prev)[meeting][0]
     }
 
-    end = secondEnd
+    meeting = secondMeeting
     for {
-        routes[1] = append(routes[1], bg.GridToCoord(bg.ExpandIndex(end)))
+        routes[1] = append(routes[1], bg.GridToCoord(bg.ExpandIndex(meeting)))
 
-        if (*prev)[end][1] == -1 {
+        if (*prev)[meeting][1] == -1 {
 
             break
         }
-        end = (*prev)[end][1]
+        meeting = (*prev)[meeting][1]
     }
-    fmt.Printf("route %v\n", routes)
     return routes
 }

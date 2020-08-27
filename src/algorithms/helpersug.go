@@ -2,31 +2,19 @@ package algorithms
 
 import (
 	"../grids"
-	"fmt"
 	"math"
 )
 
 // ExtractRouteUg ...
 func ExtractRouteUg(prev *[]int, end int, ug *grids.UniformGrid) [][][]float64 {
-	var route [][][]float64
-	var tempRoute [][]float64
-	temp := ug.IDToGrid(end)
+	var route = make([][][]float64, 1)
 	for {
-		x := ug.IDToGrid(end)
-		if math.Abs(float64(temp[0]-x[0])) > 1 {
-			fmt.Printf("helpersUG\n")
-			route = append(route, tempRoute)
-			tempRoute = make([][]float64, 0)
-		}
-		tempRoute = append(tempRoute, ug.GridToCoord([]int{x[0], x[1]}))
-
+		route[0] = append(route[0], ug.GridToCoord(ug.IDToGrid(end)))
 		if (*prev)[end] == -1 {
 			break
 		}
 		end = (*prev)[end]
-		temp = x
 	}
-	route = append(route, tempRoute)
 	return route
 }
 
@@ -87,28 +75,27 @@ func NeighboursUg(in int, ug *grids.UniformGrid) []int {
 }
 
 // ExtractRouteUgBi ...
-func ExtractRouteUgBi(prev *[][]int, end int, ug *grids.UniformGrid) [][][]float64 {
+func ExtractRouteUgBi(prev *[][]int, meeting int, ug *grids.UniformGrid) [][][]float64 {
 	var routes = make([][][]float64, 2)
 
-	var secondEnd = end
+	var secondMeeting = meeting
 	for {
-		routes[0] = append(routes[0], ug.GridToCoord(ug.IDToGrid(end)))
-		if (*prev)[end][0] == -1 {
+		routes[0] = append(routes[0], ug.GridToCoord(ug.IDToGrid(meeting)))
+		if (*prev)[meeting][0] == -1 {
 			break
 		}
-		end = (*prev)[end][0]
+		meeting = (*prev)[meeting][0]
 	}
 
-	end = secondEnd
+	meeting = secondMeeting
 	for {
-		routes[1] = append(routes[1], ug.GridToCoord(ug.IDToGrid(end)))
+		routes[1] = append(routes[1], ug.GridToCoord(ug.IDToGrid(meeting)))
 
-		if (*prev)[end][1] == -1 {
+		if (*prev)[meeting][1] == -1 {
 
 			break
 		}
-		end = (*prev)[end][1]
+		meeting = (*prev)[meeting][1]
 	}
-	fmt.Printf("route %v\n", routes)
 	return routes
 }
