@@ -70,6 +70,11 @@ func pointInPolygonSphere(poly *Polygon, point []float64) bool {
 		var b = (poly.Points)[(i+1)%len(poly.Points)]
 		strike = false
 
+		var npLon = (poly.LngTNorth)[i]
+		if a[0] == b[0] {
+			npLon = transformLon(a, []float64{0.01, 90.0})
+		}
+
 		if point[0] == a[0] {
 			strike = true
 		} else {
@@ -98,7 +103,7 @@ func pointInPolygonSphere(poly *Polygon, point []float64) bool {
 				return true
 			}
 
-			var bToX = eastOrWest(bLonTransformed, (poly.LngTNorth)[i])
+			var bToX = eastOrWest(bLonTransformed, npLon)
 			var bToP = eastOrWest(bLonTransformed, pLonTransformed)
 			if bToX == -bToP {
 				inside = !inside
@@ -110,6 +115,10 @@ func pointInPolygonSphere(poly *Polygon, point []float64) bool {
 
 func isLandSphere(tree *boundingTree, point []float64, polygons *Polygons) bool {
 	land := false
+	if point[1] <= -80 {
+		return true
+	}
+
 	if boundingContains(&tree.boundingBox, point) {
 		if (*tree).id >= 0 {
 			land = pointInPolygonSphere(&(*polygons)[(*tree).id], point)

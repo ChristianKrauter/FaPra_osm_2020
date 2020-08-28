@@ -25,10 +25,17 @@ $("#showGridNode").click(function() {
         y:y
     }
     console.log(data)
-    $.ajax({
+/*    $.ajax({
             url: "/gridPoint",
             data: data,
-        }).done(showGridNode);
+        }).done(showGridNode);*/
+    data["startLat"] = y
+    data["startLng"] = x
+    $.ajax({
+        url: "/point",
+        data: data,
+        earthPosition: { ep: [x, y] }
+    }).done(pipTest);
 });
 
 var data = {
@@ -118,17 +125,17 @@ function gridFinderTest(testData) {
     var td = JSON.parse(testData)
     console.log(td.Point)
     console.log(point)
-    girdPoint = td.Point
+    //var gridPoint = td.Point
     //drawLine(viewer, point)
     createColoredPoint(Cesium.Cartesian3.fromDegrees(point[0],point[1]), Cesium.Color.RED)
-    createColoredPoint(Cesium.Cartesian3.fromDegrees(girdPoint[0],girdPoint[1]), Cesium.Color.CHARTREUSE)
+    //createColoredPoint(Cesium.Cartesian3.fromDegrees(gridPoint[0],gridPoint[1]), Cesium.Color.CHARTREUSE)
 }
 
 function showGridNode(testData) {
     var td = JSON.parse(testData);
     console.log(td.Point)
-    girdPoint = td.Point
-    createColoredPoint(Cesium.Cartesian3.fromDegrees(girdPoint[0],girdPoint[1]), Cesium.Color.CHARTREUSE)
+    gridPoint = td.Point
+    createColoredPoint(Cesium.Cartesian3.fromDegrees(gridPoint[0],gridPoint[1]), Cesium.Color.CHARTREUSE)
 }
 
 
@@ -186,7 +193,7 @@ function onLeftMouseClick(event) {
             url: "/point",
             data: data,
             earthPosition: { ep: [longitudeString, latitudeString] }
-        }).done(gridFinderTest);
+        }).done(pipTest);
 
     }
 }
