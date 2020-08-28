@@ -41,7 +41,7 @@ func AStar(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64, int) {
 				return ExtractRouteUg(&prev, ug.GridToID(toIDX), ug), popped
 			}
 
-			neighbours := NeighboursUg(u, ug)
+			neighbours := neighboursUg(u, ug)
 			for _, j := range neighbours {
 				var alt = dist[u] + distance(ug.GridToCoord(ug.IDToGrid(u)), ug.GridToCoord(ug.IDToGrid(j)))
 				if alt < dist[j] {
@@ -99,7 +99,7 @@ func AStarAllNodes(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64, 
 				return route, processedNodes
 			}
 
-			neighbours := NeighboursUg(u, ug)
+			neighbours := neighboursUg(u, ug)
 
 			for _, j := range neighbours {
 				var alt = dist[u] + distance(ug.GridToCoord(ug.IDToGrid(u)), ug.GridToCoord(ug.IDToGrid(j)))

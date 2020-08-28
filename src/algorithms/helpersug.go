@@ -45,8 +45,8 @@ func neighboursRowUg(in []float64, ug *grids.UniformGrid) [][]int {
 	return [][]int{p1, p2, p3}
 }
 
-// NeighboursUg gets up to 8 neighbours
-func NeighboursUg(in int, ug *grids.UniformGrid) []int {
+// neighboursUg gets up to 8 neighbours
+func neighboursUg(in int, ug *grids.UniformGrid) []int {
 	var neighbours [][]int
 	var inGrid = ug.IDToGrid(in)
 	m := inGrid[0]
@@ -98,4 +98,12 @@ func ExtractRouteUgBi(prev *[][]int, meeting int, ug *grids.UniformGrid) [][][]f
 		meeting = (*prev)[meeting][1]
 	}
 	return routes
+}
+
+func hUg(dir, node int, fromIDX, toIDX []int, ug *grids.UniformGrid) float64 {
+	if dir == 0 {
+		return 0.5 * (distance(ug.GridToCoord(ug.IDToGrid(node)), ug.GridToCoord(toIDX)) - distance(ug.GridToCoord(ug.IDToGrid(node)), ug.GridToCoord(fromIDX)))
+	}
+	return 0.5 * (distance(ug.GridToCoord(ug.IDToGrid(node)), ug.GridToCoord(fromIDX)) - distance(ug.GridToCoord(ug.IDToGrid(node)), ug.GridToCoord(toIDX)))
+
 }

@@ -74,3 +74,11 @@ func ExtractRouteBi(prev *[][]int, meeting int, bg *grids.BasicGrid) [][][]float
     }
     return routes
 }
+
+func hBg(dir, node int, fromIDX, toIDX []int, bg *grids.BasicGrid) float64 {
+    if dir == 0 {
+        return 0.5 * (distance(bg.GridToCoord(bg.ExpandIndex(node)), bg.GridToCoord(toIDX)) - distance(bg.GridToCoord(bg.ExpandIndex(node)), bg.GridToCoord(fromIDX)))
+    }
+    return 0.5 * (distance(bg.GridToCoord(bg.ExpandIndex(node)), bg.GridToCoord(fromIDX)) - distance(bg.GridToCoord(bg.ExpandIndex(node)), bg.GridToCoord(toIDX)))
+
+}

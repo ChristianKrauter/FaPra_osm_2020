@@ -7,7 +7,7 @@ import (
 )
 
 // BiDijkstra implementation on uniform grid
-func BiAStar(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64, int) {
+func BiAStarBg(fromIDX, toIDX []int, bg *grids.BasicGrid) ([][][]float64, int) {
 
 	var prev [][]int
 	dist := make([][]float64, 2)
@@ -17,7 +17,7 @@ func BiAStar(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64, int) {
 	var meeting int
 
 	// Init
-	for i := 0; i < ug.N; i++ {
+	for i := 0; i < len(bg.VertexData); i++ {
 		dist[0] = append(dist[0], math.Inf(1))
 		dist[1] = append(dist[1], math.Inf(1))
 		fScore[0] = append(fScore[0], math.Inf(1))
@@ -25,19 +25,19 @@ func BiAStar(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64, int) {
 		prev = append(prev, []int{-1, -1})
 	}
 
-	dist[0][ug.GridToID(fromIDX)] = 0
-	fScore[0][ug.GridToID(fromIDX)] = 0.5 * distance(ug.GridToCoord(fromIDX), ug.GridToCoord(toIDX))
+	dist[0][bg.FlattenIndex(fromIDX)] = 0
+	fScore[0][bg.FlattenIndex(fromIDX)] = 0.5 * distance(bg.GridToCoord(fromIDX), bg.GridToCoord(toIDX))
 	pq[0][0] = &Item{
-		value:    ug.GridToID(fromIDX),
+		value:    bg.FlattenIndex(fromIDX),
 		priority: 0,
 		index:    0,
 	}
 	heap.Init(&pq[0])
 
-	dist[1][ug.GridToID(toIDX)] = 0
-	fScore[0][ug.GridToID(toIDX)] = 0.5 * distance(ug.GridToCoord(toIDX), ug.GridToCoord(fromIDX))
+	dist[1][bg.FlattenIndex(toIDX)] = 0
+	fScore[0][bg.FlattenIndex(toIDX)] = 0.5 * distance(bg.GridToCoord(toIDX), bg.GridToCoord(fromIDX))
 	pq[1][0] = &Item{
-		value:    ug.GridToID(toIDX),
+		value:    bg.FlattenIndex(toIDX),
 		priority: 0,
 		index:    0,
 	}
@@ -76,12 +76,12 @@ func BiAStar(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64, int) {
 				break
 			}
 
-			neighbours := neighboursUg(u, ug)
+			neighbours := neighboursBg(u, bg)
 			for _, j := range neighbours {
-				var alt = dist[dir][u] + distance(ug.GridToCoord(ug.IDToGrid(u)), ug.GridToCoord(ug.IDToGrid(j)))
+				var alt = dist[dir][u] + distance(bg.GridToCoord(bg.ExpandIndex(u)), bg.GridToCoord(bg.ExpandIndex(j)))
 				if alt < dist[dir][j] {
 					dist[dir][j] = alt
-					fScore[dir][j] = dist[dir][j] + hUg(dir, j, fromIDX, toIDX, ug)
+					fScore[dir][j] = dist[dir][j] + hBg(dir, j, fromIDX, toIDX, bg)
 					prev[j][dir] = u
 					item := &Item{
 						value:    j,
@@ -94,12 +94,12 @@ func BiAStar(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64, int) {
 		dir = 1 - dir // Change direction
 	}
 
-	var route = ExtractRouteUgBi(&prev, meeting, ug)
+	var route = ExtractRouteBi(&prev, meeting, bg)
 	return route, len(proc[0]) + len(proc[1])
 }
 
 // BiDijkstraAllNodes additionally returns all visited nodes on uniform grid
-func BiAStarAllNodes(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64, [][]float64) {
+func BiAStarAllNodesBg(fromIDX, toIDX []int, bg *grids.BasicGrid) ([][][]float64, [][]float64) {
 
 	var prev [][]int
 	dist := make([][]float64, 2)
@@ -109,7 +109,7 @@ func BiAStarAllNodes(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64
 	var meeting int
 
 	// Init
-	for i := 0; i < ug.N; i++ {
+	for i := 0; i < len(bg.VertexData); i++ {
 		dist[0] = append(dist[0], math.Inf(1))
 		dist[1] = append(dist[1], math.Inf(1))
 		fScore[0] = append(fScore[0], math.Inf(1))
@@ -117,19 +117,19 @@ func BiAStarAllNodes(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64
 		prev = append(prev, []int{-1, -1})
 	}
 
-	dist[0][ug.GridToID(fromIDX)] = 0
-	fScore[0][ug.GridToID(fromIDX)] = 0.5 * distance(ug.GridToCoord(fromIDX), ug.GridToCoord(toIDX))
+	dist[0][bg.FlattenIndex(fromIDX)] = 0
+	fScore[0][bg.FlattenIndex(fromIDX)] = 0.5 * distance(bg.GridToCoord(fromIDX), bg.GridToCoord(toIDX))
 	pq[0][0] = &Item{
-		value:    ug.GridToID(fromIDX),
+		value:    bg.FlattenIndex(fromIDX),
 		priority: 0,
 		index:    0,
 	}
 	heap.Init(&pq[0])
 
-	dist[1][ug.GridToID(toIDX)] = 0
-	fScore[0][ug.GridToID(toIDX)] = 0.5 * distance(ug.GridToCoord(toIDX), ug.GridToCoord(fromIDX))
+	dist[1][bg.FlattenIndex(toIDX)] = 0
+	fScore[0][bg.FlattenIndex(toIDX)] = 0.5 * distance(bg.GridToCoord(toIDX), bg.GridToCoord(fromIDX))
 	pq[1][0] = &Item{
-		value:    ug.GridToID(toIDX),
+		value:    bg.FlattenIndex(toIDX),
 		priority: 0,
 		index:    0,
 	}
@@ -168,12 +168,12 @@ func BiAStarAllNodes(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64
 				break
 			}
 
-			neighbours := neighboursUg(u, ug)
+			neighbours := neighboursBg(u, bg)
 			for _, j := range neighbours {
-				var alt = dist[dir][u] + distance(ug.GridToCoord(ug.IDToGrid(u)), ug.GridToCoord(ug.IDToGrid(j)))
+				var alt = dist[dir][u] + distance(bg.GridToCoord(bg.ExpandIndex(u)), bg.GridToCoord(bg.ExpandIndex(j)))
 				if alt < dist[dir][j] {
 					dist[dir][j] = alt
-					fScore[dir][j] = dist[dir][j] + hUg(dir, j, fromIDX, toIDX, ug)
+					fScore[dir][j] = dist[dir][j] + hBg(dir, j, fromIDX, toIDX, bg)
 					prev[j][dir] = u
 					item := &Item{
 						value:    j,
@@ -196,7 +196,7 @@ func BiAStarAllNodes(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64
 		keys[i] = k
 		i++
 	}
-	var processedNodes = ExtractNodesUg(&keys, ug)
-	var route = ExtractRouteUgBi(&prev, meeting, ug)
+	var processedNodes = extractNodes(&keys, bg)
+	var route = ExtractRouteBi(&prev, meeting, bg)
 	return route, processedNodes
 }
