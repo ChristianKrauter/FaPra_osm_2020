@@ -97,6 +97,12 @@ func WayFindingBG(xSize, ySize, nRuns, algorithm int, basicPointInPolygon bool, 
 	case 1:
 		algoStr = "_as"
 		algoStrPrint = "A-Star"
+	case 2:
+		algoStr = "_bidij"
+		algoStrPrint = "Bi-Dijkstra"
+	case 3:
+		algoStr = "_bias"
+		algoStrPrint = "Bi-A-Star"
 	default:
 		algoStr = "_dij"
 		algoStrPrint = "Dijkstra"
@@ -146,6 +152,10 @@ func WayFindingBG(xSize, ySize, nRuns, algorithm int, basicPointInPolygon bool, 
 			_, popped = algorithms.DijkstraBg(bg.ExpandIndex(from[i]), bg.ExpandIndex(to[i]), &bg)
 		case 1:
 			_, popped = algorithms.AStarBg(bg.ExpandIndex(from[i]), bg.ExpandIndex(to[i]), &bg)
+		case 2:
+			_, popped = algorithms.BiDijkstraBg(bg.ExpandIndex(from[i]), bg.ExpandIndex(to[i]), &bg)
+		case 3:
+			_, popped = algorithms.BiAStarBg(bg.ExpandIndex(from[i]), bg.ExpandIndex(to[i]), &bg)
 		default:
 			_, popped = algorithms.DijkstraBg(bg.ExpandIndex(from[i]), bg.ExpandIndex(to[i]), &bg)
 		}
@@ -215,6 +225,12 @@ func WayFinding(xSize, ySize, nRuns, algorithm int, basicPointInPolygon bool, no
 	case 1:
 		algoStr = "_as"
 		algoStrPrint = "A-Star"
+	case 2:
+		algoStr = "_bidij"
+		algoStrPrint = "Bi-Dijkstra"
+	case 3:
+		algoStr = "_bias"
+		algoStrPrint = "Bi-A-Star"
 	default:
 		algoStr = "_dij"
 		algoStrPrint = "Dijkstra"
@@ -264,6 +280,10 @@ func WayFinding(xSize, ySize, nRuns, algorithm int, basicPointInPolygon bool, no
 			_, popped = algorithms.Dijkstra(from, to, &ug)
 		case 1:
 			_, popped = algorithms.AStar(from, to, &ug)
+		case 2:
+			_, popped = algorithms.BiDijkstra(from, to, &ug)
+		case 3:
+			_, popped = algorithms.BiAStar(from, to, &ug)
 		default:
 			_, popped = algorithms.Dijkstra(from, to, &ug)
 		}

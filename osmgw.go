@@ -36,7 +36,7 @@ func main() {
 	flag.BoolVar(&basicGrid, "bg", false, "Create a basic (non-unidistant) grid.")
 	flag.BoolVar(&basicPointInPolygon, "bpip", false, "Use a basic 2D point in polygon test.")
 
-	flag.IntVar(&algo, "a", 0, "Select Algorithm:\n  0: Dijkstra \n  1: A*")
+	flag.IntVar(&algo, "a", 0, "Select Algorithm:\n  0: Dijkstra\n  1: A*\n  2: Bi-Dijkstra\n  3: Bi-A*")
 	flag.IntVar(&nRuns, "r", 1000, "Number of runs for wayfinding evaluation.")
 	flag.Parse()
 
