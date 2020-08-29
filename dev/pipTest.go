@@ -228,10 +228,11 @@ func readFile(pbfFileName string, coastlineMap *map[int64][]int64, nodeMap *map[
 func transformLon(newNorth, point []float64) float64 {
 	var transformedLon float64
 
-	var dtr = math.Pi / 180.0
+	var dtr float64 = math.Pi / 180.0
 
 	// New north is already the north pole
 	if newNorth[1] == 90.0 {
+		fmt.Printf("already north pole")
 		transformedLon = point[0]
 	} else {
 		var t = math.Sin((point[0]-newNorth[0])*dtr) * math.Cos(point[1]*dtr)
@@ -253,9 +254,9 @@ func eastOrWest(aLon, bLon float64) int {
 	if del < -180.0 {
 		del = del + 360.0
 	}
-	if del > 0 && del != 180.0 {
+	if del > 0.0 && del != 180.0 {
 		out = -1
-	} else if del < 0 && del != -180.0 {
+	} else if del < 0.0 && del != -180.0 {
 		out = 1
 	} else {
 		out = 0
@@ -270,16 +271,16 @@ func pointInPolygonSphere(polygon *[][]float64, point []float64, strikes *[][][]
 	// Point is the south-pole
 	// Pontentially antipodal check
 	fmt.Printf("point: %v\n", point)
-	if point[0] <= -80 {
-		fmt.Printf("Tried to check point antipodal to the north pole.")
+	if point[1] <= -80.0 {
+		fmt.Printf("inside antarktis 2, p[0]= %v ?<=-80\n", point[0])
 		return true
 	}
 
 	//fmt.Printf("%v\n",point)
 
 	// Point is the north-pole
-	if point[1] == 90 {
-		fmt.Printf("south pole.")
+	if point[1] == 90.0 {
+		fmt.Printf("north pole.\n")
 		return false
 	}
 	for i := 0; i < len(*polygon); i++ {
@@ -288,17 +289,17 @@ func pointInPolygonSphere(polygon *[][]float64, point []float64, strikes *[][][]
 
 		var nortPole = []float64{0.0, 90.0}
 		if a[0] == b[0] {
-			//fmt.Printf("a&b great circle\n")
-			nortPole = []float64{0.01, 90.0}
+			a[0] -= 0.001
+			fmt.Printf("a&b great circle\n")
+			nortPole = []float64{0.001, 90.0}
 			//point[0] += 0.001
 		}
 
 		strike = false
 
-		if point[0] == a[0] && point[0] == b[0] {
+		if point[0] == a[0] {
 			strike = true
 		} else {
-
 			var aToB = eastOrWest(a[0], b[0])
 			var aToP = eastOrWest(a[0], point[0])
 			var pToB = eastOrWest(point[0], b[0])
@@ -325,14 +326,17 @@ func pointInPolygonSphere(polygon *[][]float64, point []float64, strikes *[][][]
 			var pLonTransformed = transformLon(a, point)
 
 			if bLonTransformed == pLonTransformed {
-				fmt.Printf("blon = plon\n")
+				fmt.Printf("blonT = plonT\n")
+				fmt.Printf("a: %v\n", a)
+				fmt.Printf("b: %v, blonT: %v\n", b, bLonTransformed)
+				fmt.Printf("p: %v, plonT: %v\n", point, pLonTransformed)
+				fmt.Printf("blonT2: %v\n", transformLon(a, []float64{b[0] - 0.001, b[1]}))
 				return true
 			}
 
 			var bToX = eastOrWest(bLonTransformed, northPoleLonTransformed)
 			var bToP = eastOrWest(bLonTransformed, pLonTransformed)
 			if bToX == -bToP {
-
 				inside = !inside
 			}
 		}
@@ -439,8 +443,8 @@ func main() {
 			}
 			var strikes [][][]float64
 			var td TestData
-			if startLat <= -80 {
-				fmt.Printf("Tried to check point antipodal to the north pole.")
+			if startLat <= -80.0 {
+				fmt.Printf("inside antarktis\n")
 				td.IsLand = true
 			} else {
 				td.IsLand = isLandSphere(&boundingTreeRoot, []float64{startLng, startLat}, &allCoastlines, &strikes)

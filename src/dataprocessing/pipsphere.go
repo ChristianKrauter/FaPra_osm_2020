@@ -39,9 +39,9 @@ func eastOrWest(aLon, bLon float64) int {
 	if del < -180.0 {
 		del = del + 360.0
 	}
-	if del > 0 && del != 180.0 {
+	if del > 0.0 && del != 180.0 {
 		out = -1
-	} else if del < 0 && del != -180.0 {
+	} else if del < 0.0 && del != -180.0 {
 		out = 1
 	} else {
 		out = 0
@@ -55,13 +55,13 @@ func pointInPolygonSphere(poly *Polygon, point []float64) bool {
 	var strike = false
 	// Point is the south-pole
 	// Pontentially antipodal check
-	if point[1] == -90 {
+	if point[1] <= -80.0 {
 		// fmt.Printf("Tried to check point antipodal to the north pole.")
 		return true
 	}
 
 	// Point is the north-pole
-	if point[1] == 90 {
+	if point[1] == 90.0 {
 		return false
 	}
 
@@ -71,8 +71,9 @@ func pointInPolygonSphere(poly *Polygon, point []float64) bool {
 		strike = false
 
 		var npLon = (poly.LngTNorth)[i]
-		if a[0] == b[0] {
-			npLon = transformLon(a, []float64{0.01, 90.0})
+		if a[0] == b[0] && a[1] > point[1] && b[1] > point[1] {
+			a[0] += 0.001
+			//npLon = transformLon(a, []float64{0.01, 90.0})
 		}
 
 		if point[0] == a[0] {
@@ -115,7 +116,7 @@ func pointInPolygonSphere(poly *Polygon, point []float64) bool {
 
 func isLandSphere(tree *boundingTree, point []float64, polygons *Polygons) bool {
 	land := false
-	if point[1] <= -80 {
+	if point[1] <= -80.0 {
 		return true
 	}
 
