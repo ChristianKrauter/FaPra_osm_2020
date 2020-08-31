@@ -24,15 +24,8 @@ func createPolygons(polygons *Polygons, coastlineMap *map[int64][]int64, nodeMap
 		var key = getSomeKey(coastlineMap)
 		var nodeIDs = (*coastlineMap)[key]
 		poly = Polygon{}
-		for i, x := range nodeIDs {
-			var point = []float64{(*nodeMap)[x][0], (*nodeMap)[x][1]}
-			poly.Points = append(poly.Points, point)
-			if !basicPointInPolygon {
-				poly.LngTNorth = append(poly.LngTNorth, transformLon(point, []float64{0.0, 90.0}))
-				var nIDX = nodeIDs[(i+1)%len(nodeIDs)]
-				var nPoint = []float64{(*nodeMap)[nIDX][0], (*nodeMap)[nIDX][1]}
-				poly.LngTNext = append(poly.LngTNext, transformLon(point, nPoint))
-			}
+		for _, x := range nodeIDs {
+			poly.Points = append(poly.Points, []float64{(*nodeMap)[x][0], (*nodeMap)[x][1]})
 		}
 		delete(*coastlineMap, key)
 		key = nodeIDs[len(nodeIDs)-1]
@@ -40,14 +33,7 @@ func createPolygons(polygons *Polygons, coastlineMap *map[int64][]int64, nodeMap
 			if val, ok := (*coastlineMap)[key]; ok {
 				for i, x := range val {
 					if i != 0 {
-						var point = []float64{(*nodeMap)[x][0], (*nodeMap)[x][1]}
-						poly.Points = append(poly.Points, point)
-						if !basicPointInPolygon {
-							poly.LngTNorth = append(poly.LngTNorth, transformLon(point, []float64{0.0, 90.0}))
-							var nIDX = nodeIDs[(i+1)%len(nodeIDs)]
-							var nPoint = []float64{(*nodeMap)[nIDX][0], (*nodeMap)[nIDX][1]}
-							poly.LngTNext = append(poly.LngTNext, transformLon(point, nPoint))
-						}
+						poly.Points = append(poly.Points, []float64{(*nodeMap)[x][0], (*nodeMap)[x][1]})
 					}
 				}
 				delete(*coastlineMap, key)
@@ -56,6 +42,16 @@ func createPolygons(polygons *Polygons, coastlineMap *map[int64][]int64, nodeMap
 				break
 			}
 		}
+
+		if !basicPointInPolygon {
+			for i, x := range poly.Points {
+				poly.EoWNext = append(poly.EoWNext, eastOrWest(x[0], poly.Points[(i+1)%len(poly.Points)][0]))
+				//poly.LngTNorth = append(poly.LngTNorth, transformLon(x, []float64{0.0, 90.0}))
+				poly.LngTNext = append(poly.LngTNext, transformLon(x, poly.Points[(i+1)%len(poly.Points)]))
+				poly.BtoX = append(poly.BtoX, eastOrWest((poly.LngTNext)[i], transformLon(x, []float64{0.0, 90.0})))
+			}
+		}
+
 		*polygons = append(*polygons, poly)
 	}
 
