@@ -94,6 +94,14 @@ func Start(pbfFileName string, xSize, ySize int, createCoastlineGeoJSON, lessMem
 		log.Fatal("\n\nBasic grid not possibly for xSize or ySize under 360.")
 	}
 
+	if noBoundingTree {
+		fmt.Printf("\nwithout using a bounding tree structure")
+	}
+
+	if lessMemory {
+		fmt.Printf("\noptimized for unpruned pbf files\n")
+	}
+
 	fmt.Printf("\nStarting processing of %s\n\n", pbfFileName)
 	logging := make(map[string]string)
 	pbfFileName = fmt.Sprintf("data/%s", pbfFileName)
