@@ -39,13 +39,15 @@ func createPolygons(polygons *Polygons, coastlineMap *map[int64][]int64, nodeMap
 		for {
 			if val, ok := (*coastlineMap)[key]; ok {
 				for i, x := range val {
-					var point = []float64{(*nodeMap)[x][0], (*nodeMap)[x][1]}
-					poly.Points = append(poly.Points, point)
-					if !basicPointInPolygon {
-						poly.LngTNorth = append(poly.LngTNorth, transformLon(point, []float64{0.0, 90.0}))
-						var nIDX = nodeIDs[(i+1)%len(nodeIDs)]
-						var nPoint = []float64{(*nodeMap)[nIDX][0], (*nodeMap)[nIDX][1]}
-						poly.LngTNext = append(poly.LngTNext, transformLon(point, nPoint))
+					if i != 0 {
+						var point = []float64{(*nodeMap)[x][0], (*nodeMap)[x][1]}
+						poly.Points = append(poly.Points, point)
+						if !basicPointInPolygon {
+							poly.LngTNorth = append(poly.LngTNorth, transformLon(point, []float64{0.0, 90.0}))
+							var nIDX = nodeIDs[(i+1)%len(nodeIDs)]
+							var nPoint = []float64{(*nodeMap)[nIDX][0], (*nodeMap)[nIDX][1]}
+							poly.LngTNext = append(poly.LngTNext, transformLon(point, nPoint))
+						}
 					}
 				}
 				delete(*coastlineMap, key)

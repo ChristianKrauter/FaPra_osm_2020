@@ -265,14 +265,12 @@ func eastOrWest(aLon, bLon float64) int {
 }
 
 func pointInPolygonSphere(polygon *[][]float64, point []float64, strikes *[][][]float64) bool {
-	//fmt.Printf("%v\n","New PP")
 	var inside = false
 	var strike = false
 	// Point is the south-pole
 	// Pontentially antipodal check
-	fmt.Printf("point: %v\n", point)
 	if point[1] <= -80.0 {
-		fmt.Printf("inside antarktis 2, p[0]= %v ?<=-80\n", point[0])
+		// fmt.Printf("inside antarktis 2, p[0]= %v ?<=-80\n", point[0])
 		return true
 	}
 
@@ -286,16 +284,16 @@ func pointInPolygonSphere(polygon *[][]float64, point []float64, strikes *[][][]
 	for i := 0; i < len(*polygon); i++ {
 		var a = (*polygon)[i]
 		var b = (*polygon)[(i+1)%len(*polygon)]
+		strike = false
 
 		var nortPole = []float64{0.0, 90.0}
 		if a[0] == b[0] {
 			a[0] -= 0.001
-			fmt.Printf("a&b great circle\n")
 			nortPole = []float64{0.001, 90.0}
+
+			fmt.Printf("a&b great circle\n")
 			//point[0] += 0.001
 		}
-
-		strike = false
 
 		if point[0] == a[0] {
 			strike = true

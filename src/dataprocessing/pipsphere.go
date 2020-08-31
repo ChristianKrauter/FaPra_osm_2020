@@ -19,12 +19,12 @@ func transformLon(newNorth, point []float64) float64 {
 		// Radians to Degrees
 		transformedLon = math.Atan2(t, b) / dtr
 	}
-	if transformedLon < -180 {
+	/*if transformedLon < -180 {
 		transformedLon += 360.0
 	}
 	if transformedLon > 180 {
 		transformedLon -= 360.0
-	}
+	}*/
 	return transformedLon
 }
 
@@ -53,12 +53,6 @@ func eastOrWest(aLon, bLon float64) int {
 func pointInPolygonSphere(poly *Polygon, point []float64) bool {
 	var inside = false
 	var strike = false
-	// Point is the south-pole
-	// Pontentially antipodal check
-	if point[1] <= -80.0 {
-		// fmt.Printf("Tried to check point antipodal to the north pole.")
-		return true
-	}
 
 	// Point is the north-pole
 	if point[1] == 90.0 {
@@ -70,10 +64,8 @@ func pointInPolygonSphere(poly *Polygon, point []float64) bool {
 		var b = (poly.Points)[(i+1)%len(poly.Points)]
 		strike = false
 
-		var npLon = (poly.LngTNorth)[i]
-		if a[0] == b[0] && a[1] > point[1] && b[1] > point[1] {
-			a[0] += 0.001
-			//npLon = transformLon(a, []float64{0.01, 90.0})
+		if a[0] == b[0] {
+			a[0] -= 0.001
 		}
 
 		if point[0] == a[0] {
@@ -95,7 +87,7 @@ func pointInPolygonSphere(poly *Polygon, point []float64) bool {
 			}
 
 			// Possible to calculate once at poly creation
-			// var northPoleLonTransformed = transformLon(a, []float64{0.0, 90.0})
+			// var northPoleLonTransformed = transformLon(a, []float64{0.0, 90.0)
 			var bLonTransformed = transformLon(a, b)
 			// Not possible
 			var pLonTransformed = transformLon(a, point)
@@ -104,7 +96,7 @@ func pointInPolygonSphere(poly *Polygon, point []float64) bool {
 				return true
 			}
 
-			var bToX = eastOrWest(bLonTransformed, npLon)
+			var bToX = eastOrWest(bLonTransformed, (poly.LngTNorth)[i])
 			var bToP = eastOrWest(bLonTransformed, pLonTransformed)
 			if bToX == -bToP {
 				inside = !inside
@@ -119,7 +111,6 @@ func isLandSphere(tree *boundingTree, point []float64, polygons *Polygons) bool 
 	if point[1] <= -80.0 {
 		return true
 	}
-
 	if boundingContains(&tree.boundingBox, point) {
 		if (*tree).id >= 0 {
 			land = pointInPolygonSphere(&(*polygons)[(*tree).id], point)
