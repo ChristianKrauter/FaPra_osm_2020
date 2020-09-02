@@ -23,84 +23,83 @@ var port int = 8081
 
 // UniformGrid structure
 type UniformGrid struct {
-    XSize        int
-    YSize        int
-    N            int
-    BigN         int
-    A            float64
-    D            float64
-    MTheta       float64
-    DTheta       float64
-    DPhi         float64
-    VertexData   [][]bool
-    FirstIndexOf []int
+	XSize        int
+	YSize        int
+	N            int
+	BigN         int
+	A            float64
+	D            float64
+	MTheta       float64
+	DTheta       float64
+	DPhi         float64
+	VertexData   [][]bool
+	FirstIndexOf []int
 }
 
 // GridToCoord takes grid indices and outputs lng lat
 func (ug UniformGrid) GridToCoord(in []int) []float64 {
-    theta := math.Pi * (float64(in[0]) + 0.5) / float64(ug.MTheta)
-    mPhi := math.Round(2.0 * math.Pi * math.Sin(theta) / ug.DPhi)
-    phi := 2 * math.Pi * float64(in[1]) / mPhi
-	fmt.Printf("m: %v\n",in[0])
-	fmt.Printf("n: %v\n",in[1])
-    fmt.Printf("theta: %v\n",theta)
-    fmt.Printf("mPhi: %v\n",mPhi)
-    fmt.Printf("phi: %v\n",phi)
-    fmt.Printf("lon,lat: %v,%v\n",(phi / math.Pi) * 180.0,(theta/math.Pi)*180.0 - 90.0)
-    return []float64{(phi / math.Pi) * 180.0, (theta/math.Pi)*180.0 - 90.0}
+	theta := math.Pi * (float64(in[0]) + 0.5) / float64(ug.MTheta)
+	mPhi := math.Round(2.0 * math.Pi * math.Sin(theta) / ug.DPhi)
+	phi := 2 * math.Pi * float64(in[1]) / mPhi
+	fmt.Printf("m: %v\n", in[0])
+	fmt.Printf("n: %v\n", in[1])
+	fmt.Printf("theta: %v\n", theta)
+	fmt.Printf("mPhi: %v\n", mPhi)
+	fmt.Printf("phi: %v\n", phi)
+	fmt.Printf("lon,lat: %v,%v\n", (phi/math.Pi)*180.0, (theta/math.Pi)*180.0-90.0)
+	return []float64{(phi / math.Pi) * 180.0, (theta/math.Pi)*180.0 - 90.0}
 }
 
 // CoordToGrid takes lng lat and outputs grid indices
 func (ug UniformGrid) CoordToGrid(lng, lat float64) []int {
 
-    theta := ((lat + 90.0)/ 180.0) * math.Pi
-    
-    m := math.Round((theta * ug.MTheta / math.Pi) - 0.5)
-    
-    theta = math.Pi * (float64(m) + 0.5) / float64(ug.MTheta)
+	theta := ((lat + 90.0) / 180.0) * math.Pi
 
-    var phi float64
-    if(lng < 0){
-    	phi = float64(lng+360.0) * math.Pi / 180.0	
-    } else {
-    	phi = lng * math.Pi / 180.0	
-    }
-    
-    
-    mPhi := math.Round(2.0 * math.Pi * math.Sin(theta) / ug.DPhi)
-    
-    fmt.Printf("n not rounded: %v\n", phi * mPhi / (2.0 * math.Pi))
-    n := math.Round(phi * mPhi / (2.0 * math.Pi))
+	m := math.Round((theta * ug.MTheta / math.Pi) - 0.5)
 
-    fmt.Printf("theta: %v\n",theta)
-    fmt.Printf("m: %v\n",m)
-    fmt.Printf("phi: %v\n",phi)
-    fmt.Printf("mPhi: %v\n",mPhi)
-    fmt.Printf("n: %v\n",n)
-    return []int{mod(int(m), int(ug.MTheta)), mod(int(n), int(mPhi))}
+	theta = math.Pi * (float64(m) + 0.5) / float64(ug.MTheta)
+
+	var phi float64
+	if lng < 0 {
+		phi = float64(lng+360.0) * math.Pi / 180.0
+	} else {
+		phi = lng * math.Pi / 180.0
+	}
+
+	mPhi := math.Round(2.0 * math.Pi * math.Sin(theta) / ug.DPhi)
+
+	fmt.Printf("n not rounded: %v\n", phi*mPhi/(2.0*math.Pi))
+	n := math.Round(phi * mPhi / (2.0 * math.Pi))
+
+	fmt.Printf("theta: %v\n", theta)
+	fmt.Printf("m: %v\n", m)
+	fmt.Printf("phi: %v\n", phi)
+	fmt.Printf("mPhi: %v\n", mPhi)
+	fmt.Printf("n: %v\n", n)
+	return []int{mod(int(m), int(ug.MTheta)), mod(int(n), int(mPhi))}
 }
 
 // GridToID ...
 func (ug UniformGrid) GridToID(IDX []int) int {
-    return ug.FirstIndexOf[IDX[0]] + IDX[1]
+	return ug.FirstIndexOf[IDX[0]] + IDX[1]
 }
 
 // IDToGrid ...
 func (ug UniformGrid) IDToGrid(id int) []int {
-    m := sort.Search(len(ug.FirstIndexOf)-1, func(i int) bool { return ug.FirstIndexOf[i] > id })
-    n := id - ug.FirstIndexOf[m-1]
-    return []int{m - 1, n}
+	m := sort.Search(len(ug.FirstIndexOf)-1, func(i int) bool { return ug.FirstIndexOf[i] > id })
+	n := id - ug.FirstIndexOf[m-1]
+	return []int{m - 1, n}
 }
 
 func mod(a, b int) int {
-    a = a % b
-    if a >= 0 {
-        return a
-    }
-    if b < 0 {
-        return a - b
-    }
-    return a + b
+	a = a % b
+	if a >= 0 {
+		return a
+	}
+	if b < 0 {
+		return a - b
+	}
+	return a + b
 }
 
 type dijkstraData struct {
@@ -211,15 +210,13 @@ func getSomeKey(m *map[int64][]int64) int64 {
 	return 0
 }
 
-
-
 // TestData ...
 type TestData struct {
 	Point []float64
 }
 
 func main() {
-	xSize := 10
+	xSize := 100
 	ySize := 500
 	basicPointInPolygon := false
 	//log.Fatal("Server with unidistant grid not implemented.")
@@ -266,7 +263,6 @@ func main() {
 		}
 	}
 
-
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 
 		var fileEnding = strings.Split(r.URL.Path[1:], ".")[len(strings.Split(r.URL.Path[1:], "."))-1]
@@ -284,10 +280,10 @@ func main() {
 			fmt.Printf("point\n")
 			fmt.Printf("CoordToGrid\n")
 			var from = ug.CoordToGrid(startLng, startLat)
-			fmt.Printf("%v\n",from)
+			fmt.Printf("%v\n", from)
 			fmt.Printf("GridToCoord\n")
 			var gridNodeCoord = ug.GridToCoord(from)
-			fmt.Printf("%v\n",gridNodeCoord)
+			fmt.Printf("%v\n", gridNodeCoord)
 			var td TestData
 			td.Point = gridNodeCoord
 			//fmt.Printf("%v\n", td)
@@ -307,11 +303,11 @@ func main() {
 			if err1 != nil {
 				panic(err1)
 			}
-			fmt.Printf("%v,%v\n",x,y)
+			fmt.Printf("%v,%v\n", x, y)
 			fmt.Printf("GridPoint\n")
 			fmt.Printf("CoordToGrid\n")
-			point := ug.GridToCoord([]int{int(x),int(y)})
-			fmt.Printf("%v\n",point)
+			point := ug.GridToCoord([]int{int(x), int(y)})
+			fmt.Printf("%v\n", point)
 			var td TestData
 			td.Point = point
 			//fmt.Printf("%v\n", td)

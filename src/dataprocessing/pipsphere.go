@@ -19,12 +19,12 @@ func transformLon(newNorth, point []float64) float64 {
 		// Radians to Degrees
 		transformedLon = math.Atan2(t, b) / dtr
 	}
-	if transformedLon < -180 {
+	/*if transformedLon < -180 {
 		transformedLon += 360.0
 	}
 	if transformedLon > 180 {
 		transformedLon -= 360.0
-	}
+	}*/
 	return transformedLon
 }
 
@@ -39,9 +39,9 @@ func eastOrWest(aLon, bLon float64) int {
 	if del < -180.0 {
 		del = del + 360.0
 	}
-	if del > 0 && del != 180.0 {
+	if del > 0.0 && del != 180.0 {
 		out = -1
-	} else if del < 0 && del != -180.0 {
+	} else if del < 0.0 && del != -180.0 {
 		out = 1
 	} else {
 		out = 0
@@ -53,15 +53,9 @@ func eastOrWest(aLon, bLon float64) int {
 func pointInPolygonSphere(poly *Polygon, point []float64) bool {
 	var inside = false
 	var strike = false
-	// Point is the south-pole
-	// Pontentially antipodal check
-	if point[1] == -90 {
-		// fmt.Printf("Tried to check point antipodal to the north pole.")
-		return true
-	}
 
 	// Point is the north-pole
-	if point[1] == 90 {
+	if point[1] == 90.0 {
 		return false
 	}
 
@@ -70,20 +64,20 @@ func pointInPolygonSphere(poly *Polygon, point []float64) bool {
 		var b = (poly.Points)[(i+1)%len(poly.Points)]
 		strike = false
 
-		var npLon = (poly.LngTNorth)[i]
 		if a[0] == b[0] {
-			npLon = transformLon(a, []float64{0.01, 90.0})
+			a[0] -= 0.001
 		}
 
 		if point[0] == a[0] {
 			strike = true
 		} else {
 
-			var aToB = eastOrWest(a[0], b[0])
+			//var aToB = eastOrWest(a[0], b[0])
 			var aToP = eastOrWest(a[0], point[0])
 			var pToB = eastOrWest(point[0], b[0])
 
-			if aToP == aToB && pToB == aToB {
+			//if aToP == aToB && pToB == aToB {
+			if aToP == (poly.EoWNext)[i] && pToB == (poly.EoWNext)[i] {
 				strike = true
 			}
 		}
@@ -94,18 +88,19 @@ func pointInPolygonSphere(poly *Polygon, point []float64) bool {
 			}
 
 			// Possible to calculate once at poly creation
-			// var northPoleLonTransformed = transformLon(a, []float64{0.0, 90.0})
-			var bLonTransformed = transformLon(a, b)
+			// var northPoleLonTransformed = transformLon(a, []float64{0.0, 90.0)
+			// var bLonTransformed = transformLon(a, b)
 			// Not possible
 			var pLonTransformed = transformLon(a, point)
 
-			if bLonTransformed == pLonTransformed {
+			if (poly.LngTNext)[i] == pLonTransformed {
 				return true
 			}
 
-			var bToX = eastOrWest(bLonTransformed, npLon)
-			var bToP = eastOrWest(bLonTransformed, pLonTransformed)
-			if bToX == -bToP {
+			//var bToX = eastOrWest((poly.LngTNext)[i], (poly.LngTNorth)[i])
+			var bToP = eastOrWest((poly.LngTNext)[i], pLonTransformed)
+			// if bToX == -bToP {
+			if (poly.BtoX)[i] == -bToP {
 				inside = !inside
 			}
 		}
@@ -115,10 +110,9 @@ func pointInPolygonSphere(poly *Polygon, point []float64) bool {
 
 func isLandSphere(tree *boundingTree, point []float64, polygons *Polygons) bool {
 	land := false
-	if point[1] <= -80 {
+	if point[1] <= -80.0 {
 		return true
 	}
-
 	if boundingContains(&tree.boundingBox, point) {
 		if (*tree).id >= 0 {
 			land = pointInPolygonSphere(&(*polygons)[(*tree).id], point)
