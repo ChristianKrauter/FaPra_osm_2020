@@ -46,16 +46,20 @@ func ReadPBF(pbfFileName, note string) {
 	var nodeMap = make(map[int64][]float64)
 	var readTime = dataprocessing.ReadFile(pbfFileName, &coastlineMap, &nodeMap)
 
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+	var totalAllocNormal = m.TotalAlloc
+
 	fmt.Printf("\nLess memory:\n")
 	coastlineMap = make(map[int64][]int64)
 	nodeMap = make(map[int64][]float64)
 	var readLessMemoryTime = dataprocessing.ReadFileLessMemory(pbfFileName, &coastlineMap, &nodeMap)
 
-	var m runtime.MemStats
 	runtime.ReadMemStats(&m)
 	log["note"] = note
 	log["numCPU"] = strconv.Itoa(runtime.NumCPU())
-	log["totalAlloc"] = strconv.FormatUint(m.TotalAlloc/1024/1024, 10)
+	log["totalAllocNormal"] = strconv.FormatUint(totalAllocNormal/1024/1024, 10)
+	log["totalAllocLessMemory"] = strconv.FormatUint((m.TotalAlloc-totalAllocNormal)/1024/1024, 10)
 	log["time_read"] = string(readTime)
 	log["time_readLessMemory"] = string(readLessMemoryTime)
 
