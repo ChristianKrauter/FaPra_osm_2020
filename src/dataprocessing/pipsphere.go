@@ -19,12 +19,6 @@ func transformLon(newNorth, point []float64) float64 {
 		// Radians to Degrees
 		transformedLon = math.Atan2(t, b) / dtr
 	}
-	/*if transformedLon < -180 {
-		transformedLon += 360.0
-	}
-	if transformedLon > 180 {
-		transformedLon -= 360.0
-	}*/
 	return transformedLon
 }
 
@@ -72,11 +66,9 @@ func pointInPolygonSphere(poly *Polygon, point []float64) bool {
 			strike = true
 		} else {
 
-			//var aToB = eastOrWest(a[0], b[0])
 			var aToP = eastOrWest(a[0], point[0])
 			var pToB = eastOrWest(point[0], b[0])
 
-			//if aToP == aToB && pToB == aToB {
 			if aToP == (poly.EoWNext)[i] && pToB == (poly.EoWNext)[i] {
 				strike = true
 			}
@@ -87,19 +79,13 @@ func pointInPolygonSphere(poly *Polygon, point []float64) bool {
 				return true
 			}
 
-			// Possible to calculate once at poly creation
-			// var northPoleLonTransformed = transformLon(a, []float64{0.0, 90.0)
-			// var bLonTransformed = transformLon(a, b)
-			// Not possible
 			var pLonTransformed = transformLon(a, point)
 
 			if (poly.LngTNext)[i] == pLonTransformed {
 				return true
 			}
 
-			//var bToX = eastOrWest((poly.LngTNext)[i], (poly.LngTNorth)[i])
 			var bToP = eastOrWest((poly.LngTNext)[i], pLonTransformed)
-			// if bToX == -bToP {
 			if (poly.BtoX)[i] == -bToP {
 				inside = !inside
 			}
