@@ -41,10 +41,12 @@ func ReadPBF(pbfFileName, note string) {
 	log["pbfFileName"] = pbfFileName
 	pbfFileName = fmt.Sprintf("data/%s", pbfFileName)
 
+	fmt.Printf("\nNormal:\n")
 	var coastlineMap = make(map[int64][]int64)
 	var nodeMap = make(map[int64][]float64)
 	var readTime = dataprocessing.ReadFile(pbfFileName, &coastlineMap, &nodeMap)
 
+	fmt.Printf("\nLess memory:\n")
 	coastlineMap = make(map[int64][]int64)
 	nodeMap = make(map[int64][]float64)
 	var readLessMemoryTime = dataprocessing.ReadFileLessMemory(pbfFileName, &coastlineMap, &nodeMap)

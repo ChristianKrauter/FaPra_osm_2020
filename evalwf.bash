@@ -3,7 +3,7 @@ R=${1:-100}
 printf "Starting eval of wayfinding with $R runs:"
 printf "\n===========================\n"
 
-printf "\n\n100x500 Grid"
+printf "\n\n100x500 grid"
 printf "\n---------------------------\n"
 go run osmgw.go -m=3 -a=0 -r=$R -x=100 -y=500
 printf "\n\n"
@@ -14,7 +14,7 @@ printf "\n\n"
 go run osmgw.go -m=3 -a=3 -r=$R -x=100 -y=500
 printf "\n"
 
-printf "\n\n1000x500 Grid"
+printf "\n\n1000x500 grid"
 printf "\n---------------------------\n"
 go run osmgw.go -m=3 -a=0 -r=$R -x=1000 -y=500
 printf "\n\n"
@@ -25,7 +25,7 @@ printf "\n\n"
 go run osmgw.go -m=3 -a=3 -r=$R -x=1000 -y=500
 printf "\n"
 
-printf "\n\n1000x1000 Grid"
+printf "\n\n1000x1000 grid"
 printf "\n---------------------------\n"
 go run osmgw.go -m=3 -a=0 -r=$R -x=1000 -y=1000
 printf "\n\n"
