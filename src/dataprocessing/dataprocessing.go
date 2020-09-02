@@ -93,12 +93,11 @@ func Start(pbfFileName string, xSize, ySize int, createCoastlineGeoJSON, lessMem
 	if noBoundingTree {
 		fmt.Printf("\nwithout using a bounding tree structure")
 	}
-
 	if lessMemory {
-		fmt.Printf("\noptimized for unpruned pbf files\n")
+		fmt.Printf("\noptimized for unpruned pbf files")
 	}
+	fmt.Printf("\n\n")
 
-	fmt.Printf("\nStarting processing of %s\n\n", pbfFileName)
 	logging := make(map[string]string)
 	pbfFileName = fmt.Sprintf("data/%s", pbfFileName)
 	start := time.Now()

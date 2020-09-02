@@ -46,6 +46,10 @@ func main() {
 	} else {
 		info += fmt.Sprintf("uniform %vx%v grid ", xSize, ySize)
 	}
+	if mode == 1 || mode == 2 {
+		info += fmt.Sprintf("\non the %s file", pbfFileName)
+
+	}
 	if basicPointInPolygon {
 		info += "\nwith the basic point in polygon test"
 	} else {
@@ -68,7 +72,7 @@ func main() {
 		evaluate.DataProcessing(pbfFileName, note, xSize, ySize, createCoastlineGeoJSON, lessMemory, noBoundingTree, basicGrid, basicPointInPolygon)
 	case 3:
 		fmt.Printf("Starting evaluation of wayfinding for %s\n", info)
-		fmt.Printf("Averaging over %v routings\n", nRuns)
+		fmt.Printf("Averaging over %v routings ", nRuns)
 		if basicGrid {
 			evaluate.WayFindingBG(xSize, ySize, nRuns, algo, basicPointInPolygon, note)
 		} else {
