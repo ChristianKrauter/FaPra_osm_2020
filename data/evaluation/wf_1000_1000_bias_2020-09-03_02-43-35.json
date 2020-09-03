@@ -1,0 +1,16 @@
+{
+    "basicGrid": "false",
+    "basicPointInPolygon": "false",
+    "count_runs": "1000",
+    "filename": "_bias",
+    "nodes_popped": "44057",
+    "note": "",
+    "numCPU": "24",
+    "time_avg": "1.23391405s",
+    "time_max": "12.1690224s",
+    "time_min": "169.647654ms",
+    "time_sum": "20m33.914050426s",
+    "totalAlloc": "445642",
+    "xSize": "1000",
+    "ySize": "1000"
+}

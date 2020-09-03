@@ -1,0 +1,16 @@
+{
+    "basicGrid": "true",
+    "basicPointInPolygon": "false",
+    "count_runs": "1000",
+    "filename": "_bidij",
+    "nodes_popped_avg": "227642",
+    "note": "",
+    "numCPU": "24",
+    "time_avg": "1.659515053s",
+    "time_max": "3.933938285s",
+    "time_min": "162.770303ms",
+    "time_sum": "27m39.515053856s",
+    "totalAlloc": "443056",
+    "xSize": "1000",
+    "ySize": "1000"
+}
