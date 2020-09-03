@@ -6,7 +6,7 @@ import (
 	"math"
 )
 
-// BiDijkstra implementation on uniform grid
+// BiAStar implementation on uniform grid
 func BiAStar(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64, int) {
 
 	var prev [][]int
@@ -98,7 +98,7 @@ func BiAStar(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64, int) {
 	return route, len(proc[0]) + len(proc[1])
 }
 
-// BiDijkstraAllNodes additionally returns all visited nodes on uniform grid
+// BiAStarAllNodes additionally returns all visited nodes on uniform grid
 func BiAStarAllNodes(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64, [][]float64) {
 
 	var prev [][]int

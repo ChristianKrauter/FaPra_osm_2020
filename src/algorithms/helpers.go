@@ -4,7 +4,7 @@ import (
 	"math"
 )
 
-func haversin(theta float64) float64 {
+/*func haversin(theta float64) float64 {
 	return math.Pow(math.Sin(theta/2), 2)
 }
 
@@ -15,10 +15,20 @@ func distance(start, end []float64) float64 {
 	fLng2 = end[0] * math.Pi / 180.0
 	fLat2 = end[1] * math.Pi / 180.0
 
-	radius = 6378100
+	radius = 6371000
 	h := haversin(fLat2-fLat) + math.Cos(fLat)*math.Cos(fLat2)*haversin(fLng2-fLng)
 	c := 2 * math.Atan2(math.Sqrt(h), math.Sqrt(1-h))
 	return (c * radius)
+}*/
+
+func distance(start, end []float64) float64 {
+	var lat1 = start[1] * math.Pi / 180
+	var lat2 = end[1] * math.Pi / 180
+	var dlat = (end[1] - start[1]) * math.Pi / 180
+	var dlon = (end[0] - start[0]) * math.Pi / 180
+
+	var a = math.Sin(dlat/2)*math.Sin(dlat/2) + math.Cos(lat1)*math.Cos(lat2)*math.Sin(dlon/2)*math.Sin(dlon/2)
+	return 6371000.0 * 2 * math.Atan2(math.Sqrt(a), math.Sqrt(1-a))
 }
 
 func mod(a, b int) int {
