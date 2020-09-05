@@ -83,17 +83,10 @@ func WayFindingBG(xSize, ySize, nRuns, algorithm int, basicPointInPolygon bool, 
 	var min = time.Duration(math.MaxInt64)
 	from := make([]int, nRuns)
 	to := make([]int, nRuns)
+	log := make(map[string]string)
 
 	bg.XSize = xSize
 	bg.YSize = ySize
-
-	log := make(map[string]string)
-	log["note"] = note
-	log["basicGrid"] = "true"
-	log["basicPointInPolygon"] = strconv.FormatBool(basicPointInPolygon)
-	log["xSize"] = strconv.Itoa(xSize)
-	log["ySize"] = strconv.Itoa(ySize)
-	log["numCPU"] = strconv.Itoa(runtime.NumCPU())
 
 	var algoStr, algoStrPrint string
 	switch algorithm {
@@ -179,9 +172,16 @@ func WayFindingBG(xSize, ySize, nRuns, algorithm int, basicPointInPolygon bool, 
 		count++
 	}
 
-	fmt.Printf("Total Time: %v\nNumber of routings: %v\nAverage duration: %v\nMin, Max: %v, %v", sum, count, sum/time.Duration(count), min, max)
+	fmt.Printf("\nNumber of routings: %v\nTotal Time        : %v\nAVG Time          : %v\nAVG nodes popped  : %v\nMin, Max Time     : %v, %v",
+		count, sum, sum/time.Duration(count), strconv.Itoa(poppedSum/count), min, max)
 
 	runtime.ReadMemStats(&m)
+	log["note"] = note
+	log["basicGrid"] = "true"
+	log["basicPointInPolygon"] = strconv.FormatBool(basicPointInPolygon)
+	log["xSize"] = strconv.Itoa(xSize)
+	log["ySize"] = strconv.Itoa(ySize)
+	log["numCPU"] = strconv.Itoa(runtime.NumCPU())
 	log["totalAlloc"] = strconv.FormatUint(m.TotalAlloc/1024/1024, 10)
 	log["time_sum"] = sum.String()
 	log["count_runs"] = strconv.Itoa(count)
@@ -214,14 +214,7 @@ func WayFinding(xSize, ySize, nRuns, algorithm int, basicPointInPolygon bool, no
 	var min = time.Duration(math.MaxInt64)
 	from := make([]int, nRuns)
 	to := make([]int, nRuns)
-
 	log := make(map[string]string)
-	log["note"] = note
-	log["basicGrid"] = "false"
-	log["basicPointInPolygon"] = strconv.FormatBool(basicPointInPolygon)
-	log["xSize"] = strconv.Itoa(xSize)
-	log["ySize"] = strconv.Itoa(ySize)
-	log["numCPU"] = strconv.Itoa(runtime.NumCPU())
 
 	var algoStr, algoStrPrint string
 	switch algorithm {
@@ -306,16 +299,23 @@ func WayFinding(xSize, ySize, nRuns, algorithm int, basicPointInPolygon bool, no
 		count++
 	}
 
-	fmt.Printf("Total Time: %v\nNumber of routings: %v\nAverage duration: %v\nMin, Max: %v, %v", sum, count, sum/time.Duration(count), min, max)
+	fmt.Printf("\nNumber of routings: %v\nTotal Time        : %v\nAVG Time          : %v\nAVG nodes popped  : %v\nMin, Max Time     : %v, %v",
+		count, sum, sum/time.Duration(count), strconv.Itoa(poppedSum/count), min, max)
 
 	runtime.ReadMemStats(&m)
+	log["note"] = note
+	log["basicGrid"] = "false"
+	log["basicPointInPolygon"] = strconv.FormatBool(basicPointInPolygon)
+	log["xSize"] = strconv.Itoa(xSize)
+	log["ySize"] = strconv.Itoa(ySize)
+	log["numCPU"] = strconv.Itoa(runtime.NumCPU())
 	log["totalAlloc"] = strconv.FormatUint(m.TotalAlloc/1024/1024, 10)
 	log["time_sum"] = sum.String()
 	log["count_runs"] = strconv.Itoa(count)
 	log["time_avg"] = (sum / time.Duration(count)).String()
 	log["time_min"] = min.String()
 	log["time_max"] = max.String()
-	log["nodes_popped"] = strconv.Itoa(poppedSum / count)
+	log["nodes_popped_avg"] = strconv.Itoa(poppedSum / count)
 
 	jsonString, _ := json.MarshalIndent(log, "", "    ")
 	var outFilename string
