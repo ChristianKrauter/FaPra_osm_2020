@@ -9,24 +9,20 @@ import (
 // BiAStar implementation on uniform grid
 func BiAStar(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64, int) {
 
-	var prev [][]int
-	dist := make([][]float64, 2)
-	fScore := make([][]float64, 2)
+	var prev = make([][]int, ug.N)
+	dist := [][]float64{make([]float64, ug.N), make([]float64, ug.N)}
 	pq := []priorityQueue{make(priorityQueue, 1), make(priorityQueue, 1)}
 	proc := []map[int]bool{make(map[int]bool), make(map[int]bool)}
 	var meeting int
 
 	// Init
 	for i := 0; i < ug.N; i++ {
-		dist[0] = append(dist[0], math.Inf(1))
-		dist[1] = append(dist[1], math.Inf(1))
-		fScore[0] = append(fScore[0], math.Inf(1))
-		fScore[1] = append(fScore[1], math.Inf(1))
-		prev = append(prev, []int{-1, -1})
+		dist[0][i] = math.Inf(1)
+		dist[1][i] = math.Inf(1)
+		prev[i] = []int{-1, -1}
 	}
 
 	dist[0][ug.GridToID(fromIDX)] = 0
-	fScore[0][ug.GridToID(fromIDX)] = 0.5 * distance(ug.GridToCoord(fromIDX), ug.GridToCoord(toIDX))
 	pq[0][0] = &Item{
 		value:    ug.GridToID(fromIDX),
 		priority: 0,
@@ -35,7 +31,6 @@ func BiAStar(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64, int) {
 	heap.Init(&pq[0])
 
 	dist[1][ug.GridToID(toIDX)] = 0
-	fScore[0][ug.GridToID(toIDX)] = 0.5 * distance(ug.GridToCoord(toIDX), ug.GridToCoord(fromIDX))
 	pq[1][0] = &Item{
 		value:    ug.GridToID(toIDX),
 		priority: 0,
@@ -81,11 +76,11 @@ func BiAStar(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64, int) {
 				var alt = dist[dir][u] + distance(ug.GridToCoord(ug.IDToGrid(u)), ug.GridToCoord(ug.IDToGrid(j)))
 				if alt < dist[dir][j] {
 					dist[dir][j] = alt
-					fScore[dir][j] = dist[dir][j] + hUg(dir, j, fromIDX, toIDX, ug)
+					//fScore[dir][j] = dist[dir][j] + hUg(dir, j, fromIDX, toIDX, ug)
 					prev[j][dir] = u
 					item := &Item{
 						value:    j,
-						priority: -fScore[dir][j],
+						priority: -(dist[dir][j] + hUg(dir, j, fromIDX, toIDX, ug)),
 					}
 					heap.Push(&pq[dir], item)
 				}
@@ -101,24 +96,20 @@ func BiAStar(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64, int) {
 // BiAStarAllNodes additionally returns all visited nodes on uniform grid
 func BiAStarAllNodes(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64, [][]float64) {
 
-	var prev [][]int
-	dist := make([][]float64, 2)
-	fScore := make([][]float64, 2)
+	var prev = make([][]int, ug.N)
+	dist := [][]float64{make([]float64, ug.N), make([]float64, ug.N)}
 	pq := []priorityQueue{make(priorityQueue, 1), make(priorityQueue, 1)}
 	proc := []map[int]bool{make(map[int]bool), make(map[int]bool)}
 	var meeting int
 
 	// Init
 	for i := 0; i < ug.N; i++ {
-		dist[0] = append(dist[0], math.Inf(1))
-		dist[1] = append(dist[1], math.Inf(1))
-		fScore[0] = append(fScore[0], math.Inf(1))
-		fScore[1] = append(fScore[1], math.Inf(1))
-		prev = append(prev, []int{-1, -1})
+		dist[0][i] = math.Inf(1)
+		dist[1][i] = math.Inf(1)
+		prev[i] = []int{-1, -1}
 	}
 
 	dist[0][ug.GridToID(fromIDX)] = 0
-	fScore[0][ug.GridToID(fromIDX)] = 0.5 * distance(ug.GridToCoord(fromIDX), ug.GridToCoord(toIDX))
 	pq[0][0] = &Item{
 		value:    ug.GridToID(fromIDX),
 		priority: 0,
@@ -127,7 +118,6 @@ func BiAStarAllNodes(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64
 	heap.Init(&pq[0])
 
 	dist[1][ug.GridToID(toIDX)] = 0
-	fScore[0][ug.GridToID(toIDX)] = 0.5 * distance(ug.GridToCoord(toIDX), ug.GridToCoord(fromIDX))
 	pq[1][0] = &Item{
 		value:    ug.GridToID(toIDX),
 		priority: 0,
@@ -173,11 +163,10 @@ func BiAStarAllNodes(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64
 				var alt = dist[dir][u] + distance(ug.GridToCoord(ug.IDToGrid(u)), ug.GridToCoord(ug.IDToGrid(j)))
 				if alt < dist[dir][j] {
 					dist[dir][j] = alt
-					fScore[dir][j] = dist[dir][j] + hUg(dir, j, fromIDX, toIDX, ug)
 					prev[j][dir] = u
 					item := &Item{
 						value:    j,
-						priority: -fScore[dir][j],
+						priority: -(dist[dir][j] + hUg(dir, j, fromIDX, toIDX, ug)),
 					}
 					heap.Push(&pq[dir], item)
 				}

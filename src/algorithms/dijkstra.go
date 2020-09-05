@@ -10,13 +10,13 @@ import (
 func Dijkstra(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64, int) {
 
 	var popped int
-	var dist []float64
-	var prev []int
+	var dist = make([]float64, ug.N)
+	var prev = make([]int, ug.N)
 	pq := make(priorityQueue, 1)
 
 	for i := 0; i < ug.N; i++ {
-		dist = append(dist, math.Inf(1))
-		prev = append(prev, -1)
+		dist[i] = math.Inf(1)
+		prev[i] = -1
 	}
 
 	dist[ug.GridToID(fromIDX)] = 0
@@ -58,14 +58,14 @@ func Dijkstra(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64, int) 
 // DijkstraAllNodes additionally returns all visited nodes on uniform grid
 func DijkstraAllNodes(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64, [][]float64) {
 
-	var dist []float64
-	var prev []int
+	var dist = make([]float64, ug.N)
+	var prev = make([]int, ug.N)
 	var nodesProcessed []int
 	pq := make(priorityQueue, 1)
 
 	for i := 0; i < ug.N; i++ {
-		dist = append(dist, math.Inf(1))
-		prev = append(prev, -1)
+		dist[i] = math.Inf(1)
+		prev[i] = -1
 	}
 
 	dist[ug.GridToID(fromIDX)] = 0

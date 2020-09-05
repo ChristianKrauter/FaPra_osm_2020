@@ -9,17 +9,17 @@ import (
 // BiDijkstra implementation on uniform grid
 func BiDijkstra(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64, int) {
 
-	var prev [][]int
-	dist := make([][]float64, 2)
+	var prev = make([][]int, ug.N)
+	dist := [][]float64{make([]float64, ug.N), make([]float64, ug.N)}
 	pq := []priorityQueue{make(priorityQueue, 1), make(priorityQueue, 1)}
 	proc := []map[int]bool{make(map[int]bool), make(map[int]bool)}
 	var meeting int
 
 	// Init
 	for i := 0; i < ug.N; i++ {
-		dist[0] = append(dist[0], math.Inf(1))
-		dist[1] = append(dist[1], math.Inf(1))
-		prev = append(prev, []int{-1, -1})
+		dist[0][i] = math.Inf(1)
+		dist[1][i] = math.Inf(1)
+		prev[i] = []int{-1, -1}
 	}
 
 	dist[0][ug.GridToID(fromIDX)] = 0
@@ -95,17 +95,17 @@ func BiDijkstra(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64, int
 // BiDijkstraAllNodes additionally returns all visited nodes on uniform grid
 func BiDijkstraAllNodes(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64, [][]float64) {
 
-	var prev [][]int
-	dist := make([][]float64, 2)
+	var prev = make([][]int, ug.N)
+	dist := [][]float64{make([]float64, ug.N), make([]float64, ug.N)}
 	pq := []priorityQueue{make(priorityQueue, 1), make(priorityQueue, 1)}
 	proc := []map[int]bool{make(map[int]bool), make(map[int]bool)}
 	var meeting int
 
 	// Init
 	for i := 0; i < ug.N; i++ {
-		dist[0] = append(dist[0], math.Inf(1))
-		dist[1] = append(dist[1], math.Inf(1))
-		prev = append(prev, []int{-1, -1})
+		dist[0][i] = math.Inf(1)
+		dist[1][i] = math.Inf(1)
+		prev[i] = []int{-1, -1}
 	}
 
 	dist[0][ug.GridToID(fromIDX)] = 0

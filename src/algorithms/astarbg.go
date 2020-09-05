@@ -10,20 +10,16 @@ import (
 func AStarBg(fromIDX, toIDX []int, bg *grids.BasicGrid) ([][][]float64, int) {
 
 	var popped int
-	var dist []float64
-	var fScore []float64
-	var prev []int
+	var dist = make([]float64, len(bg.VertexData))
+	var prev = make([]int, len(bg.VertexData))
 	pq := make(priorityQueue, 1)
 
 	for i := 0; i < len(bg.VertexData); i++ {
-		dist = append(dist, math.Inf(1))
-		fScore = append(fScore, math.Inf(1))
-		prev = append(prev, -1)
+		dist[i] = math.Inf(1)
+		prev[i] = -1
 	}
 
 	dist[bg.FlattenIndex(fromIDX)] = 0
-	fScore[bg.FlattenIndex(fromIDX)] = distance(bg.GridToCoord(fromIDX), bg.GridToCoord(toIDX))
-
 	pq[0] = &Item{
 		value:    bg.FlattenIndex(fromIDX),
 		priority: 0,
@@ -48,11 +44,10 @@ func AStarBg(fromIDX, toIDX []int, bg *grids.BasicGrid) ([][][]float64, int) {
 				var alt = dist[u] + distance(bg.GridToCoord(bg.ExpandIndex(u)), bg.GridToCoord(bg.ExpandIndex(j)))
 				if alt < dist[j] {
 					dist[j] = alt
-					fScore[j] = dist[j] + distance(bg.GridToCoord(bg.ExpandIndex(j)), bg.GridToCoord(toIDX))
 					prev[j] = u
 					item := &Item{
 						value:    j,
-						priority: -fScore[j],
+						priority: -(dist[j] + distance(bg.GridToCoord(bg.ExpandIndex(j)), bg.GridToCoord(toIDX))),
 					}
 					heap.Push(&pq, item)
 				}
@@ -65,21 +60,17 @@ func AStarBg(fromIDX, toIDX []int, bg *grids.BasicGrid) ([][][]float64, int) {
 // AStarAllNodesBg additionally returns all visited nodes
 func AStarAllNodesBg(fromIDX, toIDX []int, bg *grids.BasicGrid) ([][][]float64, [][]float64) {
 
-	var dist []float64
-	var fScore []float64
-	var prev []int
+	var dist = make([]float64, len(bg.VertexData))
+	var prev = make([]int, len(bg.VertexData))
 	var nodesProcessed []int
 	pq := make(priorityQueue, 1)
 
 	for i := 0; i < len(bg.VertexData); i++ {
-		dist = append(dist, math.Inf(1))
-		fScore = append(fScore, math.Inf(1))
-		prev = append(prev, -1)
+		dist[i] = math.Inf(1)
+		prev[i] = -1
 	}
 
 	dist[bg.FlattenIndex(fromIDX)] = 0
-	fScore[bg.FlattenIndex(fromIDX)] = distance(bg.GridToCoord(fromIDX), bg.GridToCoord(toIDX))
-
 	pq[0] = &Item{
 		value:    bg.FlattenIndex(fromIDX),
 		priority: 0,
@@ -107,11 +98,10 @@ func AStarAllNodesBg(fromIDX, toIDX []int, bg *grids.BasicGrid) ([][][]float64, 
 				var alt = dist[u] + distance(bg.GridToCoord(bg.ExpandIndex(u)), bg.GridToCoord(bg.ExpandIndex(j)))
 				if alt < dist[j] {
 					dist[j] = alt
-					fScore[j] = dist[j] + distance(bg.GridToCoord(bg.ExpandIndex(j)), bg.GridToCoord(toIDX))
 					prev[j] = u
 					item := &Item{
 						value:    j,
-						priority: -fScore[j],
+						priority: -(dist[j] + distance(bg.GridToCoord(bg.ExpandIndex(j)), bg.GridToCoord(toIDX))),
 					}
 					heap.Push(&pq, item)
 				}

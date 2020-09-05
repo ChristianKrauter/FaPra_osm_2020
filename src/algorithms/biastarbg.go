@@ -6,27 +6,23 @@ import (
 	"math"
 )
 
-// BiDijkstra implementation on uniform grid
+// BiAStarBg implementation on uniform grid
 func BiAStarBg(fromIDX, toIDX []int, bg *grids.BasicGrid) ([][][]float64, int) {
 
-	var prev [][]int
-	dist := make([][]float64, 2)
-	fScore := make([][]float64, 2)
+	var prev = make([][]int, len(bg.VertexData))
+	dist := [][]float64{make([]float64, len(bg.VertexData)), make([]float64, len(bg.VertexData))}
 	pq := []priorityQueue{make(priorityQueue, 1), make(priorityQueue, 1)}
 	proc := []map[int]bool{make(map[int]bool), make(map[int]bool)}
 	var meeting int
 
 	// Init
 	for i := 0; i < len(bg.VertexData); i++ {
-		dist[0] = append(dist[0], math.Inf(1))
-		dist[1] = append(dist[1], math.Inf(1))
-		fScore[0] = append(fScore[0], math.Inf(1))
-		fScore[1] = append(fScore[1], math.Inf(1))
-		prev = append(prev, []int{-1, -1})
+		dist[0][i] = math.Inf(1)
+		dist[1][i] = math.Inf(1)
+		prev[i] = []int{-1, -1}
 	}
 
 	dist[0][bg.FlattenIndex(fromIDX)] = 0
-	fScore[0][bg.FlattenIndex(fromIDX)] = 0.5 * distance(bg.GridToCoord(fromIDX), bg.GridToCoord(toIDX))
 	pq[0][0] = &Item{
 		value:    bg.FlattenIndex(fromIDX),
 		priority: 0,
@@ -35,7 +31,6 @@ func BiAStarBg(fromIDX, toIDX []int, bg *grids.BasicGrid) ([][][]float64, int) {
 	heap.Init(&pq[0])
 
 	dist[1][bg.FlattenIndex(toIDX)] = 0
-	fScore[0][bg.FlattenIndex(toIDX)] = 0.5 * distance(bg.GridToCoord(toIDX), bg.GridToCoord(fromIDX))
 	pq[1][0] = &Item{
 		value:    bg.FlattenIndex(toIDX),
 		priority: 0,
@@ -81,11 +76,10 @@ func BiAStarBg(fromIDX, toIDX []int, bg *grids.BasicGrid) ([][][]float64, int) {
 				var alt = dist[dir][u] + distance(bg.GridToCoord(bg.ExpandIndex(u)), bg.GridToCoord(bg.ExpandIndex(j)))
 				if alt < dist[dir][j] {
 					dist[dir][j] = alt
-					fScore[dir][j] = dist[dir][j] + hBg(dir, j, fromIDX, toIDX, bg)
 					prev[j][dir] = u
 					item := &Item{
 						value:    j,
-						priority: -fScore[dir][j],
+						priority: -(dist[dir][j] + hBg(dir, j, fromIDX, toIDX, bg)),
 					}
 					heap.Push(&pq[dir], item)
 				}
@@ -98,27 +92,23 @@ func BiAStarBg(fromIDX, toIDX []int, bg *grids.BasicGrid) ([][][]float64, int) {
 	return route, len(proc[0]) + len(proc[1])
 }
 
-// BiDijkstraAllNodes additionally returns all visited nodes on uniform grid
+// BiAStarAllNodesBg additionally returns all visited nodes on uniform grid
 func BiAStarAllNodesBg(fromIDX, toIDX []int, bg *grids.BasicGrid) ([][][]float64, [][]float64) {
 
-	var prev [][]int
-	dist := make([][]float64, 2)
-	fScore := make([][]float64, 2)
+	var prev = make([][]int, len(bg.VertexData))
+	dist := [][]float64{make([]float64, len(bg.VertexData)), make([]float64, len(bg.VertexData))}
 	pq := []priorityQueue{make(priorityQueue, 1), make(priorityQueue, 1)}
 	proc := []map[int]bool{make(map[int]bool), make(map[int]bool)}
 	var meeting int
 
 	// Init
 	for i := 0; i < len(bg.VertexData); i++ {
-		dist[0] = append(dist[0], math.Inf(1))
-		dist[1] = append(dist[1], math.Inf(1))
-		fScore[0] = append(fScore[0], math.Inf(1))
-		fScore[1] = append(fScore[1], math.Inf(1))
-		prev = append(prev, []int{-1, -1})
+		dist[0][i] = math.Inf(1)
+		dist[1][i] = math.Inf(1)
+		prev[i] = []int{-1, -1}
 	}
 
 	dist[0][bg.FlattenIndex(fromIDX)] = 0
-	fScore[0][bg.FlattenIndex(fromIDX)] = 0.5 * distance(bg.GridToCoord(fromIDX), bg.GridToCoord(toIDX))
 	pq[0][0] = &Item{
 		value:    bg.FlattenIndex(fromIDX),
 		priority: 0,
@@ -127,7 +117,6 @@ func BiAStarAllNodesBg(fromIDX, toIDX []int, bg *grids.BasicGrid) ([][][]float64
 	heap.Init(&pq[0])
 
 	dist[1][bg.FlattenIndex(toIDX)] = 0
-	fScore[0][bg.FlattenIndex(toIDX)] = 0.5 * distance(bg.GridToCoord(toIDX), bg.GridToCoord(fromIDX))
 	pq[1][0] = &Item{
 		value:    bg.FlattenIndex(toIDX),
 		priority: 0,
@@ -173,11 +162,10 @@ func BiAStarAllNodesBg(fromIDX, toIDX []int, bg *grids.BasicGrid) ([][][]float64
 				var alt = dist[dir][u] + distance(bg.GridToCoord(bg.ExpandIndex(u)), bg.GridToCoord(bg.ExpandIndex(j)))
 				if alt < dist[dir][j] {
 					dist[dir][j] = alt
-					fScore[dir][j] = dist[dir][j] + hBg(dir, j, fromIDX, toIDX, bg)
 					prev[j][dir] = u
 					item := &Item{
 						value:    j,
-						priority: -fScore[dir][j],
+						priority: -(dist[dir][j] + hBg(dir, j, fromIDX, toIDX, bg)),
 					}
 					heap.Push(&pq[dir], item)
 				}

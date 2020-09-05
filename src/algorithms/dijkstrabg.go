@@ -8,15 +8,15 @@ import (
 
 // DijkstraBg implementation
 func DijkstraBg(fromIDX, toIDX []int, bg *grids.BasicGrid) ([][][]float64, int) {
-
+	// ToDo: send flattened indexes directly
 	var popped int
-	var dist []float64
-	var prev []int
+	var dist = make([]float64, len(bg.VertexData))
+	var prev = make([]int, len(bg.VertexData))
 	pq := make(priorityQueue, 1)
 
 	for i := 0; i < len(bg.VertexData); i++ {
-		dist = append(dist, math.Inf(1))
-		prev = append(prev, -1)
+		dist[i] = math.Inf(1)
+		prev[i] = -1
 	}
 
 	dist[bg.FlattenIndex(fromIDX)] = 0
@@ -60,14 +60,14 @@ func DijkstraBg(fromIDX, toIDX []int, bg *grids.BasicGrid) ([][][]float64, int) 
 // DijkstraAllNodesBg additionally returns all visited nodes
 func DijkstraAllNodesBg(fromIDX, toIDX []int, bg *grids.BasicGrid) ([][][]float64, [][]float64) {
 
-	var dist []float64
-	var prev []int
+	var dist = make([]float64, len(bg.VertexData))
+	var prev = make([]int, len(bg.VertexData))
 	var nodesProcessed []int
 	pq := make(priorityQueue, 1)
 
 	for i := 0; i < len(bg.VertexData); i++ {
-		dist = append(dist, math.Inf(1))
-		prev = append(prev, -1)
+		dist[i] = math.Inf(1)
+		prev[i] = -1
 	}
 
 	dist[bg.FlattenIndex(fromIDX)] = 0
@@ -87,6 +87,8 @@ func DijkstraAllNodesBg(fromIDX, toIDX []int, bg *grids.BasicGrid) ([][][]float6
 			nodesProcessed = append(nodesProcessed, u)
 
 			if u == bg.FlattenIndex(toIDX) {
+				// ToDo: Don't save in var
+				// ToDo: return pointers
 				var route = extractRoute(&prev, bg.FlattenIndex(toIDX), bg)
 				var processedNodes = extractNodes(&nodesProcessed, bg)
 				return route, processedNodes

@@ -6,19 +6,20 @@ import (
 	"math"
 )
 
-// BiDijkstra implementation on uniform grid
+// BiDijkstraBg implementation on uniform grid
 func BiDijkstraBg(fromIDX, toIDX []int, bg *grids.BasicGrid) ([][][]float64, int) {
-	var prev [][]int
-	dist := make([][]float64, 2)
+
+	var prev = make([][]int, len(bg.VertexData))
+	dist := [][]float64{make([]float64, len(bg.VertexData)), make([]float64, len(bg.VertexData))}
 	pq := []priorityQueue{make(priorityQueue, 1), make(priorityQueue, 1)}
 	proc := []map[int]bool{make(map[int]bool), make(map[int]bool)}
 	var meeting int
 
 	// Init
 	for i := 0; i < len(bg.VertexData); i++ {
-		dist[0] = append(dist[0], math.Inf(1))
-		dist[1] = append(dist[1], math.Inf(1))
-		prev = append(prev, []int{-1, -1})
+		dist[0][i] = math.Inf(1)
+		dist[1][i] = math.Inf(1)
+		prev[i] = []int{-1, -1}
 	}
 
 	dist[0][bg.FlattenIndex(fromIDX)] = 0
@@ -91,19 +92,20 @@ func BiDijkstraBg(fromIDX, toIDX []int, bg *grids.BasicGrid) ([][][]float64, int
 	return route, len(proc[0]) + len(proc[1])
 }
 
-// BiDijkstraAllNodes additionally returns all visited nodes on uniform grid
+// BiDijkstraAllNodesBg additionally returns all visited nodes on uniform grid
 func BiDijkstraAllNodesBg(fromIDX, toIDX []int, bg *grids.BasicGrid) ([][][]float64, [][]float64) {
-	var prev [][]int
-	dist := make([][]float64, 2)
+
+	var prev = make([][]int, len(bg.VertexData))
+	dist := [][]float64{make([]float64, len(bg.VertexData)), make([]float64, len(bg.VertexData))}
 	pq := []priorityQueue{make(priorityQueue, 1), make(priorityQueue, 1)}
 	proc := []map[int]bool{make(map[int]bool), make(map[int]bool)}
 	var meeting int
 
 	// Init
 	for i := 0; i < len(bg.VertexData); i++ {
-		dist[0] = append(dist[0], math.Inf(1))
-		dist[1] = append(dist[1], math.Inf(1))
-		prev = append(prev, []int{-1, -1})
+		dist[0][i] = math.Inf(1)
+		dist[1][i] = math.Inf(1)
+		prev[i] = []int{-1, -1}
 	}
 
 	dist[0][bg.FlattenIndex(fromIDX)] = 0

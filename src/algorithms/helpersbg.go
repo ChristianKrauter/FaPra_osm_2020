@@ -49,7 +49,7 @@ func extractNodes(nodesProcessed *[]int, bg *grids.BasicGrid) [][]float64 {
     return nodesExtended
 }
 
-// ExtractRouteUgBi ...
+// ExtractRouteBi ...
 func ExtractRouteBi(prev *[][]int, meeting int, bg *grids.BasicGrid) [][][]float64 {
     var routes = make([][][]float64, 2)
 
