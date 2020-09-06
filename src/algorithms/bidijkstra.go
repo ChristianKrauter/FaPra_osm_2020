@@ -7,7 +7,7 @@ import (
 )
 
 // BiDijkstra implementation on uniform grid
-func BiDijkstra(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64, int) {
+func BiDijkstra(from, to int, ug *grids.UniformGrid) ([][][]float64, int) {
 
 	var prev = make([][]int, ug.N)
 	dist := [][]float64{make([]float64, ug.N), make([]float64, ug.N)}
@@ -22,17 +22,17 @@ func BiDijkstra(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64, int
 		prev[i] = []int{-1, -1}
 	}
 
-	dist[0][ug.GridToID(fromIDX)] = 0
+	dist[0][from] = 0
 	pq[0][0] = &Item{
-		value:    ug.GridToID(fromIDX),
+		value:    from,
 		priority: 0,
 		index:    0,
 	}
 	heap.Init(&pq[0])
 
-	dist[1][ug.GridToID(toIDX)] = 0
+	dist[1][to] = 0
 	pq[1][0] = &Item{
-		value:    ug.GridToID(toIDX),
+		value:    to,
 		priority: 0,
 		index:    0,
 	}
@@ -93,7 +93,7 @@ func BiDijkstra(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64, int
 }
 
 // BiDijkstraAllNodes additionally returns all visited nodes on uniform grid
-func BiDijkstraAllNodes(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64, [][]float64) {
+func BiDijkstraAllNodes(from, to int, ug *grids.UniformGrid) ([][][]float64, [][]float64) {
 
 	var prev = make([][]int, ug.N)
 	dist := [][]float64{make([]float64, ug.N), make([]float64, ug.N)}
@@ -108,17 +108,17 @@ func BiDijkstraAllNodes(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]floa
 		prev[i] = []int{-1, -1}
 	}
 
-	dist[0][ug.GridToID(fromIDX)] = 0
+	dist[0][from] = 0
 	pq[0][0] = &Item{
-		value:    ug.GridToID(fromIDX),
+		value:    from,
 		priority: 0,
 		index:    0,
 	}
 	heap.Init(&pq[0])
 
-	dist[1][ug.GridToID(toIDX)] = 0
+	dist[1][to] = 0
 	pq[1][0] = &Item{
-		value:    ug.GridToID(toIDX),
+		value:    to,
 		priority: 0,
 		index:    0,
 	}

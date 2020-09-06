@@ -7,7 +7,7 @@ import (
 )
 
 // AStarBg implementation
-func AStarBg(fromIDX, toIDX []int, bg *grids.BasicGrid) ([][][]float64, int) {
+func AStarBg(from, to int, bg *grids.BasicGrid) ([][][]float64, int) {
 
 	var popped int
 	var dist = make([]float64, len(bg.VertexData))
@@ -19,9 +19,9 @@ func AStarBg(fromIDX, toIDX []int, bg *grids.BasicGrid) ([][][]float64, int) {
 		prev[i] = -1
 	}
 
-	dist[bg.FlattenIndex(fromIDX)] = 0
+	dist[from] = 0
 	pq[0] = &Item{
-		value:    bg.FlattenIndex(fromIDX),
+		value:    from,
 		priority: 0,
 		index:    0,
 	}
@@ -34,8 +34,8 @@ func AStarBg(fromIDX, toIDX []int, bg *grids.BasicGrid) ([][][]float64, int) {
 			u := heap.Pop(&pq).(*Item).value
 			popped++
 
-			if u == bg.FlattenIndex(toIDX) {
-				return extractRoute(&prev, bg.FlattenIndex(toIDX), bg), popped
+			if u == to {
+				return extractRoute(&prev, to, bg), popped
 			}
 
 			neighbours := neighboursBg(u, bg)
@@ -47,18 +47,18 @@ func AStarBg(fromIDX, toIDX []int, bg *grids.BasicGrid) ([][][]float64, int) {
 					prev[j] = u
 					item := &Item{
 						value:    j,
-						priority: -(dist[j] + distance(bg.GridToCoord(bg.ExpandIndex(j)), bg.GridToCoord(toIDX))),
+						priority: -(dist[j] + distance(bg.GridToCoord(bg.ExpandIndex(j)), bg.GridToCoord(bg.ExpandIndex(to)))),
 					}
 					heap.Push(&pq, item)
 				}
 			}
 		}
 	}
-	return extractRoute(&prev, bg.FlattenIndex(toIDX), bg), popped
+	return extractRoute(&prev, to, bg), popped
 }
 
 // AStarAllNodesBg additionally returns all visited nodes
-func AStarAllNodesBg(fromIDX, toIDX []int, bg *grids.BasicGrid) ([][][]float64, [][]float64) {
+func AStarAllNodesBg(from, to int, bg *grids.BasicGrid) ([][][]float64, [][]float64) {
 
 	var dist = make([]float64, len(bg.VertexData))
 	var prev = make([]int, len(bg.VertexData))
@@ -70,9 +70,9 @@ func AStarAllNodesBg(fromIDX, toIDX []int, bg *grids.BasicGrid) ([][][]float64, 
 		prev[i] = -1
 	}
 
-	dist[bg.FlattenIndex(fromIDX)] = 0
+	dist[from] = 0
 	pq[0] = &Item{
-		value:    bg.FlattenIndex(fromIDX),
+		value:    from,
 		priority: 0,
 		index:    0,
 	}
@@ -86,8 +86,8 @@ func AStarAllNodesBg(fromIDX, toIDX []int, bg *grids.BasicGrid) ([][][]float64, 
 			u := heap.Pop(&pq).(*Item).value
 			nodesProcessed = append(nodesProcessed, u)
 
-			if u == bg.FlattenIndex(toIDX) {
-				var route = extractRoute(&prev, bg.FlattenIndex(toIDX), bg)
+			if u == to {
+				var route = extractRoute(&prev, to, bg)
 				var processedNodes = extractNodes(&nodesProcessed, bg)
 				return route, processedNodes
 			}
@@ -101,14 +101,14 @@ func AStarAllNodesBg(fromIDX, toIDX []int, bg *grids.BasicGrid) ([][][]float64, 
 					prev[j] = u
 					item := &Item{
 						value:    j,
-						priority: -(dist[j] + distance(bg.GridToCoord(bg.ExpandIndex(j)), bg.GridToCoord(toIDX))),
+						priority: -(dist[j] + distance(bg.GridToCoord(bg.ExpandIndex(j)), bg.GridToCoord(bg.ExpandIndex(to)))),
 					}
 					heap.Push(&pq, item)
 				}
 			}
 		}
 	}
-	var route = extractRoute(&prev, bg.FlattenIndex(toIDX), bg)
+	var route = extractRoute(&prev, to, bg)
 	var processedNodes = extractNodes(&nodesProcessed, bg)
 	return route, processedNodes
 }

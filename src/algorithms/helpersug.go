@@ -100,10 +100,10 @@ func ExtractRouteUgBi(prev *[][]int, meeting int, ug *grids.UniformGrid) [][][]f
 	return routes
 }
 
-func hUg(dir, node int, fromIDX, toIDX []int, ug *grids.UniformGrid) float64 {
+func hUg(dir, node int, from, to int, ug *grids.UniformGrid) float64 {
 	if dir == 0 {
-		return 0.5 * (distance(ug.GridToCoord(ug.IDToGrid(node)), ug.GridToCoord(toIDX)) - distance(ug.GridToCoord(ug.IDToGrid(node)), ug.GridToCoord(fromIDX)))
+		return 0.5 * (distance(ug.GridToCoord(ug.IDToGrid(node)), ug.GridToCoord(ug.IDToGrid(to))) - distance(ug.GridToCoord(ug.IDToGrid(node)), ug.GridToCoord(ug.IDToGrid(from))))
 	}
-	return 0.5 * (distance(ug.GridToCoord(ug.IDToGrid(node)), ug.GridToCoord(fromIDX)) - distance(ug.GridToCoord(ug.IDToGrid(node)), ug.GridToCoord(toIDX)))
+	return 0.5 * (distance(ug.GridToCoord(ug.IDToGrid(node)), ug.GridToCoord(ug.IDToGrid(from))) - distance(ug.GridToCoord(ug.IDToGrid(node)), ug.GridToCoord(ug.IDToGrid(to))))
 
 }

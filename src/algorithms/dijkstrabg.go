@@ -7,8 +7,8 @@ import (
 )
 
 // DijkstraBg implementation
-func DijkstraBg(fromIDX, toIDX []int, bg *grids.BasicGrid) ([][][]float64, int) {
-	// ToDo: send flattened indexes directly
+func DijkstraBg(from, to int, bg *grids.BasicGrid) ([][][]float64, int) {
+
 	var popped int
 	var dist = make([]float64, len(bg.VertexData))
 	var prev = make([]int, len(bg.VertexData))
@@ -19,9 +19,9 @@ func DijkstraBg(fromIDX, toIDX []int, bg *grids.BasicGrid) ([][][]float64, int) 
 		prev[i] = -1
 	}
 
-	dist[bg.FlattenIndex(fromIDX)] = 0
+	dist[from] = 0
 	pq[0] = &Item{
-		value:    bg.FlattenIndex(fromIDX),
+		value:    from,
 		priority: 0,
 		index:    0,
 	}
@@ -34,8 +34,8 @@ func DijkstraBg(fromIDX, toIDX []int, bg *grids.BasicGrid) ([][][]float64, int) 
 			u := heap.Pop(&pq).(*Item).value
 			popped++
 
-			if u == bg.FlattenIndex(toIDX) {
-				return extractRoute(&prev, bg.FlattenIndex(toIDX), bg), popped
+			if u == to {
+				return extractRoute(&prev, to, bg), popped
 			}
 
 			neighbours := neighboursBg(u, bg)
@@ -54,11 +54,11 @@ func DijkstraBg(fromIDX, toIDX []int, bg *grids.BasicGrid) ([][][]float64, int) 
 			}
 		}
 	}
-	return extractRoute(&prev, bg.FlattenIndex(toIDX), bg), popped
+	return extractRoute(&prev, to, bg), popped
 }
 
 // DijkstraAllNodesBg additionally returns all visited nodes
-func DijkstraAllNodesBg(fromIDX, toIDX []int, bg *grids.BasicGrid) ([][][]float64, [][]float64) {
+func DijkstraAllNodesBg(from, to int, bg *grids.BasicGrid) ([][][]float64, [][]float64) {
 
 	var dist = make([]float64, len(bg.VertexData))
 	var prev = make([]int, len(bg.VertexData))
@@ -70,9 +70,9 @@ func DijkstraAllNodesBg(fromIDX, toIDX []int, bg *grids.BasicGrid) ([][][]float6
 		prev[i] = -1
 	}
 
-	dist[bg.FlattenIndex(fromIDX)] = 0
+	dist[from] = 0
 	pq[0] = &Item{
-		value:    bg.FlattenIndex(fromIDX),
+		value:    from,
 		priority: 0,
 		index:    0,
 	}
@@ -86,10 +86,10 @@ func DijkstraAllNodesBg(fromIDX, toIDX []int, bg *grids.BasicGrid) ([][][]float6
 			u := heap.Pop(&pq).(*Item).value
 			nodesProcessed = append(nodesProcessed, u)
 
-			if u == bg.FlattenIndex(toIDX) {
+			if u == to {
 				// ToDo: Don't save in var
 				// ToDo: return pointers
-				var route = extractRoute(&prev, bg.FlattenIndex(toIDX), bg)
+				var route = extractRoute(&prev, to, bg)
 				var processedNodes = extractNodes(&nodesProcessed, bg)
 				return route, processedNodes
 			}
@@ -110,7 +110,7 @@ func DijkstraAllNodesBg(fromIDX, toIDX []int, bg *grids.BasicGrid) ([][][]float6
 			}
 		}
 	}
-	var route = extractRoute(&prev, bg.FlattenIndex(toIDX), bg)
+	var route = extractRoute(&prev, to, bg)
 	var processedNodes = extractNodes(&nodesProcessed, bg)
 	return route, processedNodes
 }

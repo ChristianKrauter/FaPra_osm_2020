@@ -7,7 +7,7 @@ import (
 )
 
 // Dijkstra implementation on uniform grid
-func Dijkstra(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64, int) {
+func Dijkstra(from, to int, ug *grids.UniformGrid) ([][][]float64, int) {
 
 	var popped int
 	var dist = make([]float64, ug.N)
@@ -19,9 +19,9 @@ func Dijkstra(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64, int) 
 		prev[i] = -1
 	}
 
-	dist[ug.GridToID(fromIDX)] = 0
+	dist[from] = 0
 	pq[0] = &Item{
-		value:    ug.GridToID(fromIDX),
+		value:    from,
 		priority: 0,
 		index:    0,
 	}
@@ -33,8 +33,8 @@ func Dijkstra(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64, int) 
 		} else {
 			u := heap.Pop(&pq).(*Item).value
 			popped++
-			if u == ug.GridToID(toIDX) {
-				return ExtractRouteUg(&prev, ug.GridToID(toIDX), ug), popped
+			if u == to {
+				return ExtractRouteUg(&prev, to, ug), popped
 			}
 
 			neighbours := neighboursUg(u, ug)
@@ -52,11 +52,11 @@ func Dijkstra(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64, int) 
 			}
 		}
 	}
-	return ExtractRouteUg(&prev, ug.GridToID(toIDX), ug), popped
+	return ExtractRouteUg(&prev, to, ug), popped
 }
 
 // DijkstraAllNodes additionally returns all visited nodes on uniform grid
-func DijkstraAllNodes(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64, [][]float64) {
+func DijkstraAllNodes(from, to int, ug *grids.UniformGrid) ([][][]float64, [][]float64) {
 
 	var dist = make([]float64, ug.N)
 	var prev = make([]int, ug.N)
@@ -68,9 +68,9 @@ func DijkstraAllNodes(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float6
 		prev[i] = -1
 	}
 
-	dist[ug.GridToID(fromIDX)] = 0
+	dist[from] = 0
 	pq[0] = &Item{
-		value:    ug.GridToID(fromIDX),
+		value:    from,
 		priority: 0,
 		index:    0,
 	}
@@ -84,8 +84,8 @@ func DijkstraAllNodes(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float6
 			u := heap.Pop(&pq).(*Item).value
 			nodesProcessed = append(nodesProcessed, u)
 
-			if u == ug.GridToID(toIDX) {
-				var route = ExtractRouteUg(&prev, ug.GridToID(toIDX), ug)
+			if u == to {
+				var route = ExtractRouteUg(&prev, to, ug)
 				var processedNodes = ExtractNodesUg(&nodesProcessed, ug)
 				return route, processedNodes
 			}
@@ -106,7 +106,7 @@ func DijkstraAllNodes(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float6
 			}
 		}
 	}
-	var route = ExtractRouteUg(&prev, ug.GridToID(toIDX), ug)
+	var route = ExtractRouteUg(&prev, to, ug)
 	var processedNodes = ExtractNodesUg(&nodesProcessed, ug)
 	return route, processedNodes
 }

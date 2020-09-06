@@ -144,19 +144,18 @@ func WayFindingBG(xSize, ySize, nRuns, algorithm int, basicPointInPolygon bool, 
 
 	for i := 0; i < len(from); i++ {
 		var start = time.Now()
-
 		var popped int
 		switch algorithm {
 		case 0:
-			_, popped = algorithms.DijkstraBg(bg.ExpandIndex(from[i]), bg.ExpandIndex(to[i]), &bg)
+			_, popped = algorithms.DijkstraBg(from[i], to[i], &bg)
 		case 1:
-			_, popped = algorithms.AStarBg(bg.ExpandIndex(from[i]), bg.ExpandIndex(to[i]), &bg)
+			_, popped = algorithms.AStarBg(from[i], to[i], &bg)
 		case 2:
-			_, popped = algorithms.BiDijkstraBg(bg.ExpandIndex(from[i]), bg.ExpandIndex(to[i]), &bg)
+			_, popped = algorithms.BiDijkstraBg(from[i], to[i], &bg)
 		case 3:
-			_, popped = algorithms.BiAStarBg(bg.ExpandIndex(from[i]), bg.ExpandIndex(to[i]), &bg)
+			_, popped = algorithms.BiAStarBg(from[i], to[i], &bg)
 		default:
-			_, popped = algorithms.DijkstraBg(bg.ExpandIndex(from[i]), bg.ExpandIndex(to[i]), &bg)
+			_, popped = algorithms.DijkstraBg(from[i], to[i], &bg)
 		}
 
 		poppedSum += popped
@@ -271,20 +270,18 @@ func WayFinding(xSize, ySize, nRuns, algorithm int, basicPointInPolygon bool, no
 
 	for i := 0; i < len(from); i++ {
 		var start = time.Now()
-		var from = ug.IDToGrid(from[i])
-		var to = ug.IDToGrid(to[i])
 		var popped int
 		switch algorithm {
 		case 0:
-			_, popped = algorithms.Dijkstra(from, to, &ug)
+			_, popped = algorithms.Dijkstra(from[i], to[i], &ug)
 		case 1:
-			_, popped = algorithms.AStar(from, to, &ug)
+			_, popped = algorithms.AStar(from[i], to[i], &ug)
 		case 2:
-			_, popped = algorithms.BiDijkstra(from, to, &ug)
+			_, popped = algorithms.BiDijkstra(from[i], to[i], &ug)
 		case 3:
-			_, popped = algorithms.BiAStar(from, to, &ug)
+			_, popped = algorithms.BiAStar(from[i], to[i], &ug)
 		default:
-			_, popped = algorithms.Dijkstra(from, to, &ug)
+			_, popped = algorithms.Dijkstra(from[i], to[i], &ug)
 		}
 		poppedSum += popped
 		t := time.Now()

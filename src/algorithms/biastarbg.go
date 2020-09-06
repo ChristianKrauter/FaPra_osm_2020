@@ -7,7 +7,7 @@ import (
 )
 
 // BiAStarBg implementation on uniform grid
-func BiAStarBg(fromIDX, toIDX []int, bg *grids.BasicGrid) ([][][]float64, int) {
+func BiAStarBg(from, to int, bg *grids.BasicGrid) ([][][]float64, int) {
 
 	var prev = make([][]int, len(bg.VertexData))
 	dist := [][]float64{make([]float64, len(bg.VertexData)), make([]float64, len(bg.VertexData))}
@@ -22,17 +22,17 @@ func BiAStarBg(fromIDX, toIDX []int, bg *grids.BasicGrid) ([][][]float64, int) {
 		prev[i] = []int{-1, -1}
 	}
 
-	dist[0][bg.FlattenIndex(fromIDX)] = 0
+	dist[0][from] = 0
 	pq[0][0] = &Item{
-		value:    bg.FlattenIndex(fromIDX),
+		value:    from,
 		priority: 0,
 		index:    0,
 	}
 	heap.Init(&pq[0])
 
-	dist[1][bg.FlattenIndex(toIDX)] = 0
+	dist[1][to] = 0
 	pq[1][0] = &Item{
-		value:    bg.FlattenIndex(toIDX),
+		value:    to,
 		priority: 0,
 		index:    0,
 	}
@@ -79,7 +79,7 @@ func BiAStarBg(fromIDX, toIDX []int, bg *grids.BasicGrid) ([][][]float64, int) {
 					prev[j][dir] = u
 					item := &Item{
 						value:    j,
-						priority: -(dist[dir][j] + hBg(dir, j, fromIDX, toIDX, bg)),
+						priority: -(dist[dir][j] + hBg(dir, j, from, to, bg)),
 					}
 					heap.Push(&pq[dir], item)
 				}
@@ -93,7 +93,7 @@ func BiAStarBg(fromIDX, toIDX []int, bg *grids.BasicGrid) ([][][]float64, int) {
 }
 
 // BiAStarAllNodesBg additionally returns all visited nodes on uniform grid
-func BiAStarAllNodesBg(fromIDX, toIDX []int, bg *grids.BasicGrid) ([][][]float64, [][]float64) {
+func BiAStarAllNodesBg(from, to int, bg *grids.BasicGrid) ([][][]float64, [][]float64) {
 
 	var prev = make([][]int, len(bg.VertexData))
 	dist := [][]float64{make([]float64, len(bg.VertexData)), make([]float64, len(bg.VertexData))}
@@ -108,17 +108,17 @@ func BiAStarAllNodesBg(fromIDX, toIDX []int, bg *grids.BasicGrid) ([][][]float64
 		prev[i] = []int{-1, -1}
 	}
 
-	dist[0][bg.FlattenIndex(fromIDX)] = 0
+	dist[0][from] = 0
 	pq[0][0] = &Item{
-		value:    bg.FlattenIndex(fromIDX),
+		value:    from,
 		priority: 0,
 		index:    0,
 	}
 	heap.Init(&pq[0])
 
-	dist[1][bg.FlattenIndex(toIDX)] = 0
+	dist[1][to] = 0
 	pq[1][0] = &Item{
-		value:    bg.FlattenIndex(toIDX),
+		value:    to,
 		priority: 0,
 		index:    0,
 	}
@@ -165,7 +165,7 @@ func BiAStarAllNodesBg(fromIDX, toIDX []int, bg *grids.BasicGrid) ([][][]float64
 					prev[j][dir] = u
 					item := &Item{
 						value:    j,
-						priority: -(dist[dir][j] + hBg(dir, j, fromIDX, toIDX, bg)),
+						priority: -(dist[dir][j] + hBg(dir, j, from, to, bg)),
 					}
 					heap.Push(&pq[dir], item)
 				}
