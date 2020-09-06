@@ -44,6 +44,8 @@ func Run(xSize, ySize int, basicPointInPolygon bool) {
 
 	bg.XSize = xSize
 	bg.YSize = ySize
+	bg.XFactor = float64(xSize) / 360.0
+	bg.YFactor = float64(ySize) / 360.0
 
 	if basicPointInPolygon {
 		filename = fmt.Sprintf("data/output/meshgrid_%v_%v_bpip.json", xSize, ySize)

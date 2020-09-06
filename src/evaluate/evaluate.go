@@ -87,6 +87,8 @@ func WayFindingBG(xSize, ySize, nRuns, algorithm int, basicPointInPolygon bool, 
 
 	bg.XSize = xSize
 	bg.YSize = ySize
+	bg.XFactor = float64(xSize) / 360.0
+	bg.YFactor = float64(ySize) / 360.0
 
 	var algoStr, algoStrPrint string
 	switch algorithm {

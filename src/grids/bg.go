@@ -8,27 +8,19 @@ import (
 type BasicGrid struct {
     XSize      int
     YSize      int
+    XFactor    float64
+    YFactor    float64
     VertexData []bool
 }
 
 // GridToCoord transforms a grid index to lat lon coordinates
 func (bg BasicGrid) GridToCoord(in []int) []float64 {
-    var out []float64
-    var xFactor = bg.XSize / 360.0
-    var yFactor = bg.YSize / 360.0
-    out = append(out, float64(in[0]/xFactor-180.0))
-    out = append(out, float64((in[1]/yFactor)/2.0-90.0))
-    return out
+    return []float64{float64(in[0])/bg.XFactor - 180.0, float64(in[1])/bg.YFactor/2.0 - 90.0}
 }
 
 // CoordToGrid transforms lat lon coordinates to a grid index
 func (bg BasicGrid) CoordToGrid(in []float64) []int {
-    var out []int
-    var xFactor = float64(bg.XSize / 360.0)
-    var yFactor = float64(bg.YSize / 360.0)
-    out = append(out, int(((math.Round(in[0]*xFactor)/xFactor)+180.0)*xFactor))
-    out = append(out, int(((math.Round(in[1]*yFactor)/yFactor)+90.0)*2*yFactor))
-    return out
+    return []int{int(((math.Round(in[0]*bg.XFactor) / bg.XFactor) + 180.0) * bg.XFactor), int(((math.Round(in[1]*bg.YFactor) / bg.YFactor) + 90.0) * 2 * bg.YFactor)}
 }
 
 // GridToID 2D to 1D Index
