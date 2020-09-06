@@ -31,7 +31,6 @@ func ExtractNodesUg(nodesProcessed *[]int, ug *grids.UniformGrid) [][]float64 {
 
 // Gets neighours left and right in the same row
 func neighboursRowUg(in []float64, ug *grids.UniformGrid) [][]int {
-	// Test if it still works with less than 3 points in one grid row
 	theta := (in[1] + 90) * math.Pi / 180
 	m := math.Round((theta * ug.MTheta / math.Pi) - 0.5)
 	theta = math.Pi * (m + 0.5) / ug.MTheta
@@ -65,6 +64,7 @@ func neighboursUg(in int, ug *grids.UniformGrid) []int {
 		coordUp := ug.GridToCoord([]int{m + 1, n})
 		neighbours = append(neighbours, neighboursRowUg([]float64{coord[0], coordUp[1]}, ug)...)
 	}
+
 	var neighbours1d []int
 	for _, neighbour := range neighbours {
 		if !ug.VertexData[neighbour[0]][neighbour[1]] {
@@ -92,7 +92,6 @@ func ExtractRouteUgBi(prev *[][]int, meeting int, ug *grids.UniformGrid) [][][]f
 		routes[1] = append(routes[1], ug.GridToCoord(ug.IDToGrid(meeting)))
 
 		if (*prev)[meeting][1] == -1 {
-
 			break
 		}
 		meeting = (*prev)[meeting][1]
@@ -100,7 +99,7 @@ func ExtractRouteUgBi(prev *[][]int, meeting int, ug *grids.UniformGrid) [][][]f
 	return routes
 }
 
-func hUg(dir, node int, from, to int, ug *grids.UniformGrid) float64 {
+func hUg(dir, node, from, to int, ug *grids.UniformGrid) float64 {
 	if dir == 0 {
 		return 0.5 * (distance(ug.GridToCoord(ug.IDToGrid(node)), ug.GridToCoord(ug.IDToGrid(to))) - distance(ug.GridToCoord(ug.IDToGrid(node)), ug.GridToCoord(ug.IDToGrid(from))))
 	}

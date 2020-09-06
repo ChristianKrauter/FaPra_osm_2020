@@ -57,15 +57,15 @@ func (ug UniformGrid) CoordToGrid(lng, lat float64) []int {
     return []int{mod(int(m), int(ug.MTheta)), mod(int(n), int(mPhi))}
 }
 
-// GridToID ...
+// GridToID 2D to 1D Index
 func (ug UniformGrid) GridToID(IDX []int) int {
     return ug.FirstIndexOf[IDX[0]] + IDX[1]
 }
 
-// IDToGrid ...
-func (ug UniformGrid) IDToGrid(id int) []int {
-    m := sort.Search(len(ug.FirstIndexOf)-1, func(i int) bool { return ug.FirstIndexOf[i] > id })
-    n := id - ug.FirstIndexOf[m-1]
+// IDToGrid 1D to 2D Index
+func (ug UniformGrid) IDToGrid(ID int) []int {
+    m := sort.Search(len(ug.FirstIndexOf)-1, func(i int) bool { return ug.FirstIndexOf[i] > ID })
+    n := ID - ug.FirstIndexOf[m-1]
     return []int{m - 1, n}
 }
 

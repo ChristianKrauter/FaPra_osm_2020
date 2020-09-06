@@ -127,9 +127,12 @@ func WayFindingBG(xSize, ySize, nRuns, algorithm int, basicPointInPolygon bool, 
 	byteValue, _ := ioutil.ReadAll(meshgridRaw)
 	json.Unmarshal(byteValue, &bg2D)
 
+	bg.VertexData = make([]bool, xSize*ySize)
+	k := 0
 	for i := 0; i < len(bg2D[0]); i++ {
 		for j := 0; j < len(bg2D); j++ {
-			bg.VertexData = append(bg.VertexData, bg2D[j][i])
+			bg.VertexData[k] = bg2D[j][i]
+			k++
 		}
 	}
 
@@ -253,9 +256,13 @@ func WayFinding(xSize, ySize, nRuns, algorithm int, basicPointInPolygon bool, no
 	defer uniformgridRaw.Close()
 	byteValue, _ := ioutil.ReadAll(uniformgridRaw)
 	json.Unmarshal(byteValue, &ug)
+
+	ug1D = make([]bool, ug.N)
+	k := 0
 	for i := 0; i < len(ug.VertexData); i++ {
 		for j := 0; j < len(ug.VertexData[i]); j++ {
-			ug1D = append(ug1D, ug.VertexData[i][j])
+			ug1D[k] = ug.VertexData[i][j]
+			k++
 		}
 	}
 

@@ -44,10 +44,14 @@ func createPolygons(polygons *Polygons, coastlineMap *map[int64][]int64, nodeMap
 		}
 
 		if !basicPointInPolygon {
+			poly.EoWNext = make([]int, len(poly.Points))
+			poly.LngTNext = make([]float64, len(poly.Points))
+			poly.BtoX = make([]int, len(poly.Points))
+
 			for i, x := range poly.Points {
-				poly.EoWNext = append(poly.EoWNext, eastOrWest(x[0], poly.Points[(i+1)%len(poly.Points)][0]))
-				poly.LngTNext = append(poly.LngTNext, transformLon(x, poly.Points[(i+1)%len(poly.Points)]))
-				poly.BtoX = append(poly.BtoX, eastOrWest((poly.LngTNext)[i], transformLon(x, []float64{0.0, 90.0})))
+				poly.EoWNext[i] = eastOrWest(x[0], poly.Points[(i+1)%len(poly.Points)][0])
+				poly.LngTNext[i] = transformLon(x, poly.Points[(i+1)%len(poly.Points)])
+				poly.BtoX[i] = eastOrWest((poly.LngTNext)[i], transformLon(x, []float64{0.0, 90.0}))
 			}
 		}
 
@@ -64,9 +68,9 @@ func createPolygons(polygons *Polygons, coastlineMap *map[int64][]int64, nodeMap
 
 func createAndStoreCoastlineGeoJSON(polygons *Polygons, filename string) string {
 	start := time.Now()
-	var mpg [][][]float64
-	for _, i := range *polygons {
-		mpg = append(mpg, i.Points)
+	var mpg = make([][][]float64, len(*polygons))
+	for i, j := range *polygons {
+		mpg[i] = j.Points
 	}
 	var fc = geojson.NewMultiPolygonGeometry(mpg)
 	rawJSON, err := fc.MarshalJSON()
@@ -120,13 +124,13 @@ func Start(pbfFileName string, xSize, ySize int, createCoastlineGeoJSON, lessMem
 
 	// Create bounding boxes
 	var boundingTreeRoot boundingTree
-	var allBoundingBoxes []map[string]float64
+	var allBoundingBoxes = make([]map[string]float64, len(polygons))
 	if noBoundingTree {
 		logging["filename"] += "_nbt"
 
 		start := time.Now()
-		for _, i := range polygons {
-			allBoundingBoxes = append(allBoundingBoxes, createBoundingBox(&i.Points))
+		for i, j := range polygons {
+			allBoundingBoxes[i] = createBoundingBox(&j.Points)
 		}
 		t := time.Now()
 		elapsed := t.Sub(start)

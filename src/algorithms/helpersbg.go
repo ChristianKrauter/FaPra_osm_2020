@@ -5,17 +5,17 @@ import (
 )
 
 func neighboursBg(idx int, bg *grids.BasicGrid) []int {
-    var neighbours []int
+    var neighbours = make([]int, 8)
     var result []int
 
-    neighbours = append(neighbours, idx-bg.XSize-1) // top left
-    neighbours = append(neighbours, idx-bg.XSize)   // top
-    neighbours = append(neighbours, idx-bg.XSize+1) // top right
-    neighbours = append(neighbours, idx-1)          // left
-    neighbours = append(neighbours, idx+1)          // right
-    neighbours = append(neighbours, idx+bg.XSize-1) // bottom left
-    neighbours = append(neighbours, idx+bg.XSize)   // bottom
-    neighbours = append(neighbours, idx+bg.XSize+1) // bottom right
+    neighbours[0] = idx - bg.XSize - 1 // top left
+    neighbours[1] = idx - bg.XSize     // top
+    neighbours[2] = idx - bg.XSize + 1 // top right
+    neighbours[3] = idx - 1            // left
+    neighbours[4] = idx + 1            // right
+    neighbours[5] = idx + bg.XSize - 1 // bottom left
+    neighbours[6] = idx + bg.XSize     // bottom
+    neighbours[7] = idx + bg.XSize + 1 // bottom right
 
     for _, j := range neighbours {
         if j >= 0 && j < len(bg.VertexData) {

@@ -61,15 +61,13 @@ func Run(xSize, ySize int, basicPointInPolygon bool) {
 	byteValue, _ := ioutil.ReadAll(meshgridRaw)
 	json.Unmarshal(byteValue, &bg2D)
 
+	var points [][]float64
+	bg.VertexData = make([]bool, xSize*ySize)
+	k := 0
 	for i := 0; i < len(bg2D[0]); i++ {
 		for j := 0; j < len(bg2D); j++ {
-			bg.VertexData = append(bg.VertexData, bg2D[j][i])
-		}
-	}
-
-	var points [][]float64
-	for i := 0; i < xSize; i++ {
-		for j := 0; j < ySize; j++ {
+			bg.VertexData[k] = bg2D[j][i]
+			k++
 			if !bg2D[i][j] {
 				points = append(points, bg.GridToCoord([]int{int(i), int(j)}))
 			}
@@ -77,7 +75,6 @@ func Run(xSize, ySize int, basicPointInPolygon bool) {
 	}
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-
 		var fileEnding = strings.Split(r.URL.Path[1:], ".")[len(strings.Split(r.URL.Path[1:], "."))-1]
 
 		if strings.Contains(r.URL.Path, "/wayfinding") {
@@ -224,15 +221,13 @@ func RunUnidistant(xSize, ySize int, basicPointInPolygon bool) {
 	byteValue, _ := ioutil.ReadAll(uniformgridRaw)
 	json.Unmarshal(byteValue, &ug)
 
-	for i := 0; i < len(ug.VertexData); i++ {
-		for j := 0; j < len(ug.VertexData[i]); j++ {
-			ug1D = append(ug1D, ug.VertexData[i][j])
-		}
-	}
-
 	var points [][]float64
+	ug1D = make([]bool, ug.N)
+	k := 0
 	for i := 0; i < len(ug.VertexData); i++ {
 		for j := 0; j < len(ug.VertexData[i]); j++ {
+			ug1D[k] = ug.VertexData[i][j]
+			k++
 			if !ug.VertexData[i][j] {
 				points = append(points, ug.GridToCoord([]int{int(i), int(j)}))
 			}
@@ -240,7 +235,6 @@ func RunUnidistant(xSize, ySize int, basicPointInPolygon bool) {
 	}
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-
 		var fileEnding = strings.Split(r.URL.Path[1:], ".")[len(strings.Split(r.URL.Path[1:], "."))-1]
 
 		if strings.Contains(r.URL.Path, "/wayfinding") {
