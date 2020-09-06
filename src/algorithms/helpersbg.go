@@ -30,7 +30,7 @@ func neighboursBg(idx int, bg *grids.BasicGrid) []int {
 func extractRoute(prev *[]int, end int, bg *grids.BasicGrid) [][][]float64 {
     var route = make([][][]float64, 1)
     for {
-        route[0] = append(route[0], bg.GridToCoord(bg.ExpandIndex(end)))
+        route[0] = append(route[0], bg.GridToCoord(bg.IDToGrid(end)))
         if (*prev)[end] == -1 {
             break
         }
@@ -42,7 +42,7 @@ func extractRoute(prev *[]int, end int, bg *grids.BasicGrid) [][][]float64 {
 func extractNodes(nodesProcessed *[]int, bg *grids.BasicGrid) [][]float64 {
     var nodesExtended [][]float64
     for _, node := range *nodesProcessed {
-        x := bg.ExpandIndex(node)
+        x := bg.IDToGrid(node)
         coord := bg.GridToCoord([]int{x[0], x[1]})
         nodesExtended = append(nodesExtended, coord)
     }
@@ -55,7 +55,7 @@ func ExtractRouteBi(prev *[][]int, meeting int, bg *grids.BasicGrid) [][][]float
 
     var secondMeeting = meeting
     for {
-        routes[0] = append(routes[0], bg.GridToCoord(bg.ExpandIndex(meeting)))
+        routes[0] = append(routes[0], bg.GridToCoord(bg.IDToGrid(meeting)))
         if (*prev)[meeting][0] == -1 {
             break
         }
@@ -64,7 +64,7 @@ func ExtractRouteBi(prev *[][]int, meeting int, bg *grids.BasicGrid) [][][]float
 
     meeting = secondMeeting
     for {
-        routes[1] = append(routes[1], bg.GridToCoord(bg.ExpandIndex(meeting)))
+        routes[1] = append(routes[1], bg.GridToCoord(bg.IDToGrid(meeting)))
 
         if (*prev)[meeting][1] == -1 {
 
@@ -75,10 +75,10 @@ func ExtractRouteBi(prev *[][]int, meeting int, bg *grids.BasicGrid) [][][]float
     return routes
 }
 
-func hBg(dir, node int, from, to int, bg *grids.BasicGrid) float64 {
+func hBg(dir, node, from, to int, bg *grids.BasicGrid) float64 {
     if dir == 0 {
-        return 0.5 * (distance(bg.GridToCoord(bg.ExpandIndex(node)), bg.GridToCoord(bg.ExpandIndex(to))) - distance(bg.GridToCoord(bg.ExpandIndex(node)), bg.GridToCoord(bg.ExpandIndex(from))))
+        return 0.5 * (distance(bg.GridToCoord(bg.IDToGrid(node)), bg.GridToCoord(bg.IDToGrid(to))) - distance(bg.GridToCoord(bg.IDToGrid(node)), bg.GridToCoord(bg.IDToGrid(from))))
     }
-    return 0.5 * (distance(bg.GridToCoord(bg.ExpandIndex(node)), bg.GridToCoord(bg.ExpandIndex(from))) - distance(bg.GridToCoord(bg.ExpandIndex(node)), bg.GridToCoord(bg.ExpandIndex(to))))
+    return 0.5 * (distance(bg.GridToCoord(bg.IDToGrid(node)), bg.GridToCoord(bg.IDToGrid(from))) - distance(bg.GridToCoord(bg.IDToGrid(node)), bg.GridToCoord(bg.IDToGrid(to))))
 
 }

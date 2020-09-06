@@ -8,7 +8,6 @@ import (
 
 // BiAStarBg implementation on uniform grid
 func BiAStarBg(from, to int, bg *grids.BasicGrid) ([][][]float64, int) {
-
 	var prev = make([][]int, len(bg.VertexData))
 	dist := [][]float64{make([]float64, len(bg.VertexData)), make([]float64, len(bg.VertexData))}
 	pq := []priorityQueue{make(priorityQueue, 1), make(priorityQueue, 1)}
@@ -73,7 +72,7 @@ func BiAStarBg(from, to int, bg *grids.BasicGrid) ([][][]float64, int) {
 
 			neighbours := neighboursBg(u, bg)
 			for _, j := range neighbours {
-				var alt = dist[dir][u] + distance(bg.GridToCoord(bg.ExpandIndex(u)), bg.GridToCoord(bg.ExpandIndex(j)))
+				var alt = dist[dir][u] + distance(bg.GridToCoord(bg.IDToGrid(u)), bg.GridToCoord(bg.IDToGrid(j)))
 				if alt < dist[dir][j] {
 					dist[dir][j] = alt
 					prev[j][dir] = u
@@ -94,7 +93,6 @@ func BiAStarBg(from, to int, bg *grids.BasicGrid) ([][][]float64, int) {
 
 // BiAStarAllNodesBg additionally returns all visited nodes on uniform grid
 func BiAStarAllNodesBg(from, to int, bg *grids.BasicGrid) ([][][]float64, [][]float64) {
-
 	var prev = make([][]int, len(bg.VertexData))
 	dist := [][]float64{make([]float64, len(bg.VertexData)), make([]float64, len(bg.VertexData))}
 	pq := []priorityQueue{make(priorityQueue, 1), make(priorityQueue, 1)}
@@ -159,7 +157,7 @@ func BiAStarAllNodesBg(from, to int, bg *grids.BasicGrid) ([][][]float64, [][]fl
 
 			neighbours := neighboursBg(u, bg)
 			for _, j := range neighbours {
-				var alt = dist[dir][u] + distance(bg.GridToCoord(bg.ExpandIndex(u)), bg.GridToCoord(bg.ExpandIndex(j)))
+				var alt = dist[dir][u] + distance(bg.GridToCoord(bg.IDToGrid(u)), bg.GridToCoord(bg.IDToGrid(j)))
 				if alt < dist[dir][j] {
 					dist[dir][j] = alt
 					prev[j][dir] = u

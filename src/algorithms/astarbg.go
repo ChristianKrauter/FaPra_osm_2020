@@ -8,7 +8,6 @@ import (
 
 // AStarBg implementation
 func AStarBg(from, to int, bg *grids.BasicGrid) ([][][]float64, int) {
-
 	var popped int
 	var dist = make([]float64, len(bg.VertexData))
 	var prev = make([]int, len(bg.VertexData))
@@ -41,13 +40,13 @@ func AStarBg(from, to int, bg *grids.BasicGrid) ([][][]float64, int) {
 			neighbours := neighboursBg(u, bg)
 
 			for _, j := range neighbours {
-				var alt = dist[u] + distance(bg.GridToCoord(bg.ExpandIndex(u)), bg.GridToCoord(bg.ExpandIndex(j)))
+				var alt = dist[u] + distance(bg.GridToCoord(bg.IDToGrid(u)), bg.GridToCoord(bg.IDToGrid(j)))
 				if alt < dist[j] {
 					dist[j] = alt
 					prev[j] = u
 					item := &Item{
 						value:    j,
-						priority: -(dist[j] + distance(bg.GridToCoord(bg.ExpandIndex(j)), bg.GridToCoord(bg.ExpandIndex(to)))),
+						priority: -(dist[j] + distance(bg.GridToCoord(bg.IDToGrid(j)), bg.GridToCoord(bg.IDToGrid(to)))),
 					}
 					heap.Push(&pq, item)
 				}
@@ -59,7 +58,6 @@ func AStarBg(from, to int, bg *grids.BasicGrid) ([][][]float64, int) {
 
 // AStarAllNodesBg additionally returns all visited nodes
 func AStarAllNodesBg(from, to int, bg *grids.BasicGrid) ([][][]float64, [][]float64) {
-
 	var dist = make([]float64, len(bg.VertexData))
 	var prev = make([]int, len(bg.VertexData))
 	var nodesProcessed []int
@@ -95,13 +93,13 @@ func AStarAllNodesBg(from, to int, bg *grids.BasicGrid) ([][][]float64, [][]floa
 			neighbours := neighboursBg(u, bg)
 
 			for _, j := range neighbours {
-				var alt = dist[u] + distance(bg.GridToCoord(bg.ExpandIndex(u)), bg.GridToCoord(bg.ExpandIndex(j)))
+				var alt = dist[u] + distance(bg.GridToCoord(bg.IDToGrid(u)), bg.GridToCoord(bg.IDToGrid(j)))
 				if alt < dist[j] {
 					dist[j] = alt
 					prev[j] = u
 					item := &Item{
 						value:    j,
-						priority: -(dist[j] + distance(bg.GridToCoord(bg.ExpandIndex(j)), bg.GridToCoord(bg.ExpandIndex(to)))),
+						priority: -(dist[j] + distance(bg.GridToCoord(bg.IDToGrid(j)), bg.GridToCoord(bg.IDToGrid(to)))),
 					}
 					heap.Push(&pq, item)
 				}

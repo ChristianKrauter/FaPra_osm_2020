@@ -8,7 +8,6 @@ import (
 
 // DijkstraBg implementation
 func DijkstraBg(from, to int, bg *grids.BasicGrid) ([][][]float64, int) {
-
 	var popped int
 	var dist = make([]float64, len(bg.VertexData))
 	var prev = make([]int, len(bg.VertexData))
@@ -41,7 +40,7 @@ func DijkstraBg(from, to int, bg *grids.BasicGrid) ([][][]float64, int) {
 			neighbours := neighboursBg(u, bg)
 
 			for _, j := range neighbours {
-				var alt = dist[u] + distance(bg.GridToCoord(bg.ExpandIndex(u)), bg.GridToCoord(bg.ExpandIndex(j)))
+				var alt = dist[u] + distance(bg.GridToCoord(bg.IDToGrid(u)), bg.GridToCoord(bg.IDToGrid(j)))
 				if alt < dist[j] {
 					dist[j] = alt
 					prev[j] = u
@@ -59,7 +58,6 @@ func DijkstraBg(from, to int, bg *grids.BasicGrid) ([][][]float64, int) {
 
 // DijkstraAllNodesBg additionally returns all visited nodes
 func DijkstraAllNodesBg(from, to int, bg *grids.BasicGrid) ([][][]float64, [][]float64) {
-
 	var dist = make([]float64, len(bg.VertexData))
 	var prev = make([]int, len(bg.VertexData))
 	var nodesProcessed []int
@@ -97,7 +95,7 @@ func DijkstraAllNodesBg(from, to int, bg *grids.BasicGrid) ([][][]float64, [][]f
 			neighbours := neighboursBg(u, bg)
 
 			for _, j := range neighbours {
-				var alt = dist[u] + distance(bg.GridToCoord(bg.ExpandIndex(u)), bg.GridToCoord(bg.ExpandIndex(j)))
+				var alt = dist[u] + distance(bg.GridToCoord(bg.IDToGrid(u)), bg.GridToCoord(bg.IDToGrid(j)))
 				if alt < dist[j] {
 					dist[j] = alt
 					prev[j] = u

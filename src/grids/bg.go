@@ -31,12 +31,12 @@ func (bg BasicGrid) CoordToGrid(in []float64) []int {
     return out
 }
 
-// FlattenIndex from 2d to 1d
-func (bg BasicGrid) FlattenIndex(IDX []int) int {
-    return ((bg.XSize * IDX[1]) + IDX[0])
+// GridToID 2D to 1D Index
+func (bg BasicGrid) GridToID(IDX []int) int {
+    return bg.XSize*IDX[1] + IDX[0]
 }
 
-// ExpandIndex from 1d to 2d
-func (bg BasicGrid) ExpandIndex(idx int) []int {
-    return []int{idx % bg.XSize, idx / bg.XSize}
+// IDToGrid 1D to 2D Index
+func (bg BasicGrid) IDToGrid(ID int) []int {
+    return []int{ID % bg.XSize, ID / bg.XSize}
 }

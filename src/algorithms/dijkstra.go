@@ -8,7 +8,6 @@ import (
 
 // Dijkstra implementation on uniform grid
 func Dijkstra(from, to int, ug *grids.UniformGrid) ([][][]float64, int) {
-
 	var popped int
 	var dist = make([]float64, ug.N)
 	var prev = make([]int, ug.N)
@@ -57,7 +56,6 @@ func Dijkstra(from, to int, ug *grids.UniformGrid) ([][][]float64, int) {
 
 // DijkstraAllNodes additionally returns all visited nodes on uniform grid
 func DijkstraAllNodes(from, to int, ug *grids.UniformGrid) ([][][]float64, [][]float64) {
-
 	var dist = make([]float64, ug.N)
 	var prev = make([]int, ug.N)
 	var nodesProcessed []int

@@ -8,7 +8,6 @@ import (
 
 // AStar implementation on uniform grid
 func AStar(from, to int, ug *grids.UniformGrid) ([][][]float64, int) {
-
 	var popped int
 	var dist = make([]float64, ug.N)
 	var prev = make([]int, ug.N)
@@ -57,7 +56,6 @@ func AStar(from, to int, ug *grids.UniformGrid) ([][][]float64, int) {
 
 // AStarAllNodes additionally returns all visited nodes on uniform grid
 func AStarAllNodes(from, to int, ug *grids.UniformGrid) ([][][]float64, [][]float64) {
-
 	var dist = make([]float64, ug.N)
 	var prev = make([]int, ug.N)
 	var nodesProcessed []int

@@ -111,15 +111,15 @@ func Run(xSize, ySize int, basicPointInPolygon bool) {
 					var nodesProcessed [][]float64
 					switch algorithm {
 					case 0:
-						route, nodesProcessed = algorithms.DijkstraAllNodesBg(bg.FlattenIndex(from), bg.FlattenIndex(to), &bg)
+						route, nodesProcessed = algorithms.DijkstraAllNodesBg(bg.GridToID(from), bg.GridToID(to), &bg)
 					case 1:
-						route, nodesProcessed = algorithms.AStarAllNodesBg(bg.FlattenIndex(from), bg.FlattenIndex(to), &bg)
+						route, nodesProcessed = algorithms.AStarAllNodesBg(bg.GridToID(from), bg.GridToID(to), &bg)
 					case 2:
-						route, nodesProcessed = algorithms.BiDijkstraAllNodesBg(bg.FlattenIndex(from), bg.FlattenIndex(to), &bg)
+						route, nodesProcessed = algorithms.BiDijkstraAllNodesBg(bg.GridToID(from), bg.GridToID(to), &bg)
 					case 3:
-						route, nodesProcessed = algorithms.BiAStarAllNodesBg(bg.FlattenIndex(from), bg.FlattenIndex(to), &bg)
+						route, nodesProcessed = algorithms.BiAStarAllNodesBg(bg.GridToID(from), bg.GridToID(to), &bg)
 					default:
-						route, nodesProcessed = algorithms.DijkstraAllNodesBg(bg.FlattenIndex(from), bg.FlattenIndex(to), &bg)
+						route, nodesProcessed = algorithms.DijkstraAllNodesBg(bg.GridToID(from), bg.GridToID(to), &bg)
 					}
 					t := time.Now()
 					elapsed := t.Sub(start)
@@ -142,15 +142,15 @@ func Run(xSize, ySize int, basicPointInPolygon bool) {
 					var route [][][]float64
 					switch algorithm {
 					case 0:
-						route, _ = algorithms.DijkstraBg(bg.FlattenIndex(from), bg.FlattenIndex(to), &bg)
+						route, _ = algorithms.DijkstraBg(bg.GridToID(from), bg.GridToID(to), &bg)
 					case 1:
-						route, _ = algorithms.AStarBg(bg.FlattenIndex(from), bg.FlattenIndex(to), &bg)
+						route, _ = algorithms.AStarBg(bg.GridToID(from), bg.GridToID(to), &bg)
 					case 2:
-						route, _ = algorithms.BiDijkstraBg(bg.FlattenIndex(from), bg.FlattenIndex(to), &bg)
+						route, _ = algorithms.BiDijkstraBg(bg.GridToID(from), bg.GridToID(to), &bg)
 					case 3:
-						route, _ = algorithms.BiAStarBg(bg.FlattenIndex(from), bg.FlattenIndex(to), &bg)
+						route, _ = algorithms.BiAStarBg(bg.GridToID(from), bg.GridToID(to), &bg)
 					default:
-						route, _ = algorithms.DijkstraBg(bg.FlattenIndex(from), bg.FlattenIndex(to), &bg)
+						route, _ = algorithms.DijkstraBg(bg.GridToID(from), bg.GridToID(to), &bg)
 					}
 					t := time.Now()
 					elapsed := t.Sub(start)

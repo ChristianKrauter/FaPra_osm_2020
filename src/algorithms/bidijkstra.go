@@ -8,7 +8,6 @@ import (
 
 // BiDijkstra implementation on uniform grid
 func BiDijkstra(from, to int, ug *grids.UniformGrid) ([][][]float64, int) {
-
 	var prev = make([][]int, ug.N)
 	dist := [][]float64{make([]float64, ug.N), make([]float64, ug.N)}
 	pq := []priorityQueue{make(priorityQueue, 1), make(priorityQueue, 1)}
@@ -94,7 +93,6 @@ func BiDijkstra(from, to int, ug *grids.UniformGrid) ([][][]float64, int) {
 
 // BiDijkstraAllNodes additionally returns all visited nodes on uniform grid
 func BiDijkstraAllNodes(from, to int, ug *grids.UniformGrid) ([][][]float64, [][]float64) {
-
 	var prev = make([][]int, ug.N)
 	dist := [][]float64{make([]float64, ug.N), make([]float64, ug.N)}
 	pq := []priorityQueue{make(priorityQueue, 1), make(priorityQueue, 1)}

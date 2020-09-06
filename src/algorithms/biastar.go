@@ -8,7 +8,6 @@ import (
 
 // BiAStar implementation on uniform grid
 func BiAStar(from, to int, ug *grids.UniformGrid) ([][][]float64, int) {
-
 	var prev = make([][]int, ug.N)
 	dist := [][]float64{make([]float64, ug.N), make([]float64, ug.N)}
 	pq := []priorityQueue{make(priorityQueue, 1), make(priorityQueue, 1)}
@@ -95,7 +94,6 @@ func BiAStar(from, to int, ug *grids.UniformGrid) ([][][]float64, int) {
 
 // BiAStarAllNodes additionally returns all visited nodes on uniform grid
 func BiAStarAllNodes(from, to int, ug *grids.UniformGrid) ([][][]float64, [][]float64) {
-
 	var prev = make([][]int, ug.N)
 	dist := [][]float64{make([]float64, ug.N), make([]float64, ug.N)}
 	pq := []priorityQueue{make(priorityQueue, 1), make(priorityQueue, 1)}
