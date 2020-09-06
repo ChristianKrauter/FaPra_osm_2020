@@ -2,7 +2,7 @@
 printf "Starting tests:"
 printf "\n===========================================================\n"
 
-printf "\n\nServer tests (you have to terminate each server manually):"
+printf "\n\nTest Server (you have to terminate each server manually):"
 printf "\n-----------------------------------------------------------\n"
 go run osmgw.go
 printf "\n"
@@ -13,7 +13,7 @@ printf "\n"
 go run osmgw.go -bg -bpip
 printf "\n"
 
-printf "\nDataprocessing tests:"
+printf "\nTest Dataprocessing ug:"
 printf "\n-----------------------------------------------------------\n"
 go run osmgw.go -m=1
 printf "\n\n"
@@ -28,7 +28,7 @@ printf "\n\n"
 go run osmgw.go -m=1 -nbt -bpip
 printf "\n\n"
 
-printf "\nBasic grid dataprocessing tests:"
+printf "\nTest dataprocessing bg:"
 printf "\n-----------------------------------------------------------\n"
 go run osmgw.go -m=1 -bg
 printf "\n\n"
@@ -41,7 +41,7 @@ printf "\n\n"
 go run osmgw.go -m=1 -bg -nbt -bpip
 printf "\n\n"
 
-printf "\nEval dataprocessing tests:"
+printf "\nTest Eval of ug dataprocessing:"
 printf "\n-----------------------------------------------------------\n"
 go run osmgw.go -m=2
 printf "\n\n"
@@ -56,7 +56,7 @@ printf "\n\n"
 go run osmgw.go -m=2 -nbt -bpip
 printf "\n\n"
 
-printf "\nEval basic grid dataprocessing tests:"
+printf "\nTest eval of bg dataprocessing:"
 printf "\n-----------------------------------------------------------\n"
 go run osmgw.go -m=2 -bg
 printf "\n\n"
@@ -69,24 +69,43 @@ printf "\n\n"
 go run osmgw.go -m=2 -bg -nbt -bpip
 printf "\n\n"
 
-printf "\nEval wayfinding tests:"
+printf "\nTest eval of wayfinding on ug:"
 printf "\n-----------------------------------------------------------\n"
-go run osmgw.go -m=3 -r=10 -bg
+go run osmgw.go -m=3 -r=10 -a=0
 printf "\n\n"
-go run osmgw.go -m=3 -r=10 -bg -bpip
+go run osmgw.go -m=3 -r=10 -a=0 -bpip
 printf "\n\n"
-go run osmgw.go -m=3 -r=10
+go run osmgw.go -m=3 -r=10 -a=1
 printf "\n\n"
-go run osmgw.go -m=3 -r=10 -bpip
+go run osmgw.go -m=3 -r=10 -a=1 -bpip
 printf "\n\n"
-go run osmgw.go -m=3 -a=1 -r=10
+go run osmgw.go -m=3 -r=10 -a=2
 printf "\n\n"
-go run osmgw.go -m=3 -a=2 -r=10
+go run osmgw.go -m=3 -r=10 -a=2 -bpip
 printf "\n\n"
-go run osmgw.go -m=3 -a=3 -r=10
+go run osmgw.go -m=3 -r=10 -a=3
 printf "\n\n"
+go run osmgw.go -m=3 -r=10 -a=3 -bpip
 
-printf "Eval readpbf test:"
+printf "\nTest eval of wayfinding on bg:"
+printf "\n-----------------------------------------------------------\n"
+go run osmgw.go -m=3 -r=10 -a=0 -bg
+printf "\n\n"
+go run osmgw.go -m=3 -r=10 -a=0 -bg -bpip
+printf "\n\n"
+go run osmgw.go -m=3 -r=10 -a=1 -bg
+printf "\n\n"
+go run osmgw.go -m=3 -r=10 -a=1 -bg -bpip
+printf "\n\n"
+go run osmgw.go -m=3 -r=10 -a=2 -bg
+printf "\n\n"
+go run osmgw.go -m=3 -r=10 -a=2 -bg -bpip
+printf "\n\n"
+go run osmgw.go -m=3 -r=10 -a=3 -bg
+printf "\n\n"
+go run osmgw.go -m=3 -r=10 -a=3 -bg -bpip
+
+printf "Test eval of readpbf:"
 printf "\n-----------------------------------------------------------\n"
 go run osmgw.go -m=4
 printf "\n"
