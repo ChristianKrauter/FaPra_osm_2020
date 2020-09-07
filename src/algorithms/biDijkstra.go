@@ -81,20 +81,8 @@ func BiDijkstra(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64, int
 				fmt.Printf("bi dist: %v\n", bestDist)
 				return [][][]float64{ExtractRouteBiUg(&prev1, &prev2, meet, ug)}, popped1+popped2
 			}
-
-			neighbours1 := NeighboursUg(u1, ug)
-			for _, j := range neighbours1 {
-				var alt1 = dist1[u1] + distance((*ug).GridToCoord((*ug).IDToGrid(u1)), (*ug).GridToCoord((*ug).IDToGrid(j)))
-				if alt1 < dist1[j] {
-					dist1[j] = alt1
-					prev1[j] = u1
-					item := &Item{
-						value:    j,
-						priority: -dist1[j],
-					}
-					heap.Push(&pq1, item)
-				}
-			}
+			expandNodeDijkstra(&u1,true,ug,&dist1,&prev1,&pq1)
+			
 
 			u2 := heap.Pop(&pq2).(*Item).value
 			nodesProcessed2[u2] = true;
@@ -123,21 +111,7 @@ func BiDijkstra(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64, int
 				return [][][]float64{ExtractRouteBiUg(&prev1, &prev2, meet, ug)}, popped1+popped2
 			}
 			
-			
-
-			neighbours2 := NeighboursUg(u2, ug)
-			for _, j := range neighbours2 {
-				var alt2 = dist2[u2] + distance((*ug).GridToCoord((*ug).IDToGrid(u2)), (*ug).GridToCoord((*ug).IDToGrid(j)))
-				if alt2 < dist2[j] {
-					dist2[j] = alt2
-					prev2[j] = u2
-					item := &Item{
-						value:    j,
-						priority: -dist2[j],
-					}
-					heap.Push(&pq2, item)
-				}
-			}
+			expandNodeDijkstra(&u2,true,ug,&dist2,&prev2,&pq2)
 		}
 	}
 	return ExtractRouteUg(&prev1, (*ug).GridToID(toIDX), ug), popped1
@@ -190,10 +164,9 @@ func BiDijkstraAllNodes(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]floa
 		} else {
 			u1 := heap.Pop(&pq1).(*Item).value
 			nodesProcessed1[u1] = true;
-			u2 := heap.Pop(&pq2).(*Item).value
-			nodesProcessed2[u2] = true;
+			
 			popped1++
-			popped2++
+
 
 			if _, ok := nodesProcessed2[u1]; ok {
 				meet := u1
@@ -227,6 +200,14 @@ func BiDijkstraAllNodes(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]floa
 				var processedNodes = ExtractNodesUg(&allNodes, ug)
 				return route,processedNodes
 			}
+
+			expandNodeDijkstra(&u1,true,ug,&dist1,&prev1,&pq1)
+
+
+			u2 := heap.Pop(&pq2).(*Item).value
+			nodesProcessed2[u2] = true;
+			popped2++
+
 			if _, ok := nodesProcessed1[u2]; ok {
 				meet := u2
 				bestDist := dist1[u2]  + dist2[u2]
@@ -268,33 +249,9 @@ func BiDijkstraAllNodes(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]floa
 				return ExtractRouteUg(&prev2, (*ug).GridToID(toIDX), ug), popped2
 			}*/
 			
-			neighbours1 := NeighboursUg(u1, ug)
-			for _, j := range neighbours1 {
-				var alt1 = dist1[u1] + distance((*ug).GridToCoord((*ug).IDToGrid(u1)), (*ug).GridToCoord((*ug).IDToGrid(j)))
-				if alt1 < dist1[j] {
-					dist1[j] = alt1
-					prev1[j] = u1
-					item := &Item{
-						value:    j,
-						priority: -dist1[j],
-					}
-					heap.Push(&pq1, item)
-				}
-			}
+			expandNodeDijkstra(&u2,true,ug,&dist2,&prev2,&pq2)
 
-			neighbours2 := NeighboursUg(u2, ug)
-			for _, j := range neighbours2 {
-				var alt2 = dist2[u2] + distance((*ug).GridToCoord((*ug).IDToGrid(u2)), (*ug).GridToCoord((*ug).IDToGrid(j)))
-				if alt2 < dist2[j] {
-					dist2[j] = alt2
-					prev2[j] = u2
-					item := &Item{
-						value:    j,
-						priority: -dist2[j],
-					}
-					heap.Push(&pq2, item)
-				}
-			}
+			
 		}
 	}
 	var route = ExtractRouteUg(&prev1, (*ug).GridToID(toIDX), ug)

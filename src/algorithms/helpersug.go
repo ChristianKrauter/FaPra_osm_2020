@@ -3,8 +3,27 @@ package algorithms
 import (
 	"../grids"
 	"math"
+	"container/heap"
 	//"fmt"
 )
+
+func expandNodeDijkstra(node *int,addToQueue bool, ug *grids.UniformGrid, dist *[]float64, prev *[]int, pq *priorityQueue){
+	neighbours := NeighboursUg(node, ug)
+		for _, j := range neighbours {
+			var alt = (*dist)[*node] + distance((*ug).GridToCoord((*ug).IDToGrid(*node)), (*ug).GridToCoord((*ug).IDToGrid(j)))
+			if alt < (*dist)[j] {
+				(*dist)[j] = alt
+				(*prev)[j] = *node
+				item := &Item{
+					value:    j,
+					priority: -(*dist)[j],
+				}
+				if(addToQueue){
+					heap.Push(pq, item)	
+				}
+			}
+		}
+}
 
 // ExtractRouteUg ...
 func ExtractRouteUg(prev *[]int, end int, ug *grids.UniformGrid) [][][]float64 {
@@ -96,9 +115,9 @@ func neighboursRowUg(in []float64, ug *grids.UniformGrid) [][]int {
 }
 
 // NeighboursUg gets up to 8 neighbours
-func NeighboursUg(in int, ug *grids.UniformGrid) []int {
+func NeighboursUg(in *int, ug *grids.UniformGrid) []int {
 	var neighbours [][]int
-	var inGrid = ug.IDToGrid(in)
+	var inGrid = ug.IDToGrid(*in)
 	m := inGrid[0]
 	n := inGrid[1]
 	neighbours = append(neighbours, []int{m, mod(n-1, len(ug.VertexData[m]))})

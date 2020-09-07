@@ -61,7 +61,7 @@ func BiAstern(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64, int) 
 			}
 			
 			
-			neighbours1 := NeighboursUg(u1, ug)
+			neighbours1 := NeighboursUg(&u1, ug)
 			for _, j := range neighbours1 {
 				var alt1 = dist1[u1] + distance((*ug).GridToCoord((*ug).IDToGrid(u1)), (*ug).GridToCoord((*ug).IDToGrid(j)))
 				if alt1 < dist1[j] {
@@ -83,7 +83,7 @@ func BiAstern(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64, int) 
 				return [][][]float64{ExtractRouteBiUg(&prev1, &prev2, u2, ug)}, popped1+popped2
 			}
 
-			neighbours2 := NeighboursUg(u2, ug)
+			neighbours2 := NeighboursUg(&u2, ug)
 			for _, j := range neighbours2 {
 				var alt2 = dist2[u2] + distance((*ug).GridToCoord((*ug).IDToGrid(u2)), (*ug).GridToCoord((*ug).IDToGrid(j)))
 				if alt2 < dist2[j] {
@@ -189,7 +189,7 @@ func BiAsternAllNodes(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float6
 				return ExtractRouteUg(&prev2, (*ug).GridToID(toIDX), ug), popped2
 			}*/
 			
-			neighbours1 := NeighboursUg(u1, ug)
+			neighbours1 := NeighboursUg(&u1, ug)
 			for _, j := range neighbours1 {
 				var alt1 = dist1[u1] + distance((*ug).GridToCoord((*ug).IDToGrid(u1)), (*ug).GridToCoord((*ug).IDToGrid(j)))
 				if alt1 < dist1[j] {
@@ -203,7 +203,7 @@ func BiAsternAllNodes(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float6
 				}
 			}
 
-			neighbours2 := NeighboursUg(u2, ug)
+			neighbours2 := NeighboursUg(&u2, ug)
 			for _, j := range neighbours2 {
 				var alt2 = dist2[u2] + distance((*ug).GridToCoord((*ug).IDToGrid(u2)), (*ug).GridToCoord((*ug).IDToGrid(j)))
 				if alt2 < dist2[j] {
