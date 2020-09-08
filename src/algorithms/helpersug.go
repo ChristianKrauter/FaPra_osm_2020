@@ -2,6 +2,7 @@ package algorithms
 
 import (
 	"../grids"
+	//"fmt"
 	"math"
 )
 
@@ -15,6 +16,7 @@ func ExtractRouteUg(prev *[]int, end int, ug *grids.UniformGrid) [][][]float64 {
 		}
 		end = (*prev)[end]
 	}
+	//fmt.Printf("route: %v\n", route)
 	return route
 }
 
