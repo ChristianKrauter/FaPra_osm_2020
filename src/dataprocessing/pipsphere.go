@@ -58,16 +58,24 @@ func pointInPolygonSphere(poly *Polygon, point []float64) bool {
 		var b = (poly.Points)[(i+1)%len(poly.Points)]
 		strike = false
 
+		var nortPole = []float64{0.0, 90.0}
+		var aT = a[0]
+		var pT = point[0]
+		var bT = b[0]
 		if a[0] == b[0] {
-			a[0] -= 0.001
+			a[0] -= 0.000000001
+			nortPole = []float64{0.000000001, 90.0}
+			aT = transformLon(nortPole, a)
+			pT = transformLon(nortPole, point)
+			bT = transformLon(nortPole, b)
 		}
 
-		if point[0] == a[0] {
+		if pT == aT {
 			strike = true
 		} else {
 
-			var aToP = eastOrWest(a[0], point[0])
-			var pToB = eastOrWest(point[0], b[0])
+			var aToP = eastOrWest(aT, pT)
+			var pToB = eastOrWest(pT, bT)
 
 			if aToP == (poly.EoWNext)[i] && pToB == (poly.EoWNext)[i] {
 				strike = true

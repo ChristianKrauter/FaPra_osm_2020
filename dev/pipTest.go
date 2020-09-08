@@ -168,12 +168,43 @@ func createPolygons(allCoastlines *[][][]float64, coastlineMap *map[int64][]int6
 	for _, i := range *allCoastlines {
 		for _, j := range i {
 			if temp[0] == j[0] && temp[1] == j[1] {
-				fmt.Printf("bad")
+				fmt.Printf("bad: %v, %v\n", temp, j)
+				createAndStoreCoastlineGeoJSON(&i, fmt.Sprintf("./coastlines-bad.geojson"))
+				//fmt.Printf("coastline:\n%v\n", i)
+			}
+			if temp[1] == -j[1] {
+				var del = temp[0] - j[0]
+				if del > 180.0 {
+					del = del - 360.0
+				}
+				if del < -180.0 {
+					del = del - 360.0
+				}
+				if del == 180.0 || del == -180.0 {
+					fmt.Printf("antipodal polygon vertices: %v, %v\n", temp, j)
+				}
 			}
 			temp = j
 		}
 	}
 
+	return elapsed.String()
+}
+
+func createAndStoreCoastlineGeoJSON(polygon *[][]float64, filename string) string {
+	start := time.Now()
+	var fc = geojson.NewMultiPolygonGeometry([][][]float64{*polygon})
+	rawJSON, err := fc.MarshalJSON()
+	f, err := os.Create(filename)
+	check(err)
+
+	_, err1 := f.Write(rawJSON)
+	check(err1)
+	f.Sync()
+
+	t := time.Now()
+	elapsed := t.Sub(start)
+	fmt.Printf("Created and stored coastlines in : %s\n", elapsed)
 	return elapsed.String()
 }
 
@@ -232,7 +263,7 @@ func transformLon(newNorth, point []float64) float64 {
 
 	// New north is already the north pole
 	if newNorth[1] == 90.0 {
-		fmt.Printf("already north pole")
+		//fmt.Printf("already north pole\n")
 		transformedLon = point[0]
 	} else {
 		var t = math.Sin((point[0]-newNorth[0])*dtr) * math.Cos(point[1]*dtr)
@@ -287,31 +318,35 @@ func pointInPolygonSphere(polygon *[][]float64, point []float64, strikes *[][][]
 		strike = false
 
 		var nortPole = []float64{0.0, 90.0}
+		var aT = a[0]
+		var pT = point[0]
+		var bT = b[0]
 		if a[0] == b[0] {
 			a[0] -= 0.001
 			nortPole = []float64{0.001, 90.0}
-
-			fmt.Printf("a&b great circle\n")
+			aT = transformLon(nortPole, a)
+			pT = transformLon(nortPole, point)
+			bT = transformLon(nortPole, b)
+			//fmt.Printf("a&b great circle\n")
 			//point[0] += 0.001
 		}
 
-		if point[0] == a[0] {
+		if pT == aT {
 			strike = true
 		} else {
-			var aToB = eastOrWest(a[0], b[0])
-			var aToP = eastOrWest(a[0], point[0])
-			var pToB = eastOrWest(point[0], b[0])
+			var aToB = eastOrWest(aT, bT)
+			var aToP = eastOrWest(aT, pT)
+			var pToB = eastOrWest(pT, bT)
 
 			if aToP == aToB && pToB == aToB {
 				strike = true
 			}
 		}
 
-		/*if strike && point[1] > a[1] && point[1] > b[1] {
+		if strike && point[1] > a[1] && point[1] > b[1] {
 			strike = false
-		}*/
+		}
 		if strike {
-			*strikes = append(*strikes, [][]float64{a, b})
 			if point[1] == a[1] && point[0] == a[0] {
 				fmt.Printf("p=a\n")
 				return true
@@ -335,6 +370,7 @@ func pointInPolygonSphere(polygon *[][]float64, point []float64, strikes *[][][]
 			var bToX = eastOrWest(bLonTransformed, northPoleLonTransformed)
 			var bToP = eastOrWest(bLonTransformed, pLonTransformed)
 			if bToX == -bToP {
+				*strikes = append(*strikes, [][]float64{a, b})
 				inside = !inside
 			}
 		}
@@ -370,7 +406,8 @@ type TestData struct {
 
 func main() {
 
-	pbfFileName := "antarctica-latest.osm.pbf"
+	pbfFileName := "planet-coastlines.pbf"
+	//pbfFileName := "antarctica-latest.osm.pbf"
 	fmt.Printf("\nStarting processing of %s\n\n", pbfFileName)
 	pbfFileName = fmt.Sprintf("../data/%s", pbfFileName)
 
@@ -387,8 +424,8 @@ func main() {
 	var boundingTreeRoot boundingTree
 	createBoundingTree(&boundingTreeRoot, &allCoastlines)
 
-	xSize := 100
-	ySize := 500
+	xSize := 360
+	ySize := 360
 	basicPointInPolygon := false
 	//log.Fatal("Server with unidistant grid not implemented.")
 

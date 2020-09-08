@@ -49,9 +49,19 @@ func createPolygons(polygons *Polygons, coastlineMap *map[int64][]int64, nodeMap
 			poly.BtoX = make([]int, len(poly.Points))
 
 			for i, x := range poly.Points {
-				poly.EoWNext[i] = eastOrWest(x[0], poly.Points[(i+1)%len(poly.Points)][0])
+				var nortPole = []float64{0.0, 90.0}
+				var aT = x[0]
+				var bT = poly.Points[(i+1)%len(poly.Points)][0]
+				if aT == bT {
+					x[0] -= 0.000000001
+					nortPole = []float64{0.000000001, 90.0}
+					aT = transformLon(nortPole, x)
+					bT = transformLon(nortPole, poly.Points[(i+1)%len(poly.Points)])
+				}
+
+				poly.EoWNext[i] = eastOrWest(aT, bT)
 				poly.LngTNext[i] = transformLon(x, poly.Points[(i+1)%len(poly.Points)])
-				poly.BtoX[i] = eastOrWest((poly.LngTNext)[i], transformLon(x, []float64{0.0, 90.0}))
+				poly.BtoX[i] = eastOrWest((poly.LngTNext)[i], transformLon(x, nortPole))
 			}
 		}
 
