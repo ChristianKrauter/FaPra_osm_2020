@@ -41,41 +41,22 @@ func (ug UniformGrid) GridToCoord(in []int) []float64 {
 	theta := math.Pi * (float64(in[0]) + 0.5) / float64(ug.MTheta)
 	mPhi := math.Round(2.0 * math.Pi * math.Sin(theta) / ug.DPhi)
 	phi := 2 * math.Pi * float64(in[1]) / mPhi
-	fmt.Printf("m: %v\n", in[0])
-	fmt.Printf("n: %v\n", in[1])
-	fmt.Printf("theta: %v\n", theta)
-	fmt.Printf("mPhi: %v\n", mPhi)
-	fmt.Printf("phi: %v\n", phi)
-	fmt.Printf("lon,lat: %v,%v\n", (phi/math.Pi)*180.0, (theta/math.Pi)*180.0-90.0)
 	return []float64{(phi / math.Pi) * 180.0, (theta/math.Pi)*180.0 - 90.0}
 }
 
 // CoordToGrid takes lng lat and outputs grid indices
 func (ug UniformGrid) CoordToGrid(lng, lat float64) []int {
-
-	theta := ((lat + 90.0) / 180.0) * math.Pi
-
+	theta := (lat + 90.0) * math.Pi / 180.0
 	m := math.Round((theta * ug.MTheta / math.Pi) - 0.5)
-
 	theta = math.Pi * (float64(m) + 0.5) / float64(ug.MTheta)
-
 	var phi float64
 	if lng < 0 {
 		phi = float64(lng+360.0) * math.Pi / 180.0
 	} else {
 		phi = lng * math.Pi / 180.0
 	}
-
 	mPhi := math.Round(2.0 * math.Pi * math.Sin(theta) / ug.DPhi)
-
-	fmt.Printf("n not rounded: %v\n", phi*mPhi/(2.0*math.Pi))
 	n := math.Round(phi * mPhi / (2.0 * math.Pi))
-
-	fmt.Printf("theta: %v\n", theta)
-	fmt.Printf("m: %v\n", m)
-	fmt.Printf("phi: %v\n", phi)
-	fmt.Printf("mPhi: %v\n", mPhi)
-	fmt.Printf("n: %v\n", n)
 	return []int{mod(int(m), int(ug.MTheta)), mod(int(n), int(mPhi))}
 }
 
@@ -213,25 +194,17 @@ func getSomeKey(m *map[int64][]int64) int64 {
 // TestData ...
 type TestData struct {
 	Point []float64
+	Nbs   [][]float64
+	Nnbs  [][]float64
 }
 
 func main() {
 	xSize := 100
 	ySize := 500
 	basicPointInPolygon := false
-	//log.Fatal("Server with unidistant grid not implemented.")
 
 	var ug1D []bool
 	var ug UniformGrid
-
-	ug.XSize = xSize
-	ug.YSize = ySize
-	ug.BigN = xSize * ySize
-	ug.A = 4.0 * math.Pi / float64(ug.BigN)
-	ug.D = math.Sqrt(ug.A)
-	ug.MTheta = math.Round(math.Pi / ug.D)
-	ug.DTheta = math.Pi / ug.MTheta
-	ug.DPhi = ug.A / ug.DTheta
 
 	var filename string
 	if basicPointInPolygon {
@@ -285,6 +258,14 @@ func main() {
 			var gridNodeCoord = ug.GridToCoord(from)
 			fmt.Printf("%v\n", gridNodeCoord)
 			var td TestData
+			var nbs = neighboursUg(ug.GridToID(from), &ug)
+			for _, i := range nbs {
+				td.Nbs = append(td.Nbs, ug.GridToCoord(ug.IDToGrid(i)))
+			}
+			var nnbs = simpleNeighbours(ug.GridToID(from), &ug)
+			for _, i := range nnbs {
+				td.Nnbs = append(td.Nnbs, ug.GridToCoord(ug.IDToGrid(i)))
+			}
 			td.Point = gridNodeCoord
 			//fmt.Printf("%v\n", td)
 			tdJSON, err := json.Marshal(td)
@@ -333,4 +314,96 @@ func main() {
 	var portStr = fmt.Sprintf(":%d", port)
 	fmt.Printf(" on localhost%s\n", portStr)
 	log.Fatal(http.ListenAndServe(portStr, nil))
+}
+
+func simpleNeighbours(in int, ug *UniformGrid) []int {
+	var neighbours [][]int
+	var inGrid = ug.IDToGrid(in)
+	m := inGrid[0]
+	n := inGrid[1]
+	neighbours = append(neighbours, []int{m, mod(n-1, len(ug.VertexData[m]))})
+	neighbours = append(neighbours, []int{m, mod(n+1, len(ug.VertexData[m]))})
+
+	var nUp, nDown, ratio float64
+	if n == 0 {
+		nUp = 0
+		nDown = 0
+	} else {
+		ratio = float64(len(ug.VertexData[m])) / float64(n)
+		nUp = -ratio * float64(len(ug.VertexData[m+1]))
+		nDown = -ratio * float64(len(ug.VertexData[m-1]))
+	}
+
+	fmt.Printf("m,n: %v,%v\nlen(m), len(m+1), len(m-1): %v,%v,%v\nratio, nUp, nDown: %v,%v,%v\n",
+		m, n, len(ug.VertexData[m]), len(ug.VertexData[m+1]), len(ug.VertexData[m-1]), ratio, nUp, nDown)
+	fmt.Printf("%v\n", math.Mod(nUp, float64(len(ug.VertexData[m+1]))))
+
+	if m < len(ug.VertexData)-1 {
+		neighbours = append(neighbours, []int{m + 1, int(math.Mod(nUp, float64(len(ug.VertexData[m+1]))))})
+		neighbours = append(neighbours, []int{m + 1, int(math.Mod(nUp+1, float64(len(ug.VertexData[m+1]))))})
+		neighbours = append(neighbours, []int{m + 1, int(math.Mod(nUp-1, float64(len(ug.VertexData[m+1]))))})
+
+		//neighbours = append(neighbours, []int{m + 1, mod(int(nUp), len(ug.VertexData[m+1]))})
+		//neighbours = append(neighbours, []int{m + 1, mod(int(nUp+1), len(ug.VertexData[m+1]))})
+		//neighbours = append(neighbours, []int{m + 1, mod(int(nUp-1), len(ug.VertexData[m+1]))})
+	}
+
+	if m > 0 {
+		neighbours = append(neighbours, []int{m - 1, int(math.Mod(nDown, float64(len(ug.VertexData[m-1]))))})
+		neighbours = append(neighbours, []int{m - 1, int(math.Mod(nDown+1, float64(len(ug.VertexData[m-1]))))})
+		neighbours = append(neighbours, []int{m - 1, int(math.Mod(nDown-1, float64(len(ug.VertexData[m-1]))))})
+	}
+
+	var neighbours1d []int
+	for _, neighbour := range neighbours {
+		//if !ug.VertexData[neighbour[0]][neighbour[1]] {
+		neighbours1d = append(neighbours1d, ug.GridToID(neighbour))
+		//}
+	}
+	return neighbours1d
+}
+
+// Gets neighours left and right in the same row
+func neighboursRowUg(in []float64, ug *UniformGrid) [][]int {
+	theta := (in[1] + 90) * math.Pi / 180
+	m := math.Round((theta * ug.MTheta / math.Pi) - 0.5)
+	theta = math.Pi * (m + 0.5) / ug.MTheta
+	phi := in[0] * math.Pi / 180
+	mPhi := math.Round(2.0 * math.Pi * math.Sin(theta) / ug.DPhi)
+
+	n1 := math.Round(phi * mPhi / (2 * math.Pi))
+	p1 := []int{mod(int(m), int(ug.MTheta)), mod(int(n1), int(mPhi))}
+	p2 := []int{mod(int(m), int(ug.MTheta)), mod(int(n1+1), int(mPhi))}
+	p3 := []int{mod(int(m), int(ug.MTheta)), mod(int(n1-1), int(mPhi))}
+	return [][]int{p1, p2, p3}
+}
+
+// neighboursUg gets up to 8 neighbours
+func neighboursUg(in int, ug *UniformGrid) []int {
+	var neighbours [][]int
+	var inGrid = ug.IDToGrid(in)
+	m := inGrid[0]
+	n := inGrid[1]
+	neighbours = append(neighbours, []int{m, mod(n-1, len(ug.VertexData[m]))})
+	neighbours = append(neighbours, []int{m, mod(n+1, len(ug.VertexData[m]))})
+
+	coord := ug.GridToCoord(inGrid)
+
+	if m > 0 {
+		coordDown := ug.GridToCoord([]int{m - 1, n})
+		neighbours = append(neighbours, neighboursRowUg([]float64{coord[0], coordDown[1]}, ug)...)
+	}
+
+	if m < len(ug.VertexData)-1 {
+		coordUp := ug.GridToCoord([]int{m + 1, n})
+		neighbours = append(neighbours, neighboursRowUg([]float64{coord[0], coordUp[1]}, ug)...)
+	}
+
+	var neighbours1d []int
+	for _, neighbour := range neighbours {
+		//if !ug.VertexData[neighbour[0]][neighbour[1]] {
+		neighbours1d = append(neighbours1d, ug.GridToID(neighbour))
+		//}
+	}
+	return neighbours1d
 }
