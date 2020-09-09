@@ -70,7 +70,6 @@ function createPoint(worldPosition, processed = false, start = false) {
             point: {
                 color: Cesium.Color.WHITE,
                 pixelSize: 5,
-                heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
             },
         });
 
@@ -288,7 +287,6 @@ function createColoredPoint(worldPosition, color, size) {
         point: {
             color: color,
             pixelSize: size,
-            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
         },
     });
     return point;
