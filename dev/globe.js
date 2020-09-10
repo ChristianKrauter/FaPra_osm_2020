@@ -146,7 +146,7 @@ function nbTest(testData) {
         }
     } else {
         for (i = 0; i < td.Nbs.length; i++) {
-            createColoredPoint(Cesium.Cartesian3.fromDegrees(td.Nbs[i][0], td.Nbs[i][1]), Cesium.Color.ALICEBLUE)
+            createColoredPoint(Cesium.Cartesian3.fromDegrees(td.Nbs[i][0], td.Nbs[i][1]), Cesium.Color.RED)
         }
     }
 }
