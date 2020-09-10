@@ -250,13 +250,13 @@ func main() {
 			if err1 != nil {
 				panic(err1)
 			}
-			fmt.Printf("point\n")
-			fmt.Printf("CoordToGrid\n")
+			//fmt.Printf("point\n")
+			//fmt.Printf("CoordToGrid\n")
 			var from = ug.CoordToGrid(startLng, startLat)
-			fmt.Printf("%v\n", from)
-			fmt.Printf("GridToCoord\n")
+			//fmt.Printf("%v\n", from)
+			//fmt.Printf("GridToCoord\n")
 			var gridNodeCoord = ug.GridToCoord(from)
-			fmt.Printf("%v\n", gridNodeCoord)
+			//fmt.Printf("%v\n", gridNodeCoord)
 			var td TestData
 			var nbs = neighboursUg(ug.GridToID(from), &ug)
 			for _, i := range nbs {
@@ -329,29 +329,30 @@ func simpleNeighbours(in int, ug *UniformGrid) []int {
 		nUp = 0
 		nDown = 0
 	} else {
-		ratio = float64(len(ug.VertexData[m])) / float64(n)
-		nUp = -ratio * float64(len(ug.VertexData[m+1]))
-		nDown = -ratio * float64(len(ug.VertexData[m-1]))
+		ratio = float64(n) / float64(len(ug.VertexData[m]))
+		nUp = ratio * float64(len(ug.VertexData[m+1]))
+		nDown = ratio * float64(len(ug.VertexData[m-1]))
 	}
 
-	fmt.Printf("m,n: %v,%v\nlen(m), len(m+1), len(m-1): %v,%v,%v\nratio, nUp, nDown: %v,%v,%v\n",
-		m, n, len(ug.VertexData[m]), len(ug.VertexData[m+1]), len(ug.VertexData[m-1]), ratio, nUp, nDown)
+	fmt.Printf("m,n: %v,%v\nlen(m), len(m+1), len(m-1): %v,%v,%v\nratio: %v\nnUp, nDown  : %v,%v\n_nUp, _nDown: %v,%v\nxnUp, xnDown: %v,%v\n",
+		m, n, len(ug.VertexData[m]), len(ug.VertexData[m+1]), len(ug.VertexData[m-1]), ratio,
+		nUp, nDown, int(nUp), int(nDown), math.Round(math.Mod(nUp, float64(len(ug.VertexData[m+1])))), math.Round(math.Mod(nDown, float64(len(ug.VertexData[m-1])))))
 	fmt.Printf("%v\n", math.Mod(nUp, float64(len(ug.VertexData[m+1]))))
 
 	if m < len(ug.VertexData)-1 {
-		neighbours = append(neighbours, []int{m + 1, int(math.Mod(nUp, float64(len(ug.VertexData[m+1]))))})
-		neighbours = append(neighbours, []int{m + 1, int(math.Mod(nUp+1, float64(len(ug.VertexData[m+1]))))})
-		neighbours = append(neighbours, []int{m + 1, int(math.Mod(nUp-1, float64(len(ug.VertexData[m+1]))))})
+		neighbours = append(neighbours, []int{m + 1, int(math.Round(math.Mod(nUp, float64(len(ug.VertexData[m+1])))))})
+		neighbours = append(neighbours, []int{m + 1, int(math.Round(math.Mod(nUp+1.0, float64(len(ug.VertexData[m+1])))))})
+		neighbours = append(neighbours, []int{m + 1, int(math.Round(math.Mod(nUp-1.0, float64(len(ug.VertexData[m+1])))))})
 
-		//neighbours = append(neighbours, []int{m + 1, mod(int(nUp), len(ug.VertexData[m+1]))})
-		//neighbours = append(neighbours, []int{m + 1, mod(int(nUp+1), len(ug.VertexData[m+1]))})
-		//neighbours = append(neighbours, []int{m + 1, mod(int(nUp-1), len(ug.VertexData[m+1]))})
+		// neighbours = append(neighbours, []int{m + 1, mod(int(nUp), len(ug.VertexData[m+1]))})
+		// neighbours = append(neighbours, []int{m + 1, mod(int(nUp+1), len(ug.VertexData[m+1]))})
+		// neighbours = append(neighbours, []int{m + 1, mod(int(nUp-1), len(ug.VertexData[m+1]))})
 	}
 
 	if m > 0 {
-		neighbours = append(neighbours, []int{m - 1, int(math.Mod(nDown, float64(len(ug.VertexData[m-1]))))})
-		neighbours = append(neighbours, []int{m - 1, int(math.Mod(nDown+1, float64(len(ug.VertexData[m-1]))))})
-		neighbours = append(neighbours, []int{m - 1, int(math.Mod(nDown-1, float64(len(ug.VertexData[m-1]))))})
+		neighbours = append(neighbours, []int{m - 1, int(math.Round(math.Mod(nDown, float64(len(ug.VertexData[m-1])))))})
+		neighbours = append(neighbours, []int{m - 1, int(math.Round(math.Mod(nDown+1.0, float64(len(ug.VertexData[m-1])))))})
+		neighbours = append(neighbours, []int{m - 1, int(math.Round(math.Mod(nDown-1.0, float64(len(ug.VertexData[m-1])))))})
 	}
 
 	var neighbours1d []int
