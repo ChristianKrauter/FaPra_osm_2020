@@ -199,7 +199,7 @@ type TestData struct {
 }
 
 func main() {
-	xSize := 100
+	xSize := 1000
 	ySize := 500
 	basicPointInPolygon := false
 
@@ -319,40 +319,38 @@ func main() {
 func simpleNeighbours(in int, ug *UniformGrid) []int {
 	var neighbours [][]int
 	var inGrid = ug.IDToGrid(in)
-	m := inGrid[0]
-	n := inGrid[1]
-	neighbours = append(neighbours, []int{m, mod(n-1, len(ug.VertexData[m]))})
-	neighbours = append(neighbours, []int{m, mod(n+1, len(ug.VertexData[m]))})
+	var ratio float64
+	var nUp, nDown int
+	var m = inGrid[0]
+	var n = inGrid[1]
 
-	var nUp, nDown, ratio float64
-	if n == 0 {
-		nUp = 0
-		nDown = 0
-	} else {
-		ratio = float64(n) / float64(len(ug.VertexData[m]))
-		nUp = ratio * float64(len(ug.VertexData[m+1]))
-		nDown = ratio * float64(len(ug.VertexData[m-1]))
-	}
+	// lengths of rows
+	var lm = len(ug.VertexData[m])
+	var lmp = len(ug.VertexData[m+1])
+	var lmm = len(ug.VertexData[m-1])
 
-	fmt.Printf("m,n: %v,%v\nlen(m), len(m+1), len(m-1): %v,%v,%v\nratio: %v\nnUp, nDown  : %v,%v\n_nUp, _nDown: %v,%v\nxnUp, xnDown: %v,%v\n",
-		m, n, len(ug.VertexData[m]), len(ug.VertexData[m+1]), len(ug.VertexData[m-1]), ratio,
-		nUp, nDown, int(nUp), int(nDown), math.Round(math.Mod(nUp, float64(len(ug.VertexData[m+1])))), math.Round(math.Mod(nDown, float64(len(ug.VertexData[m-1])))))
-	fmt.Printf("%v\n", math.Mod(nUp, float64(len(ug.VertexData[m+1]))))
+	neighbours = append(neighbours, []int{m, mod(n-1, lm)})
+	neighbours = append(neighbours, []int{m, mod(n+1, lm)})
+
+	ratio = float64(n) / float64(lm)
+	nUp = int(math.Round(ratio * float64(lmp)))
+	nDown = int(math.Round(ratio * float64(lmm)))
+
+	fmt.Printf("m,n: %v,%v\nlen(m), len(m+1), len(m-1): %v,%v,%v\nratio: %v\nnUp, nDown  : %v,%v\nxnUp, xnDown: %v,%v\n",
+		m, n, lm, lmp, lmm, ratio,
+		nUp, nDown, mod(nUp, lmp), mod(nDown, lmm))
+	fmt.Printf("%v\n", mod(nUp, lmp))
 
 	if m < len(ug.VertexData)-1 {
-		neighbours = append(neighbours, []int{m + 1, int(math.Round(math.Mod(nUp, float64(len(ug.VertexData[m+1])))))})
-		neighbours = append(neighbours, []int{m + 1, int(math.Round(math.Mod(nUp+1.0, float64(len(ug.VertexData[m+1])))))})
-		neighbours = append(neighbours, []int{m + 1, int(math.Round(math.Mod(nUp-1.0, float64(len(ug.VertexData[m+1])))))})
-
-		// neighbours = append(neighbours, []int{m + 1, mod(int(nUp), len(ug.VertexData[m+1]))})
-		// neighbours = append(neighbours, []int{m + 1, mod(int(nUp+1), len(ug.VertexData[m+1]))})
-		// neighbours = append(neighbours, []int{m + 1, mod(int(nUp-1), len(ug.VertexData[m+1]))})
+		neighbours = append(neighbours, []int{m + 1, mod(nUp, lmp)})
+		neighbours = append(neighbours, []int{m + 1, mod(nUp+1.0, lmp)})
+		neighbours = append(neighbours, []int{m + 1, mod(nUp-1.0, lmp)})
 	}
 
 	if m > 0 {
-		neighbours = append(neighbours, []int{m - 1, int(math.Round(math.Mod(nDown, float64(len(ug.VertexData[m-1])))))})
-		neighbours = append(neighbours, []int{m - 1, int(math.Round(math.Mod(nDown+1.0, float64(len(ug.VertexData[m-1])))))})
-		neighbours = append(neighbours, []int{m - 1, int(math.Round(math.Mod(nDown-1.0, float64(len(ug.VertexData[m-1])))))})
+		neighbours = append(neighbours, []int{m - 1, mod(nDown, lmm)})
+		neighbours = append(neighbours, []int{m - 1, mod(nDown+1.0, lmm)})
+		neighbours = append(neighbours, []int{m - 1, mod(nDown-1.0, lmm)})
 	}
 
 	var neighbours1d []int
