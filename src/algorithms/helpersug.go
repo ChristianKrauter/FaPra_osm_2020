@@ -31,6 +31,48 @@ func ExtractNodesUg(nodesProcessed *[]int, ug *grids.UniformGrid) [][]float64 {
 	return nodesExtended
 }
 
+// SimpleNeighboursUg gets ug neighbours cheaper
+func SimpleNeighboursUg(in int, ug *grids.UniformGrid) []int {
+	var neighbours [][]int
+	var inGrid = ug.IDToGrid(in)
+	var ratio float64
+	var nUp, nDown int
+	var m = inGrid[0]
+	var n = inGrid[1]
+
+	// lengths of rows
+	var lm = len(ug.VertexData[m])
+
+	neighbours = append(neighbours, []int{m, mod(n-1, lm)})
+	neighbours = append(neighbours, []int{m, mod(n+1, lm)})
+
+	ratio = float64(n) / float64(lm)
+
+	if m < len(ug.VertexData)-1 {
+		var lmp = len(ug.VertexData[m+1])
+		nUp = int(math.Round(ratio * float64(lmp)))
+		neighbours = append(neighbours, []int{m + 1, mod(nUp, lmp)})
+		neighbours = append(neighbours, []int{m + 1, mod(nUp+1.0, lmp)})
+		neighbours = append(neighbours, []int{m + 1, mod(nUp-1.0, lmp)})
+	}
+
+	if m > 0 {
+		var lmm = len(ug.VertexData[m-1])
+		nDown = int(math.Round(ratio * float64(lmm)))
+		neighbours = append(neighbours, []int{m - 1, mod(nDown, lmm)})
+		neighbours = append(neighbours, []int{m - 1, mod(nDown+1.0, lmm)})
+		neighbours = append(neighbours, []int{m - 1, mod(nDown-1.0, lmm)})
+	}
+
+	var neighbours1d []int
+	for _, neighbour := range neighbours {
+		if !ug.VertexData[neighbour[0]][neighbour[1]] {
+			neighbours1d = append(neighbours1d, ug.GridToID(neighbour))
+		}
+	}
+	return neighbours1d
+}
+
 // Gets neighours left and right in the same row
 func neighboursRowUg(in []float64, ug *grids.UniformGrid) [][]int {
 	theta := (in[1] + 90) * math.Pi / 180
@@ -46,8 +88,8 @@ func neighboursRowUg(in []float64, ug *grids.UniformGrid) [][]int {
 	return [][]int{p1, p2, p3}
 }
 
-// neighboursUg gets up to 8 neighbours
-func neighboursUg(in int, ug *grids.UniformGrid) []int {
+// NeighboursUg gets up to 8 neighbours
+func NeighboursUg(in int, ug *grids.UniformGrid) []int {
 	var neighbours [][]int
 	var inGrid = ug.IDToGrid(in)
 	m := inGrid[0]
