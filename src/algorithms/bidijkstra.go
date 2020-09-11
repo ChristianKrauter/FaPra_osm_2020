@@ -70,7 +70,7 @@ func BiDijkstra(from, to int, ug *grids.UniformGrid) ([][][]float64, int) {
 				break
 			}
 
-			neighbours := neighboursUg(u, ug)
+			neighbours := NeighboursUg(u, ug)
 			for _, j := range neighbours {
 				var alt = dist[dir][u] + distance(ug.GridToCoord(ug.IDToGrid(u)), ug.GridToCoord(ug.IDToGrid(j)))
 				if alt < dist[dir][j] {
@@ -155,7 +155,7 @@ func BiDijkstraAllNodes(from, to int, ug *grids.UniformGrid) ([][][]float64, [][
 				break
 			}
 
-			neighbours := neighboursUg(u, ug)
+			neighbours := NeighboursUg(u, ug)
 			for _, j := range neighbours {
 				var alt = dist[dir][u] + distance(ug.GridToCoord(ug.IDToGrid(u)), ug.GridToCoord(ug.IDToGrid(j)))
 				if alt < dist[dir][j] {
