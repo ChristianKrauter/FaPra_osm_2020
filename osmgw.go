@@ -75,6 +75,8 @@ func main() {
 	case 4:
 		fmt.Printf("Starting evaluation of pbf reading for %s\n", pbfFileName)
 		evaluate.ReadPBF(pbfFileName, note)
+	case 5:
+		evaluate.NeighboursUg(xSize, ySize, note)
 	default:
 		fmt.Printf("Error: No mode %d specified", mode)
 	}
