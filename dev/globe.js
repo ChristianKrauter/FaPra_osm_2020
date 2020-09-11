@@ -17,6 +17,17 @@ $("#gridButton").click(function() {
     });
 });
 
+$("#showNbs").click(function() {
+    $.ajax({
+        url: "/id",
+        data: {id: document.getElementById("gridIDX").value}
+    }).done(function(data) {
+        if (data != "false") {
+            nbTest(data)
+        }
+    });
+});
+
 $("#showGridNode").click(function() {
     x = document.getElementById("gridX").value
     y = document.getElementById("gridY").value
@@ -117,7 +128,6 @@ function pipTest(testData) {
             }
         }
     }
-
 }
 
 function gridFinderTest(testData) {
@@ -132,15 +142,10 @@ function gridFinderTest(testData) {
 }
 
 function nbTest(testData) {
-    point = this.earthPosition.ep
     var td = JSON.parse(testData)
     console.log(td.Point)
-    console.log(point)
-    //var gridPoint = td.Point
-    //drawLine(viewer, point)
-    //createColoredPoint(Cesium.Cartesian3.fromDegrees(point[0],point[1]), Cesium.Color.RED)
     createColoredPoint(Cesium.Cartesian3.fromDegrees(td.Point[0], td.Point[1]), Cesium.Color.CHARTREUSE)
-    if (document.getElementById("processedNodes").checked) {
+    if (document.getElementById("simpleNbs").checked) {
         for (i = 0; i < td.Nnbs.length; i++) {
             createColoredPoint(Cesium.Cartesian3.fromDegrees(td.Nnbs[i][0], td.Nnbs[i][1]), Cesium.Color.ALICEBLUE)
         }
