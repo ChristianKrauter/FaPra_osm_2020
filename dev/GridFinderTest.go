@@ -200,7 +200,7 @@ type TestData struct {
 
 func main() {
 	xSize := 1000
-	ySize := 500
+	ySize := 1000
 	basicPointInPolygon := false
 
 	var ug1D []bool
@@ -292,6 +292,30 @@ func main() {
 			var td TestData
 			td.Point = point
 			//fmt.Printf("%v\n", td)
+			tdJSON, err := json.Marshal(td)
+			if err != nil {
+				panic(err)
+			}
+			w.Write(tdJSON)
+
+		} else if strings.Contains(r.URL.Path, "/id") {
+			query := r.URL.Query()
+			var ID, err = strconv.ParseInt(query.Get("id"), 10, 64)
+			if err != nil {
+				panic(err)
+			}
+			var id = int(ID)
+			var gridNodeCoord = ug.GridToCoord(ug.IDToGrid(id))
+			var td TestData
+			var nbs = neighboursUg(id, &ug)
+			for _, i := range nbs {
+				td.Nbs = append(td.Nbs, ug.GridToCoord(ug.IDToGrid(i)))
+			}
+			var nnbs = simpleNeighbours(id, &ug)
+			for _, i := range nnbs {
+				td.Nnbs = append(td.Nnbs, ug.GridToCoord(ug.IDToGrid(i)))
+			}
+			td.Point = gridNodeCoord
 			tdJSON, err := json.Marshal(td)
 			if err != nil {
 				panic(err)
