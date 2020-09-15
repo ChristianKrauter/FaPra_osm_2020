@@ -17,18 +17,36 @@ $("#gridButton").click(function() {
     });
 });
 
+$("#showNbs").click(function() {
+    $.ajax({
+        url: "/id",
+        data: {id: document.getElementById("gridIDX").value}
+    }).done(function(data) {
+        if (data != "false") {
+            nbTest(data)
+        }
+    });
+});
+
 $("#showGridNode").click(function() {
     x = document.getElementById("gridX").value
     y = document.getElementById("gridY").value
     data = {
-        x:x,
-        y:y
+        x: x,
+        y: y
     }
     console.log(data)
+    /*    $.ajax({
+                url: "/gridPoint",
+                data: data,
+            }).done(showGridNode);*/
+    data["startLat"] = y
+    data["startLng"] = x
     $.ajax({
-            url: "/gridPoint",
-            data: data,
-        }).done(showGridNode);
+        url: "/point",
+        data: data,
+        earthPosition: { ep: [x, y] }
+    }).done(pipTest);
 });
 
 var data = {
@@ -110,7 +128,6 @@ function pipTest(testData) {
             }
         }
     }
-
 }
 
 function gridFinderTest(testData) {
@@ -118,17 +135,32 @@ function gridFinderTest(testData) {
     var td = JSON.parse(testData)
     console.log(td.Point)
     console.log(point)
-    girdPoint = td.Point
+    //var gridPoint = td.Point
     //drawLine(viewer, point)
-    createColoredPoint(Cesium.Cartesian3.fromDegrees(point[0],point[1]), Cesium.Color.RED)
-    createColoredPoint(Cesium.Cartesian3.fromDegrees(girdPoint[0],girdPoint[1]), Cesium.Color.CHARTREUSE)
+    //createColoredPoint(Cesium.Cartesian3.fromDegrees(point[0],point[1]), Cesium.Color.RED)
+    createColoredPoint(Cesium.Cartesian3.fromDegrees(td.Point[0], td.Point[1]), Cesium.Color.CHARTREUSE)
+}
+
+function nbTest(testData) {
+    var td = JSON.parse(testData)
+    console.log(td.Point)
+    createColoredPoint(Cesium.Cartesian3.fromDegrees(td.Point[0], td.Point[1]), Cesium.Color.CHARTREUSE)
+    if (document.getElementById("simpleNbs").checked) {
+        for (i = 0; i < td.Nnbs.length; i++) {
+            createColoredPoint(Cesium.Cartesian3.fromDegrees(td.Nnbs[i][0], td.Nnbs[i][1]), Cesium.Color.ALICEBLUE)
+        }
+    } else {
+        for (i = 0; i < td.Nbs.length; i++) {
+            createColoredPoint(Cesium.Cartesian3.fromDegrees(td.Nbs[i][0], td.Nbs[i][1]), Cesium.Color.RED)
+        }
+    }
 }
 
 function showGridNode(testData) {
     var td = JSON.parse(testData);
     console.log(td.Point)
-    girdPoint = td.Point
-    createColoredPoint(Cesium.Cartesian3.fromDegrees(girdPoint[0],girdPoint[1]), Cesium.Color.CHARTREUSE)
+    gridPoint = td.Point
+    createColoredPoint(Cesium.Cartesian3.fromDegrees(gridPoint[0], gridPoint[1]), Cesium.Color.CHARTREUSE)
 }
 
 
@@ -186,7 +218,9 @@ function onLeftMouseClick(event) {
             url: "/point",
             data: data,
             earthPosition: { ep: [longitudeString, latitudeString] }
-        }).done(gridFinderTest);
+        }).done(nbTest);
+        //}).done(gridFinderTest);
+        //}).done(pipTest);
 
     }
 }
@@ -233,7 +267,7 @@ function createColoredPoint(worldPosition, color) {
         point: {
             color: color,
             pixelSize: 6,
-            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+            //heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
         },
     });
     return point;

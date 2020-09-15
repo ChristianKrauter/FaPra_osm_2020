@@ -11,6 +11,7 @@ import (
 	"math/rand"
 	"os"
 	"runtime"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -284,4 +285,74 @@ func DataProcessing(pbfFileName, note string, xSize, ySize int, createCoastlineG
 		filename = fmt.Sprintf("data/evaluation/dp_%s_%s_%s_%s.json", strings.Split(log["pbfFileName"], ".")[0], log["xSize"], log["ySize"], timestamp)
 	}
 	saveLog(filename, jsonString)
+}
+
+// NeighboursUg is evaluated and tested
+func NeighboursUg(xSize, ySize int, note string) {
+	var filename string
+	var ug grids.UniformGrid
+	var failedIDS = make(map[int]struct{})
+	var exists = struct{}{}
+	var sumSN time.Duration
+	var sumN time.Duration
+
+	filename = fmt.Sprintf("data/output/uniformGrid_%v_%v.json", xSize, ySize)
+
+	uniformgridRaw, errJSON := os.Open(filename)
+	if errJSON != nil {
+		panic(errJSON)
+	}
+	defer uniformgridRaw.Close()
+	byteValue, _ := ioutil.ReadAll(uniformgridRaw)
+	json.Unmarshal(byteValue, &ug)
+
+	k := 0
+	for i := 0; i < len(ug.VertexData); i++ {
+		for j := 0; j < len(ug.VertexData[i]); j++ {
+			var start = time.Now()
+			var sn = algorithms.SimpleNeighboursUg(k, &ug)
+			t := time.Now()
+			sumSN += t.Sub(start)
+
+			start = time.Now()
+			var n = algorithms.NeighboursUg(k, &ug)
+			t = time.Now()
+			sumN += t.Sub(start)
+
+			if len(sn) != len(n) {
+				failedIDS[k] = exists
+			} else {
+				sort.Ints(sn)
+				sort.Ints(n)
+
+				for i := 0; i < len(sn); i++ {
+					if sn[i] != n[i] {
+						failedIDS[k] = exists
+						continue
+					}
+				}
+			}
+			k++
+		}
+	}
+	fmt.Printf("\nAVG SN Time : %v\nAVG N Time  : %v\nErrors      : %v / %v (%.3f %%)\nSpeed up    : Simple neighbours is %.2f times faster\n\n",
+		sumSN/time.Duration(ug.N), sumN/time.Duration(ug.N), len(failedIDS), k, float64(len(failedIDS))/float64(k)*100, float64(sumN)/float64(sumSN))
+
+	if len(failedIDS) > 0 {
+
+		var uniqueFailedIDS []int
+		for i := range failedIDS {
+			uniqueFailedIDS = append(uniqueFailedIDS, i)
+		}
+		sort.Ints(uniqueFailedIDS)
+
+		fmt.Printf("Error IDXs:\n%v\n", uniqueFailedIDS)
+		sn := algorithms.SimpleNeighboursUg(uniqueFailedIDS[0], &ug)
+		n := algorithms.NeighboursUg(uniqueFailedIDS[0], &ug)
+		fmt.Printf("\nerror for IDX %v:\n", uniqueFailedIDS[0])
+		sort.Ints(sn)
+		sort.Ints(n)
+		fmt.Printf("sn: %v\n", sn)
+		fmt.Printf("n : %v\n", n)
+	}
 }

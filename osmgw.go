@@ -11,7 +11,7 @@ import (
 func main() {
 	var mode int
 	flag.IntVar(&mode, "m", 0,
-		"Select Mode:\n  0: Start server \n  1: Start dataprocessing \n  2: Evaluate data processing\n  3: Evaluate wayfinding\n  4: Evaluate reading pbf")
+		"Select Mode:\n  0: Start server \n  1: Start dataprocessing \n  2: Evaluate data processing\n  3: Evaluate wayfinding\n  4: Evaluate reading pbf\n  4: Evaluate & Test UG neighbours")
 
 	var pbfFileName, note string
 	var xSize, ySize int
@@ -66,6 +66,7 @@ func main() {
 		evaluate.DataProcessing(pbfFileName, note, xSize, ySize, createCoastlineGeoJSON, lessMemory, noBoundingTree, basicGrid, basicPointInPolygon)
 	case 3:
 		fmt.Printf("Starting evaluation of wayfinding for %s\n", info)
+		fmt.Printf("Averaging over %v routings\n", nRuns)
 		if basicGrid {
 			evaluate.WayFindingBG(xSize, ySize, nRuns, basicPointInPolygon, note)
 		} else {
@@ -74,6 +75,8 @@ func main() {
 	case 4:
 		fmt.Printf("Starting evaluation of pbf reading for %s\n", pbfFileName)
 		evaluate.ReadPBF(pbfFileName, note)
+	case 5:
+		evaluate.NeighboursUg(xSize, ySize, note)
 	default:
 		fmt.Printf("Error: No mode %d specified", mode)
 	}
