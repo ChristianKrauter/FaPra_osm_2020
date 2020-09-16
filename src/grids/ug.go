@@ -47,10 +47,10 @@ func (ug UniformGrid) CoordToGrid(lng, lat float64) []int {
     m := math.Round((theta * ug.MTheta / math.Pi) - 0.5)
     theta = math.Pi * (float64(m) + 0.5) / float64(ug.MTheta)
     var phi float64
-    if(lng < 0){
-        phi = float64(lng+360.0) * math.Pi / 180.0  
+    if lng < 0 {
+        phi = float64(lng+360.0) * math.Pi / 180.0
     } else {
-        phi = lng * math.Pi / 180.0 
+        phi = lng * math.Pi / 180.0
     }
     mPhi := math.Round(2.0 * math.Pi * math.Sin(theta) / ug.DPhi)
     n := math.Round(phi * mPhi / (2.0 * math.Pi))
@@ -64,9 +64,9 @@ func (ug UniformGrid) GridToID(IDX []int) int {
 
 // IDToGrid ...
 func (ug UniformGrid) IDToGrid(id int) []int {
-    m := sort.Search(len(ug.FirstIndexOf)-1, func(i int) bool { return ug.FirstIndexOf[i] > id })
-    n := id - ug.FirstIndexOf[m-1]
-    return []int{m - 1, n}
+    m := sort.Search(len(ug.FirstIndexOf), func(i int) bool { return ug.FirstIndexOf[i] > id }) - 1
+    n := id - ug.FirstIndexOf[m]
+    return []int{m, n}
 }
 
 func mod(a, b int) int {
