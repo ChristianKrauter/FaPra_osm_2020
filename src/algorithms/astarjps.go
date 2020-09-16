@@ -254,7 +254,7 @@ func prune(i *NodeJPS, to int, nbs *map[int]NodeJPS, ug *grids.UniformGrid) *map
 		m = append(m, 1)
 		m = append(m, 3)
 
-		n = append(n, []int{6, 0})
+		n = append(n, []int{6, 5})
 		n = append(n, []int{4, 2})
 	case 7:
 		// Bottom Right
