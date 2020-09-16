@@ -380,9 +380,51 @@ func step(i *NodeJPS, dir int, ug *grids.UniformGrid) *NodeJPS {
 	}
 	coord := ug.GridToCoord(i.grid)
 
-	if dir < 3 {
+	if dir > 4 {
 		if m > 0 {
 			coord2 := ug.GridToCoord([]int{m - 1, n})
+			theta := (coord2[1] + 90) * math.Pi / 180
+			m := math.Round((theta * ug.MTheta / math.Pi) - 0.5)
+			theta = math.Pi * (m + 0.5) / ug.MTheta
+			phi := coord[0] * math.Pi / 180
+			mPhi := math.Round(2.0 * math.Pi * math.Sin(theta) / ug.DPhi)
+
+			n1 := math.Round(phi * mPhi / (2 * math.Pi))
+			mIDX := mod(int(m), int(ug.MTheta))
+
+			switch dir {
+			case 5:
+				grid := []int{mIDX, mod(int(n1-1), int(mPhi))}
+				return &NodeJPS{
+					grid: grid,
+					IDX:  ug.GridToID(grid),
+					dir:  5,
+				}
+			case 6:
+				grid := []int{mIDX, mod(int(n1), int(mPhi))}
+				return &NodeJPS{
+					grid: grid,
+					IDX:  ug.GridToID(grid),
+					dir:  6,
+				}
+			case 7:
+				grid := []int{mIDX, mod(int(n1+1), int(mPhi))}
+				return &NodeJPS{
+					grid: grid,
+					IDX:  ug.GridToID(grid),
+					dir:  7,
+				}
+			}
+		} else {
+			return &NodeJPS{
+				grid: []int{m, mod(n-1, len(ug.VertexData[m]))},
+				IDX:  ug.GridToID([]int{m, mod(n-1, len(ug.VertexData[m]))}),
+				dir:  3,
+			}
+		}
+	} else {
+		if m < len(ug.VertexData)-1 {
+			coord2 := ug.GridToCoord([]int{m + 1, n})
 			theta := (coord2[1] + 90) * math.Pi / 180
 			m := math.Round((theta * ug.MTheta / math.Pi) - 0.5)
 			theta = math.Pi * (m + 0.5) / ug.MTheta
@@ -415,41 +457,11 @@ func step(i *NodeJPS, dir int, ug *grids.UniformGrid) *NodeJPS {
 					dir:  2,
 				}
 			}
-		}
-	} else {
-		if m < len(ug.VertexData)-1 {
-			coord2 := ug.GridToCoord([]int{m + 1, n})
-			theta := (coord2[1] + 90) * math.Pi / 180
-			m := math.Round((theta * ug.MTheta / math.Pi) - 0.5)
-			theta = math.Pi * (m + 0.5) / ug.MTheta
-			phi := coord[0] * math.Pi / 180
-			mPhi := math.Round(2.0 * math.Pi * math.Sin(theta) / ug.DPhi)
-
-			n1 := math.Round(phi * mPhi / (2 * math.Pi))
-			mIDX := mod(int(m), int(ug.MTheta))
-
-			switch dir {
-			case 5:
-				grid := []int{mIDX, mod(int(n1-1), int(mPhi))}
-				return &NodeJPS{
-					grid: grid,
-					IDX:  ug.GridToID(grid),
-					dir:  5,
-				}
-			case 6:
-				grid := []int{mIDX, mod(int(n1), int(mPhi))}
-				return &NodeJPS{
-					grid: grid,
-					IDX:  ug.GridToID(grid),
-					dir:  6,
-				}
-			case 7:
-				grid := []int{mIDX, mod(int(n1+1), int(mPhi))}
-				return &NodeJPS{
-					grid: grid,
-					IDX:  ug.GridToID(grid),
-					dir:  7,
-				}
+		} else {
+			return &NodeJPS{
+				grid: []int{m - 1, mod(n, len(ug.VertexData[m]))},
+				IDX:  ug.GridToID([]int{m - 1, mod(n, len(ug.VertexData[m]))}),
+				dir:  5,
 			}
 		}
 	}
