@@ -72,6 +72,97 @@ func AStarJPS(from, to int, ug *grids.UniformGrid) ([][][]float64, int) {
 	return ExtractRouteUg(&prev, to, ug), popped
 }
 
+var np []int
+
+// AStarJPS implementation on uniform grid
+func AStarJPSAllNodes(from, to int, ug *grids.UniformGrid) ([][][]float64, [][]float64) {
+	var popped int
+	var dist = make([]float64, ug.N)
+	var prev = make([]int, ug.N)
+	np = make([]int, 0)
+	pq := make(pqJPS, 1)
+	//var nodesProcessed []int
+	for i := 0; i < ug.N; i++ {
+		dist[i] = math.Inf(1)
+		prev[i] = -1
+	}
+
+	dist[from] = 0
+	pq[0] = &NodeJPS{
+		IDX:      from,
+		grid:     ug.IDToGrid(from),
+		priority: 0,
+		index:    0,
+		dir:      -1,
+	}
+
+	heap.Init(&pq)
+	fmt.Printf("hi kids\n")
+	for {
+		if len(pq) == 0 {
+			fmt.Printf("pq empty\n")
+			break
+		} else {
+			u := heap.Pop(&pq).(*NodeJPS)
+			//nodesProcessed = append(nodesProcessed, u.IDX)
+
+			popped++
+			if u.IDX == to {
+				fmt.Printf("u: %v\n", u)
+				return ExtractRouteUg(&prev, to, ug), ExtractNodesUg(&np, ug)
+			}
+
+			fmt.Printf("do you like violence?\n")
+			neighbours := neighboursUgJPS(*u, ug)
+			neighbours = prune(u, to, neighbours, ug)
+			//fmt.Printf("pruned: %v\n", neighbours)
+			//fmt.Printf("nb: %v\n", neighbours)
+
+			fmt.Printf("do you wanna stick 9 inch nails?\n")
+			var successors []NodeJPS
+			for _, j := range *neighbours {
+				n := jump(u, j.dir, from, to, ug)
+				if n != nil {
+					if n.IDX == to {
+						fmt.Printf("to: %v\n", n)
+					}
+					successors = append(successors, *n)
+				}
+			}
+
+			fmt.Printf("through each one of your eyelids?\n")
+			for _, j := range successors {
+				var alt = dist[u.IDX] + distance(ug.GridToCoord(u.grid), ug.GridToCoord(j.grid))
+				//xx := false
+				if j.IDX == to {
+					fmt.Printf("to with dist: %v, %v\n", j, alt)
+				}
+				if alt < dist[j.IDX] {
+					//xx = true
+					// dist[j] always +inf?
+					//fmt.Printf("alt < dist[j]: %v < %v\n", alt, dist[j.IDX])
+					dist[j.IDX] = alt
+					prev[j.IDX] = u.IDX
+					item := &NodeJPS{
+						grid:     j.grid,
+						IDX:      j.IDX,
+						dir:      j.dir,
+						priority: -(dist[j.IDX] + distance(ug.GridToCoord(j.grid), ug.GridToCoord(ug.IDToGrid(to)))),
+					}
+					if j.IDX == to {
+						fmt.Printf("to item: %v\n", item)
+					}
+					heap.Push(&pq, item)
+				}
+				/*if !xx {
+					fmt.Printf("got none\n")
+				}*/
+			}
+		}
+	}
+	return ExtractRouteUg(&prev, to, ug), ExtractNodesUg(&np, ug)
+}
+
 func jump(u *NodeJPS, dir, from, to int, ug *grids.UniformGrid) *NodeJPS {
 	n := step(u, dir, ug)
 	// ToDo: "outside the grid"

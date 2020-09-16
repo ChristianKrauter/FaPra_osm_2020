@@ -277,6 +277,8 @@ func RunUnidistant(xSize, ySize int, basicPointInPolygon bool) {
 						route, nodesProcessed = algorithms.BiDijkstraAllNodes(ug.GridToID(from), ug.GridToID(to), &ug)
 					case 3:
 						route, nodesProcessed = algorithms.BiAStarAllNodes(ug.GridToID(from), ug.GridToID(to), &ug)
+					case 4:
+						route, nodesProcessed = algorithms.AStarJPSAllNodes(ug.GridToID(from), ug.GridToID(to), &ug)
 					default:
 						route, nodesProcessed = algorithms.DijkstraAllNodes(ug.GridToID(from), ug.GridToID(to), &ug)
 					}
