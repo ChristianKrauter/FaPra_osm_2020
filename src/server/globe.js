@@ -128,10 +128,11 @@ function drawShape(positionData) {
     return shape;
 }
 
-function dijkstraProcessing(jsonData) {
+function routeProcessing(jsonData) {
     if (jsonData == "false") {
         //Todo
     } else {
+        console.log(jsonData)
         var features = JSON.parse(jsonData).features
         for (i = 0; i < features.length; i++) {
             var coord1d = []
@@ -142,7 +143,7 @@ function dijkstraProcessing(jsonData) {
     }
 }
 
-function dijkstraAllNodesProcessing(jsonData) {
+function routeAndNodesProcessing(jsonData) {
     if (jsonData == "false") {
         //Todo
     } else {
@@ -224,13 +225,13 @@ function onLeftMouseClick(event) {
                                 url: "/wayfindingAllNodes",
                                 data: routeData,
                                 earthPosition: { ep: earthPosition }
-                            }).done(dijkstraAllNodesProcessing);
+                            }).done(routeAndNodesProcessing);
                         } else {
                             $.ajax({
                                 url: "/wayfinding",
                                 data: routeData,
                                 earthPosition: { ep: earthPosition }
-                            }).done(dijkstraProcessing);
+                            }).done(routeProcessing);
                         }
                         routeData = {
                             startLat: "",
