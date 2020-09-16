@@ -64,9 +64,9 @@ func (ug UniformGrid) GridToID(IDX []int) int {
 
 // IDToGrid ...
 func (ug UniformGrid) IDToGrid(id int) []int {
-    m := sort.Search(len(ug.FirstIndexOf)-1, func(i int) bool { return ug.FirstIndexOf[i] > id })
-    n := id - ug.FirstIndexOf[m-1]
-    return []int{m - 1, n}
+    m := sort.Search(len(ug.FirstIndexOf), func(i int) bool { return ug.FirstIndexOf[i] > id }) - 1
+    n := id - ug.FirstIndexOf[m]
+    return []int{m, n}
 }
 
 func mod(a, b int) int {
