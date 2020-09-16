@@ -67,9 +67,9 @@ func (ug UniformGrid) GridToID(IDX []int) int {
 
 // IDToGrid ...
 func (ug UniformGrid) IDToGrid(id int) []int {
-	m := sort.Search(len(ug.FirstIndexOf)-1, func(i int) bool { return ug.FirstIndexOf[i] > id })
-	n := id - ug.FirstIndexOf[m-1]
-	return []int{m - 1, n}
+	m := sort.Search(len(ug.FirstIndexOf), func(i int) bool { return ug.FirstIndexOf[i] > id }) - 1
+	n := id - ug.FirstIndexOf[m]
+	return []int{m, n}
 }
 
 func mod(a, b int) int {
@@ -199,8 +199,8 @@ type TestData struct {
 }
 
 func main() {
-	xSize := 1000
-	ySize := 1000
+	xSize := 100
+	ySize := 500
 	basicPointInPolygon := false
 
 	var ug1D []bool
@@ -350,28 +350,30 @@ func simpleNeighbours(in int, ug *UniformGrid) []int {
 
 	// lengths of rows
 	var lm = len(ug.VertexData[m])
-	var lmp = len(ug.VertexData[m+1])
-	var lmm = len(ug.VertexData[m-1])
 
 	neighbours = append(neighbours, []int{m, mod(n-1, lm)})
 	neighbours = append(neighbours, []int{m, mod(n+1, lm)})
 
 	ratio = float64(n) / float64(lm)
-	nUp = int(math.Round(ratio * float64(lmp)))
-	nDown = int(math.Round(ratio * float64(lmm)))
 
-	fmt.Printf("m,n: %v,%v\nlen(m), len(m+1), len(m-1): %v,%v,%v\nratio: %v\nnUp, nDown  : %v,%v\nxnUp, xnDown: %v,%v\n",
-		m, n, lm, lmp, lmm, ratio,
-		nUp, nDown, mod(nUp, lmp), mod(nDown, lmm))
-	fmt.Printf("%v\n", mod(nUp, lmp))
+	//fmt.Printf("m,n: %v,%v\nlen(m), len(m+1), len(m-1): %v,%v,%v\nratio: %v\nnUp, nDown  : %v,%v\nxnUp, xnDown: %v,%v\n",
+	//	m, n, lm, lmp, lmm, ratio,
+	//	nUp, nDown, mod(nUp, lmp), mod(nDown, lmm))
+	//fmt.Printf("%v\n", mod(nUp, lmp))
 
 	if m < len(ug.VertexData)-1 {
+		var lmp = len(ug.VertexData[m+1])
+		nUp = int(math.Round(ratio * float64(lmp)))
+
 		neighbours = append(neighbours, []int{m + 1, mod(nUp, lmp)})
 		neighbours = append(neighbours, []int{m + 1, mod(nUp+1.0, lmp)})
 		neighbours = append(neighbours, []int{m + 1, mod(nUp-1.0, lmp)})
 	}
 
 	if m > 0 {
+		var lmm = len(ug.VertexData[m-1])
+		nDown = int(math.Round(ratio * float64(lmm)))
+
 		neighbours = append(neighbours, []int{m - 1, mod(nDown, lmm)})
 		neighbours = append(neighbours, []int{m - 1, mod(nDown+1.0, lmm)})
 		neighbours = append(neighbours, []int{m - 1, mod(nDown-1.0, lmm)})
@@ -409,14 +411,16 @@ func neighboursUg(in int, ug *UniformGrid) []int {
 	n := inGrid[1]
 	neighbours = append(neighbours, []int{m, mod(n-1, len(ug.VertexData[m]))})
 	neighbours = append(neighbours, []int{m, mod(n+1, len(ug.VertexData[m]))})
-
+	fmt.Printf("\nIngrid: %v\n ", inGrid)
+	fmt.Printf("nbs same row: %v\n ", neighbours)
 	coord := ug.GridToCoord(inGrid)
 
 	if m > 0 {
+		fmt.Printf("m-1: %v\n", m-1)
 		coordDown := ug.GridToCoord([]int{m - 1, n})
 		neighbours = append(neighbours, neighboursRowUg([]float64{coord[0], coordDown[1]}, ug)...)
 	}
-
+	fmt.Printf("m, len(VD): %v, %v\n", m, len(ug.VertexData))
 	if m < len(ug.VertexData)-1 {
 		coordUp := ug.GridToCoord([]int{m + 1, n})
 		neighbours = append(neighbours, neighboursRowUg([]float64{coord[0], coordUp[1]}, ug)...)
