@@ -11,7 +11,7 @@ import (
 func main() {
 	var mode int
 	flag.IntVar(&mode, "m", 0,
-		"Select Mode:\n  0: Start server \n  1: Start dataprocessing \n  2: Evaluate data processing\n  3: Evaluate wayfinding\n  4: Evaluate reading pbf\n  4: Evaluate & Test UG neighbours")
+		"Select Mode:\n  0: Start server \n  1: Start dataprocessing \n  2: Evaluate data processing\n  3: Evaluate wayfinding\n  4: Evaluate reading pbf\n  5: Evaluate & Test UG neighbours")
 
 	var pbfFileName, note string
 	var xSize, ySize int
