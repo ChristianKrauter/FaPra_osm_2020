@@ -60,7 +60,7 @@ function createPoint(worldPosition, processed = false, start = false) {
                 createColoredPoint(worldPosition, Cesium.Color.PURPLE, 4)
                 break
             case "4":
-                createColoredPoint(worldPosition, Cesium.Color.BLACK, 4)
+                createColoredPoint(worldPosition, Cesium.Color.GOLDENROD, 4)
                 break
         }
     } else {
