@@ -273,23 +273,23 @@ func prune(i *NodeJPS, to int, nbs *map[int]NodeJPS, ug *grids.UniformGrid) *map
 
 	}
 	for _, i := range m {
-		if val2, ok := (*nbs)[i]; ok {
-			if !ug.VertexData[val2.grid[0]][val2.grid[1]] {
-				res[i] = (*nbs)[i]
-			}
+		if _, ok := (*nbs)[i]; ok {
+			//if !ug.VertexData[val2.grid[0]][val2.grid[1]] {
+			res[i] = (*nbs)[i]
+			//}
 		}
 	}
 	for _, i := range n {
-		if val, ok := (*nbs)[i[0]]; ok {
-			if ug.VertexData[val.grid[0]][val.grid[1]] {
-				if val2, ok := (*nbs)[i[1]]; ok {
-					if !ug.VertexData[val2.grid[0]][val2.grid[1]] {
-						x := (*nbs)[i[1]]
-						x.forced = true
-						res[i[1]] = x
-					}
-				}
+		if _, ok := (*nbs)[i[0]]; !ok {
+			//if ug.VertexData[val.grid[0]][val.grid[1]] {
+			if _, ok := (*nbs)[i[1]]; ok {
+				//if !ug.VertexData[val2.grid[0]][val2.grid[1]] {
+				x := (*nbs)[i[1]]
+				x.forced = true
+				res[i[1]] = (*nbs)[i[1]]
+				//}
 			}
+			//}
 		}
 	}
 	return &res
