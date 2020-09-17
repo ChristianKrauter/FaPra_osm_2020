@@ -184,3 +184,291 @@ func NeighboursUg(in *int, ug *grids.UniformGrid) []int {
 	}
 	return neighbours1d
 }
+
+func JPSNeighboursUg(in, dir int, ug *grids.UniformGrid) ([]int, []int) {
+	var allNeighbours [8][]int
+	var inGrid = ug.IDToGrid(in)
+	var ratio float64
+	var nUp, nDown int
+	var m = inGrid[0]
+	var n = inGrid[1]
+
+	var directions []int
+
+	// lengths of rows
+	var lm = len(ug.VertexData[m])
+
+	allNeighbours[7] = []int{m, mod(n-1, lm)}
+	allNeighbours[3] = []int{m, mod(n+1, lm)}
+
+	ratio = float64(n) / float64(lm)
+
+	if m < len(ug.VertexData) -1 {
+		var lmp = len(ug.VertexData[m+1])
+		nUp = int(math.Round(ratio * float64(lmp)))
+		allNeighbours[5] = []int{m + 1, mod(nUp, lmp)}
+		allNeighbours[4] = []int{m + 1, mod(nUp+1.0, lmp)}
+		allNeighbours[6] = []int{m + 1, mod(nUp-1.0, lmp)}
+	}
+
+	if m > 0 {
+		var lmm = len(ug.VertexData[m-1])
+		nDown = int(math.Round(ratio * float64(lmm)))
+		allNeighbours[1] = []int{m - 1, mod(nDown, lmm)}
+		allNeighbours[2] = []int{m - 1, mod(nDown+1.0, lmm)}
+		allNeighbours[0] = []int{m - 1, mod(nDown-1.0, lmm)}
+	}
+	if(dir == -1){
+		var n1d []int 
+		for _,j := range allNeighbours{
+			n1d = append(n1d, ug.GridToID(j))
+		}
+		return n1d, []int{0,1,2,3,4,5,6,7}
+	}
+	var neighbours [][]int
+	neighbours = append(neighbours, allNeighbours[dir])
+	directions = append(directions, dir)
+
+	if(dir == 0 || dir == 2 || dir == 4 || dir == 6){
+		neighbours = append(neighbours, allNeighbours[mod(dir-1, 8)])
+		neighbours = append(neighbours, allNeighbours[mod(dir+1, 8)])
+		directions = append(directions, mod(dir-1, 8))
+		directions = append(directions, mod(dir+1, 8))
+
+		check1 := mod(dir-3, 8)
+		check2 := mod(dir+3, 8)
+		if(ug.VertexData[allNeighbours[check1][0]][allNeighbours[check1][1]]){
+			neighbours = append(neighbours, allNeighbours[mod(dir-2, 8)])
+			directions = append(directions, mod(dir-2, 8))
+		}
+
+		if(ug.VertexData[allNeighbours[check2][0]][allNeighbours[check2][1]]){
+			neighbours = append(neighbours, allNeighbours[mod(dir+2, 8)])			
+			directions = append(directions, mod(dir+2, 8))
+		}
+	} else {
+
+		check1 := mod(dir-2, 8)
+		check2 := mod(dir+2, 8)
+		if(ug.VertexData[allNeighbours[check1][0]][allNeighbours[check1][1]]){
+			neighbours = append(neighbours, allNeighbours[mod(dir-1, 8)])
+			directions = append(directions, mod(dir-1, 8))		
+		}
+
+		if(ug.VertexData[allNeighbours[check2][0]][allNeighbours[check2][1]]){
+			neighbours = append(neighbours, allNeighbours[mod(dir+1, 8)])			
+			directions = append(directions, mod(dir+1, 8))
+		}
+	}
+	/*
+	switch dir {
+
+	case 0:
+		neighbours = append(neighbours, allNeighbours[1])
+		neighbours = append(neighbours, allNeighbours[7])
+
+		if(ug.VertexData[allNeighbours[3][0]][allNeighbours[3][1]]){
+			neighbours = append(neighbours, allNeighbours[2])			
+		}
+
+		if(ug.VertexData[allNeighbours[6][0]][allNeighbours[6][1]]){
+			neighbours = append(neighbours, allNeighbours[6])			
+		}
+
+	case 1:
+		if(ug.VertexData[allNeighbours[7][0]][allNeighbours[7][1]]){
+			neighbours = append(neighbours, allNeighbours[0])			
+		}
+
+		if(ug.VertexData[allNeighbours[4][0]][allNeighbours[4][1]]){
+			neighbours = append(neighbours, allNeighbours[2])			
+		}
+
+	case 2:
+		neighbours = append(neighbours, allNeighbours[1])
+		neighbours = append(neighbours, allNeighbours[4])
+
+		if(ug.VertexData[allNeighbours[3][0]][allNeighbours[3][1]]){
+			neighbours = append(neighbours, allNeighbours[0])			
+		}
+
+		if(ug.VertexData[allNeighbours[6][0]][allNeighbours[6][1]]){
+			neighbours = append(neighbours, allNeighbours[7])			
+		}
+
+	case 3:
+		if(ug.VertexData[allNeighbours[1][0]][allNeighbours[1][1]]){
+			neighbours = append(neighbours, allNeighbours[0])			
+		}
+
+		if(ug.VertexData[allNeighbours[6][0]][allNeighbours[6][1]]){
+			neighbours = append(neighbours, allNeighbours[5])			
+		}
+
+	case 4:
+		if(ug.VertexData[allNeighbours[1][0]][allNeighbours[1][1]]){
+			neighbours = append(neighbours, allNeighbours[2])			
+		}
+
+		if(ug.VertexData[allNeighbours[6][0]][allNeighbours[6][1]]){
+			neighbours = append(neighbours, allNeighbours[7])			
+		}
+
+	case 5:	
+		neighbours = append(neighbours, allNeighbours[3])
+		neighbours = append(neighbours, allNeighbours[6])
+
+		if(ug.VertexData[allNeighbours[1][0]][allNeighbours[1][1]]){
+			neighbours = append(neighbours, allNeighbours[0])			
+		}
+
+		if(ug.VertexData[allNeighbours[4][0]][allNeighbours[4][1]]){
+			neighbours = append(neighbours, allNeighbours[7])			
+		}
+	case 6:
+		if(ug.VertexData[allNeighbours[3][0]][allNeighbours[3][1]]){
+			neighbours = append(neighbours, allNeighbours[5])			
+		}
+
+		if(ug.VertexData[allNeighbours[4][0]][allNeighbours[4][1]]){
+			neighbours = append(neighbours, allNeighbours[7])			
+		}
+	case 7:
+		neighbours = append(neighbours, allNeighbours[4])
+		neighbours = append(neighbours, allNeighbours[6])
+
+		if(ug.VertexData[allNeighbours[1][0]][allNeighbours[1][1]]){
+			neighbours = append(neighbours, allNeighbours[2])			
+		}
+
+		if(ug.VertexData[allNeighbours[3][0]][allNeighbours[3][1]]){
+			neighbours = append(neighbours, allNeighbours[5])			
+		}
+	}*/
+
+	var neighbours1d []int
+	for _, neighbour := range neighbours {
+		if !ug.VertexData[neighbour[0]][neighbour[1]] {
+			neighbours1d = append(neighbours1d, ug.GridToID(neighbour))
+		}
+	}
+	return neighbours1d,directions
+}
+
+func isForced(in, dir int, ug *grids.UniformGrid) bool {
+	var allNeighbours [8][]int
+	var inGrid = ug.IDToGrid(in)
+	var ratio float64
+	var nUp, nDown int
+	var m = inGrid[0]
+	var n = inGrid[1]
+
+	// lengths of rows
+	var lm = len(ug.VertexData[m])
+
+	allNeighbours[7] = []int{m, mod(n-1, lm)}
+	allNeighbours[3] = []int{m, mod(n+1, lm)}
+
+	ratio = float64(n) / float64(lm)
+
+	if m < len(ug.VertexData) -1 {
+		var lmp = len(ug.VertexData[m+1])
+		nUp = int(math.Round(ratio * float64(lmp)))
+		allNeighbours[5] = []int{m + 1, mod(nUp, lmp)}
+		allNeighbours[4] = []int{m + 1, mod(nUp+1.0, lmp)}
+		allNeighbours[6] = []int{m + 1, mod(nUp-1.0, lmp)}
+	} else {
+		return false
+	}
+
+	if m > 0 {
+		var lmm = len(ug.VertexData[m-1])
+		nDown = int(math.Round(ratio * float64(lmm)))
+		allNeighbours[1] = []int{m - 1, mod(nDown, lmm)}
+		allNeighbours[2] = []int{m - 1, mod(nDown+1.0, lmm)}
+		allNeighbours[0] = []int{m - 1, mod(nDown-1.0, lmm)}
+	}
+
+	if(dir == 0 || dir == 2 || dir == 4 || dir == 6){
+		if ug.VertexData[allNeighbours[mod(dir-3, 8)][0]][allNeighbours[mod(dir-3, 8)][1]] && !ug.VertexData[allNeighbours[mod(dir-2, 8)][0]][allNeighbours[mod(dir-2, 8)][1]] {
+			return true
+		}
+		if ug.VertexData[allNeighbours[mod(dir+3, 8)][0]][allNeighbours[mod(dir+3, 8)][1]] && !ug.VertexData[allNeighbours[mod(dir-2, 8)][0]][allNeighbours[mod(dir-2, 8)][1]] {
+			return true
+		}
+	} else {
+		if ug.VertexData[allNeighbours[mod(dir-2, 8)][0]][allNeighbours[mod(dir-2, 8)][1]] && !ug.VertexData[allNeighbours[mod(dir-1, 8)][0]][allNeighbours[mod(dir-1, 8)][1]] {
+			return true
+		}
+		if ug.VertexData[allNeighbours[mod(dir+2, 8)][0]][allNeighbours[mod(dir+2, 8)][1]] && !ug.VertexData[allNeighbours[mod(dir-1, 8)][0]][allNeighbours[mod(dir-1, 8)][1]] {
+			return true
+		}
+	}
+
+	/*
+	switch dir {
+	case 0:
+		if(ug.VertexData[allNeighbours[4][0]][allNeighbours[4][1]] ||!ug.VertexData[allNeighbours[2][0]][allNeighbours[2][1]] ){
+			return true
+		}
+		if(ug.VertexData[allNeighbours[6][0]][allNeighbours[6][1]] ||!ug.VertexData[allNeighbours[5][0]][allNeighbours[5][1]] ){
+			return true
+		}
+		
+	case 1:
+		if(ug.VertexData[allNeighbours[5][0]][allNeighbours[5][1]] ||!ug.VertexData[allNeighbours[3][0]][allNeighbours[3][1]] ){
+			return true
+		}
+		if(ug.VertexData[allNeighbours[7][0]][allNeighbours[7][1]] ||!ug.VertexData[allNeighbours[4][0]][allNeighbours[4][1]] ){
+			return true
+		}
+
+	case 2:
+		if(ug.VertexData[allNeighbours[3][0]][allNeighbours[3][1]] ||!ug.VertexData[allNeighbours[0][0]][allNeighbours[0][1]] ){
+			return true
+		}
+		if(ug.VertexData[allNeighbours[6][0]][allNeighbours[6][1]] ||!ug.VertexData[allNeighbours[7][0]][allNeighbours[7][1]] ){
+			return true
+		}
+
+	case 3:
+		if(ug.VertexData[allNeighbours[1][0]][allNeighbours[1][1]] ||!ug.VertexData[allNeighbours[0][0]][allNeighbours[0][1]] ){
+			return true
+		}
+		if(ug.VertexData[allNeighbours[6][0]][allNeighbours[6][1]] ||!ug.VertexData[allNeighbours[5][0]][allNeighbours[5][1]] ){
+			return true
+		}
+
+	case 4:
+		if(ug.VertexData[allNeighbours[1][0]][allNeighbours[1][1]] ||!ug.VertexData[allNeighbours[2][0]][allNeighbours[2][1]] ){
+			return true
+		}
+		if(ug.VertexData[allNeighbours[6][0]][allNeighbours[6][1]] ||!ug.VertexData[allNeighbours[7][0]][allNeighbours[7][1]] ){
+			return true
+		}
+
+	case 5:	
+		if(ug.VertexData[allNeighbours[1][0]][allNeighbours[1][1]] ||!ug.VertexData[allNeighbours[0][0]][allNeighbours[0][1]] ){
+			return true
+		}
+		if(ug.VertexData[allNeighbours[4][0]][allNeighbours[4][1]] ||!ug.VertexData[allNeighbours[7][0]][allNeighbours[7][1]] ){
+			return true
+		}
+	case 6:
+		if(ug.VertexData[allNeighbours[3][0]][allNeighbours[3][1]] ||!ug.VertexData[allNeighbours[5][0]][allNeighbours[5][1]] ){
+			return true
+		}
+		if(ug.VertexData[allNeighbours[4][0]][allNeighbours[4][1]] ||!ug.VertexData[allNeighbours[7][0]][allNeighbours[7][1]] ){
+			return true
+		}
+	case 7:
+		if(ug.VertexData[allNeighbours[1][0]][allNeighbours[1][1]] ||!ug.VertexData[allNeighbours[2][0]][allNeighbours[2][1]] ){
+			return true
+		}
+		if(ug.VertexData[allNeighbours[3][0]][allNeighbours[3][1]] ||!ug.VertexData[allNeighbours[5][0]][allNeighbours[5][1]] ){
+			return true
+		}
+	}*/
+	return false
+}
+

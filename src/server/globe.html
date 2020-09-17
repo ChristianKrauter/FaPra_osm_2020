@@ -17,12 +17,16 @@
             <div class="checkBoxContainer">
                 <input id="processedNodes" type="checkbox" name="allNodes"> Show Processed Nodes
             </div>
-            <div class="checkBoxContainer">
-              <input id="astern" type="checkbox" name="astern"> Astern
-            </div>
-            <div class="checkBoxContainer">
-              <input id="bidirectional" type="checkbox" name="bidirectional"> bidirectional
-            </div>
+            <form>
+                <label for="algorithm">Choose algorithm:</label>
+                <select name="algorithm" id="algorithm">
+                    <option value="Dijkstra">Dijkstra</option>
+                    <option value="BiDijkstra">Bi Dijkstra</option>
+                    <option value="Astern">A*</option>
+                    <option value="BiAstern">Bi A*</option>
+                    <option value="JPS">Jump Point</option>
+                </select>
+            </form>
             <button id="gridButton">Show Grid</button>
             <button id="clearButton">Clear</button>
         </div>

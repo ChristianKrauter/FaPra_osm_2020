@@ -244,18 +244,7 @@ func RunUnidistant(xSize, ySize, algorithm int, basicPointInPolygon bool) {
 			var to = ug.CoordToGrid(endLng, endLat)
 
 			if !ug.VertexData[from[0]][from[1]] && !ug.VertexData[to[0]][to[1]] {
-				if strings.Contains(r.URL.Path, "/asternBi") {
-					var start = time.Now()
-					var route, _ = algorithms.BiAstern(from, to, &ug)
-					t := time.Now()
-					elapsed := t.Sub(start)
-					fmt.Printf("time: %s\n", elapsed)
-					var result = toGeojson(route)
-					rawJSON, err := result.MarshalJSON()
-					check(err)
-					w.Write(rawJSON)
-					
-				} else if strings.Contains(r.URL.Path, "/asternAllNodesBi") {
+				if strings.Contains(r.URL.Path, "/asternAllNodesBi") {
 					var start = time.Now()
 					var route, nodesProcessed = algorithms.BiAsternAllNodes(from, to, &ug)
 					t := time.Now()
@@ -274,6 +263,17 @@ func RunUnidistant(xSize, ySize, algorithm int, basicPointInPolygon bool) {
 					}
 
 					w.Write(jsonData)
+				} else if strings.Contains(r.URL.Path, "/asternBi") {
+					var start = time.Now()
+					var route, _ = algorithms.BiAstern(from, to, &ug)
+					t := time.Now()
+					elapsed := t.Sub(start)
+					fmt.Printf("time: %s\n", elapsed)
+					var result = toGeojson(route)
+					rawJSON, err := result.MarshalJSON()
+					check(err)
+					w.Write(rawJSON)
+					
 				} else if strings.Contains(r.URL.Path, "/asternAllNodes") {
 					var start = time.Now()
 					var route, nodesProcessed = algorithms.AsternAllNodes(from, to, &ug)
@@ -309,7 +309,7 @@ func RunUnidistant(xSize, ySize, algorithm int, basicPointInPolygon bool) {
 				w.Write([]byte("false"))
 			}
 
-		} else  if strings.Contains(r.URL.Path, "/dijkstra") {
+		} else if strings.Contains(r.URL.Path, "/dijkstra") {
 			query := r.URL.Query()
 			var startLat, err = strconv.ParseFloat(query.Get("startLat"), 15)
 			if err != nil {
@@ -332,18 +332,7 @@ func RunUnidistant(xSize, ySize, algorithm int, basicPointInPolygon bool) {
 			var to = ug.CoordToGrid(endLng, endLat)
 
 			if !ug.VertexData[from[0]][from[1]] && !ug.VertexData[to[0]][to[1]] {
-				if strings.Contains(r.URL.Path, "/dijkstraBi") {
-					var start = time.Now()
-					var route, _ = algorithms.BiDijkstra(from, to, &ug)
-					t := time.Now()
-					elapsed := t.Sub(start)
-					fmt.Printf("time: %s\n", elapsed)
-					var result = toGeojson(route)
-					rawJSON, err := result.MarshalJSON()
-					check(err)
-					w.Write(rawJSON)
-					
-				} else if strings.Contains(r.URL.Path, "/dijkstraAllNodesBi") {
+				if strings.Contains(r.URL.Path, "/dijkstraAllNodesBi") {
 					var start = time.Now()
 					var route, nodesProcessed = algorithms.BiDijkstraAllNodes(from, to, &ug)
 					t := time.Now()
@@ -362,7 +351,18 @@ func RunUnidistant(xSize, ySize, algorithm int, basicPointInPolygon bool) {
 					}
 
 					w.Write(jsonData)
-				} else if strings.Contains(r.URL.Path, "/dijkstraAllNodes") {
+				} else if strings.Contains(r.URL.Path, "/dijkstraBi") {
+					var start = time.Now()
+					var route, _ = algorithms.BiDijkstra(from, to, &ug)
+					t := time.Now()
+					elapsed := t.Sub(start)
+					fmt.Printf("time: %s\n", elapsed)
+					var result = toGeojson(route)
+					rawJSON, err := result.MarshalJSON()
+					check(err)
+					w.Write(rawJSON)
+					
+				}  else if strings.Contains(r.URL.Path, "/dijkstraAllNodes") {
 					var start = time.Now()
 					var route, nodesProcessed = algorithms.DijkstraAllNodes(from, to, &ug)
 					t := time.Now()
@@ -397,6 +397,58 @@ func RunUnidistant(xSize, ySize, algorithm int, basicPointInPolygon bool) {
 				w.Write([]byte("false"))
 			}
 
+		} else if strings.Contains(r.URL.Path, "/jps"){
+			query := r.URL.Query()
+			var startLat, err = strconv.ParseFloat(query.Get("startLat"), 15)
+			if err != nil {
+				panic(err)
+			}
+			var startLng, err1 = strconv.ParseFloat(query.Get("startLng"), 15)
+			if err1 != nil {
+				panic(err1)
+			}
+			var endLat, err2 = strconv.ParseFloat(query.Get("endLat"), 15)
+			if err2 != nil {
+				panic(err2)
+			}
+			var endLng, err3 = strconv.ParseFloat(query.Get("endLng"), 15)
+			if err3 != nil {
+				panic(err3)
+			}
+
+			var from = ug.CoordToGrid(startLng, startLat)
+			var to = ug.CoordToGrid(endLng, endLat)
+
+			if strings.Contains(r.URL.Path, "/jpsAllNodes") {
+				var start = time.Now()
+				var route, nodesProcessed = algorithms.JPSAsternAllNodes(from, to, &ug)
+				t := time.Now()
+				elapsed := t.Sub(start)
+				fmt.Printf("time: %s\n", elapsed)
+
+				var result = toGeojson(route)
+				data := dijkstraData{
+					Route:    result,
+					AllNodes: nodesProcessed,
+				}
+
+				var jsonData, errJd = json.Marshal(data)
+				if errJd != nil {
+					panic(errJd)
+				}
+
+				w.Write(jsonData)
+			} else {
+				var start = time.Now()
+				var route, _ = algorithms.JPSAstern(from, to, &ug)
+				t := time.Now()
+				elapsed := t.Sub(start)
+				fmt.Printf("time: %s\n", elapsed)
+				var result = toGeojson(route)
+				rawJSON, err := result.MarshalJSON()
+				check(err)
+				w.Write(rawJSON)
+			}
 		} else if strings.Contains(r.URL.Path, "/getGridPoint") {
 			query := r.URL.Query()
 			var lat, err = strconv.ParseFloat(query.Get("lat"), 10)

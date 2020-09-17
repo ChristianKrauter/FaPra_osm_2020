@@ -212,17 +212,34 @@ function onLeftMouseClick(event) {
                         data = JSON.parse(data).coordinates
                         createPoint(Cesium.Cartesian3.fromDegrees(data[0], data[1]), false);
                         url = ""
-                        if(document.getElementById("astern").checked){
-                            url = "/astern"
-                        } else {
-                            url = "/dijkstra"
+                        var e = document.getElementById("algorithm");
+                        var algo = e.options[e.selectedIndex].value;
+                        switch (algo) {
+                            case "Dijkstra":
+                                url += "/dijkstra"
+                                break;
+                            case "BiDijkstra":
+                                url += "/dijkstraBi"
+                                break;
+                            case "Astern":
+                                url += "/astern"
+                                break;
+                            case "BiAstern":
+                                url += "/asternBi"
+                                break;
+                            case "JPS":
+                                url += "/jps"
+                                break;
+                            default:
+                                url += "/dijkstra"
+                                break;
                         }
+
+                        
                         if(document.getElementById("processedNodes").checked){
                             url += "AllNodes"
                         }
-                        if(document.getElementById("bidirectional").checked){
-                            url += "Bi"
-                        }
+                        
                         $.ajax({
                             url: url,
                             data: routeData,
