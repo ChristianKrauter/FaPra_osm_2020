@@ -3,7 +3,6 @@ package algorithms
 import (
 	"../grids"
 	"container/heap"
-	"fmt"
 	//"github.com/paulmach/go.geojson"
 	"math"
 )
@@ -33,28 +32,21 @@ func AStarJPS(from, to int, ug *grids.UniformGrid) ([][][]float64, int) {
 
 	for {
 		if len(pq) == 0 {
-			fmt.Printf("pq empty\n")
 			break
 		} else {
 			u := heap.Pop(&pq).(*NodeJPS)
 			popped++
 			if u.IDX == to {
-				fmt.Printf("u: %v\n", u)
 				return ExtractRouteUg(&prev, to, ug), popped
 			}
 
-			neighbours := neighboursUgJPS(*u, ug)
+			neighbours := SimpleNeighboursUgJPS(*u, ug)
 			neighbours = prune(u, to, neighbours, ug)
-			//fmt.Printf("pruned: %v\n", neighbours)
-			//fmt.Printf("nb: %v\n", neighbours)
 			var successors []NodeJPS
 			for _, j := range *neighbours {
 
 				n := jump(u.IDX, u, j.dir, from, to, ug)
 				if n != nil {
-					if n.IDX == to {
-						fmt.Printf("to: %v\n", n)
-					}
 					successors = append(successors, *n)
 				}
 			}
@@ -67,14 +59,7 @@ func AStarJPS(from, to int, ug *grids.UniformGrid) ([][][]float64, int) {
 
 			for _, j := range successors {
 				var alt = dist[u.IDX] + distance(ug.GridToCoord(u.grid), ug.GridToCoord(j.grid))
-				//xx := false
-				if j.IDX == to {
-					fmt.Printf("to with dist: %v, %v\n", j, alt)
-				}
 				if alt < dist[j.IDX] {
-					//xx = true
-					// dist[j] always +inf?
-					//fmt.Printf("alt < dist[j]: %v < %v\n", alt, dist[j.IDX])
 					dist[j.IDX] = alt
 					prev[j.IDX] = u.IDX
 					item := &NodeJPS{
@@ -83,21 +68,13 @@ func AStarJPS(from, to int, ug *grids.UniformGrid) ([][][]float64, int) {
 						dir:      j.dir,
 						priority: -(dist[j.IDX] + distance(ug.GridToCoord(j.grid), ug.GridToCoord(ug.IDToGrid(to)))),
 					}
-					if j.IDX == to {
-						fmt.Printf("to item: %v\n", item)
-					}
 					heap.Push(&pq, item)
 				}
-				/*if !xx {
-					fmt.Printf("got none\n")
-				}*/
 			}
 		}
 	}
 	return ExtractRouteUg(&prev, to, ug), popped
 }
-
-//var np []int
 
 // AStarJPS implementation on uniform grid
 func AStarJPSAllNodes(from, to int, ug *grids.UniformGrid) ([][][]float64, [][]float64) {
@@ -122,10 +99,8 @@ func AStarJPSAllNodes(from, to int, ug *grids.UniformGrid) ([][][]float64, [][]f
 	}
 
 	heap.Init(&pq)
-	fmt.Printf("hi kids\n")
 	for {
 		if len(pq) == 0 {
-			fmt.Printf("pq empty\n")
 			break
 		} else {
 			u := heap.Pop(&pq).(*NodeJPS)
@@ -133,26 +108,15 @@ func AStarJPSAllNodes(from, to int, ug *grids.UniformGrid) ([][][]float64, [][]f
 
 			popped++
 			if u.IDX == to {
-				fmt.Printf("u: %v\n", u)
-				//return ExtractRouteUg(&prev, to, ug), ExtractNodesUg(&np, ug)
 				return ExtractRouteUg(&prev, to, ug), ExtractNodesUg(&nodesProcessed, ug)
 			}
 
-			fmt.Printf("do you like violence?\n")
-			neighbours := neighboursUgJPS(*u, ug)
+			neighbours := SimpleNeighboursUgJPS(*u, ug)
 			neighbours = prune(u, to, neighbours, ug)
-			//fmt.Printf("pruned: %v\n", neighbours)
-			//fmt.Printf("nb: %v\n", neighbours)
-
-			fmt.Printf("do you wanna stick 9 inch nails\n")
 			var successors []NodeJPS
 			for _, j := range *neighbours {
-				fmt.Printf("u.IDX, u: %v %v\n", u.IDX, u)
 				n := jump(u.IDX, u, j.dir, from, to, ug)
 				if n != nil {
-					if n.IDX == to {
-						fmt.Printf("to: %v\n", n)
-					}
 					successors = append(successors, *n)
 				}
 			}
@@ -163,17 +127,9 @@ func AStarJPSAllNodes(from, to int, ug *grids.UniformGrid) ([][][]float64, [][]f
 				}
 			}
 
-			fmt.Printf("through each one of your eyelids?\n")
 			for _, j := range successors {
 				var alt = dist[u.IDX] + distance(ug.GridToCoord(u.grid), ug.GridToCoord(j.grid))
-				//xx := false
-				if j.IDX == to {
-					fmt.Printf("to with dist: %v, %v\n", j, alt)
-				}
 				if alt < dist[j.IDX] {
-					//xx = true
-					// dist[j] always +inf?
-					//fmt.Printf("alt < dist[j]: %v < %v\n", alt, dist[j.IDX])
 					dist[j.IDX] = alt
 					prev[j.IDX] = u.IDX
 					item := &NodeJPS{
@@ -182,89 +138,67 @@ func AStarJPSAllNodes(from, to int, ug *grids.UniformGrid) ([][][]float64, [][]f
 						dir:      j.dir,
 						priority: -(dist[j.IDX] + distance(ug.GridToCoord(j.grid), ug.GridToCoord(ug.IDToGrid(to)))),
 					}
-					if j.IDX == to {
-						fmt.Printf("to item: %v\n", item)
-					}
 					heap.Push(&pq, item)
 				}
-				/*if !xx {
-					fmt.Printf("got none\n")
-				}*/
 			}
 		}
 	}
-	//return ExtractRouteUg(&prev, to, ug), ExtractNodesUg(&np, ug)
 	return ExtractRouteUg(&prev, to, ug), ExtractNodesUg(&nodesProcessed, ug)
 }
 
 func jump(u int, n *NodeJPS, dir, from, to int, ug *grids.UniformGrid) *NodeJPS {
 	n = step(n, dir, ug)
-	//fmt.Printf("nn, u: %v, %v\n", nn.IDX, u)
-	// ToDo: "outside the grid"
 	if n == nil || ug.VertexData[n.grid[0]][n.grid[1]] || u == n.IDX {
-		//np = append(np, n.IDX)
 		return nil
 	}
 	if n.IDX == to {
-		//np = append(np, n.IDX)
 		return n
 	}
 
-	nbs := prune(n, to, neighboursUgJPS(*n, ug), ug)
+	nbs := prune(n, to, SimpleNeighboursUgJPS(*n, ug), ug)
 	for _, i := range *nbs {
 		if i.forced {
-			//np = append(np, n.IDX)
 			return n
 		}
 	}
 
 	if dir == 0 {
 		if jump(n.IDX, n, 1, from, to, ug) != nil {
-			//np = append(np, n.IDX)
 			return n
 		}
 		if jump(n.IDX, n, 3, from, to, ug) != nil {
-			//np = append(np, n.IDX)
 			return n
 		}
 	}
 	if dir == 2 {
 		if jump(n.IDX, n, 1, from, to, ug) != nil {
-			//np = append(np, n.IDX)
 			return n
 		}
 		if jump(n.IDX, n, 4, from, to, ug) != nil {
-			//np = append(np, n.IDX)
 			return n
 		}
 	}
 	if dir == 5 {
 		if jump(n.IDX, n, 3, from, to, ug) != nil {
-			// = append(np, n.IDX)
 			return n
 		}
 		if jump(n.IDX, n, 6, from, to, ug) != nil {
-			//np = append(np, n.IDX)
 			return n
 		}
 	}
 	if dir == 7 {
 		if jump(n.IDX, n, 4, from, to, ug) != nil {
-			//np = append(np, n.IDX)
 			return n
 		}
 		if jump(n.IDX, n, 6, from, to, ug) != nil {
-			//np = append(np, n.IDX)
 			return n
 		}
 	}
-	//fmt.Printf("end\n")
 	return jump(u, n, n.dir, from, to, ug)
 }
 
 func prune(i *NodeJPS, to int, nbs *map[int]NodeJPS, ug *grids.UniformGrid) *map[int]NodeJPS {
 	var res = make(map[int]NodeJPS)
-	//fmt.Printf("dir: %v\n", i.dir)
 	if i.dir == -1 {
 		return nbs
 	}
@@ -323,25 +257,95 @@ func prune(i *NodeJPS, to int, nbs *map[int]NodeJPS, ug *grids.UniformGrid) *map
 	}
 	for _, i := range m {
 		if _, ok := (*nbs)[i]; ok {
-			//if !ug.VertexData[val2.grid[0]][val2.grid[1]] {
 			res[i] = (*nbs)[i]
-			//}
 		}
 	}
 	for _, i := range n {
 		if _, ok := (*nbs)[i[0]]; !ok {
-			//if ug.VertexData[val.grid[0]][val.grid[1]] {
 			if _, ok := (*nbs)[i[1]]; ok {
-				//if !ug.VertexData[val2.grid[0]][val2.grid[1]] {
 				x := (*nbs)[i[1]]
 				x.forced = true
 				res[i[1]] = (*nbs)[i[1]]
-				//}
 			}
-			//}
 		}
 	}
 	return &res
+}
+
+// SimpleNeighboursUg gets ug neighbours cheaper
+func SimpleNeighboursUgJPS(in NodeJPS, ug *grids.UniformGrid) *map[int]NodeJPS {
+	var neighbours []NodeJPS
+	var ratio float64
+	var nUp, nDown int
+	var m = in.grid[0]
+	var n = in.grid[1]
+
+	// lengths of rows
+	var lm = len(ug.VertexData[m])
+
+	neighbours = append(neighbours, NodeJPS{
+		grid: []int{m, mod(n-1, lm)},
+		IDX:  ug.GridToID([]int{m, mod(n-1, lm)}),
+		dir:  3,
+	})
+
+	neighbours = append(neighbours, NodeJPS{
+		grid: []int{m, mod(n+1, lm)},
+		IDX:  ug.GridToID([]int{m, mod(n+1, lm)}),
+		dir:  4,
+	})
+
+	ratio = float64(n) / float64(lm)
+
+	if m < len(ug.VertexData)-1 {
+		var lmp = len(ug.VertexData[m+1])
+		nUp = int(math.Round(ratio * float64(lmp)))
+
+		neighbours = append(neighbours, NodeJPS{
+			grid: []int{m + 1, mod(nUp, lmp)},
+			IDX:  ug.GridToID([]int{m + 1, mod(nUp, lmp)}),
+			dir:  1,
+		})
+		neighbours = append(neighbours, NodeJPS{
+			grid: []int{m + 1, mod(nUp, lmp)},
+			IDX:  ug.GridToID([]int{m + 1, mod(nUp+1.0, lmp)}),
+			dir:  2,
+		})
+		neighbours = append(neighbours, NodeJPS{
+			grid: []int{m + 1, mod(nUp, lmp)},
+			IDX:  ug.GridToID([]int{m + 1, mod(nUp-1.0, lmp)}),
+			dir:  0,
+		})
+	}
+
+	if m > 0 {
+		var lmm = len(ug.VertexData[m-1])
+		nDown = int(math.Round(ratio * float64(lmm)))
+
+		neighbours = append(neighbours, NodeJPS{
+			grid: []int{m - 1, mod(nDown, lmm)},
+			IDX:  ug.GridToID([]int{m - 1, mod(nDown, lmm)}),
+			dir:  6,
+		})
+		neighbours = append(neighbours, NodeJPS{
+			grid: []int{m - 1, mod(nDown+1.0, lmm)},
+			IDX:  ug.GridToID([]int{m - 1, mod(nDown+1.0, lmm)}),
+			dir:  7,
+		})
+		neighbours = append(neighbours, NodeJPS{
+			grid: []int{m - 1, mod(nDown-1.0, lmm)},
+			IDX:  ug.GridToID([]int{m - 1, mod(nDown-1.0, lmm)}),
+			dir:  5,
+		})
+	}
+
+	var neighbours1d = make(map[int]NodeJPS)
+	for _, j := range neighbours {
+		if !ug.VertexData[j.grid[0]][j.grid[1]] {
+			neighbours1d[j.dir] = j
+		}
+	}
+	return &neighbours1d
 }
 
 // neighboursUgJPS gets up to 8 neighbours
@@ -359,7 +363,6 @@ func neighboursUgJPS(in NodeJPS, ug *grids.UniformGrid) *map[int]NodeJPS {
 		IDX:  ug.GridToID([]int{m, mod(n+1, len(ug.VertexData[m]))}),
 		dir:  4,
 	})
-	//neighbours = append(neighbours, NodeJPS{grid: []int{m, mod(n+1, len(ug.VertexData[m]))}, dir: 4})
 
 	coord := ug.GridToCoord(in.grid)
 
@@ -422,7 +425,6 @@ func step(i *NodeJPS, dir int, ug *grids.UniformGrid) *NodeJPS {
 		}
 	}
 	if dir == 4 {
-		//fmt.Printf("step right\n")
 		return &NodeJPS{
 			grid: []int{m, mod(n+1, len(ug.VertexData[m]))},
 			IDX:  ug.GridToID([]int{m, mod(n+1, len(ug.VertexData[m]))}),
@@ -467,7 +469,6 @@ func step(i *NodeJPS, dir int, ug *grids.UniformGrid) *NodeJPS {
 				}
 			}
 		} else {
-			fmt.Printf("not probable\n")
 			return &NodeJPS{
 				grid: []int{m, mod(n-1, len(ug.VertexData[m]))},
 				IDX:  ug.GridToID([]int{m, mod(n-1, len(ug.VertexData[m]))}),
@@ -510,11 +511,9 @@ func step(i *NodeJPS, dir int, ug *grids.UniformGrid) *NodeJPS {
 				}
 			}
 		} else {
-			//fmt.Printf("hello Nort Pole\n")
 			ratio := float64(n) / float64(len(ug.VertexData[m]))
 			lmm := len(ug.VertexData[m-1])
 			nDown := int(math.Round(ratio * float64(lmm)))
-			// fmt.Printf("np i: %v, %v\n", i.IDX, i.dir)
 			x := &NodeJPS{}
 			switch dir {
 			case 0:
@@ -536,11 +535,9 @@ func step(i *NodeJPS, dir int, ug *grids.UniformGrid) *NodeJPS {
 					dir:  5,
 				}
 			}
-			fmt.Printf("np i: %v, %v --  x: %v, %v\n", i.grid, i.dir, x.grid, x.dir)
 			return x
 		}
 	}
-	fmt.Printf("how?")
 	return nil
 }
 

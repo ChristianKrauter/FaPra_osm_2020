@@ -2,7 +2,7 @@ package algorithms
 
 import (
 	"../grids"
-	"fmt"
+	//"fmt"
 	"math"
 )
 
@@ -11,13 +11,13 @@ func ExtractRouteUg(prev *[]int, end int, ug *grids.UniformGrid) [][][]float64 {
 	var route = make([][][]float64, 1)
 	for {
 		route[0] = append(route[0], ug.GridToCoord(ug.IDToGrid(end)))
-		fmt.Printf("RP: %v\n", (*prev)[end])
+		//fmt.Printf("RP: %v\n", (*prev)[end])
 		if (*prev)[end] == -1 {
 			break
 		}
 		end = (*prev)[end]
 	}
-	fmt.Printf("route: %v\n", route)
+	//fmt.Printf("route: %v\n", route)
 	return route
 }
 
