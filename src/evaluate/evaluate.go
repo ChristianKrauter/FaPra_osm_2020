@@ -315,7 +315,7 @@ func NeighboursUg(xSize, ySize int, note string) {
 			sumSN += t.Sub(start)
 
 			start = time.Now()
-			var n = algorithms.NeighboursUg(k, &ug)
+			var n = algorithms.NeighboursUg(&k, &ug)
 			t = time.Now()
 			sumN += t.Sub(start)
 
@@ -348,7 +348,7 @@ func NeighboursUg(xSize, ySize int, note string) {
 
 		fmt.Printf("Error IDXs:\n%v\n", uniqueFailedIDS)
 		sn := algorithms.SimpleNeighboursUg(uniqueFailedIDS[0], &ug)
-		n := algorithms.NeighboursUg(uniqueFailedIDS[0], &ug)
+		n := algorithms.NeighboursUg(&uniqueFailedIDS[0], &ug)
 		fmt.Printf("\nerror for IDX %v:\n", uniqueFailedIDS[0])
 		sort.Ints(sn)
 		sort.Ints(n)
