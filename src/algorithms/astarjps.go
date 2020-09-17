@@ -33,29 +33,42 @@ func AStarJPS(from, to int, ug *grids.UniformGrid) ([][][]float64, int) {
 
 	for {
 		if len(pq) == 0 {
+			fmt.Printf("pq empty\n")
 			break
 		} else {
 			u := heap.Pop(&pq).(*NodeJPS)
 			popped++
 			if u.IDX == to {
+				fmt.Printf("u: %v\n", u)
 				return ExtractRouteUg(&prev, to, ug), popped
 			}
 
 			neighbours := neighboursUgJPS(*u, ug)
 			neighbours = prune(u, to, neighbours, ug)
-			fmt.Printf("pruned: %v\n", neighbours)
+			//fmt.Printf("pruned: %v\n", neighbours)
 			//fmt.Printf("nb: %v\n", neighbours)
 			var successors []NodeJPS
 			for _, j := range *neighbours {
-				n := jump(u, j.dir, from, to, ug)
+
+				n := jump(u.IDX, u, j.dir, from, to, ug)
 				if n != nil {
+					if n.IDX == to {
+						fmt.Printf("to: %v\n", n)
+					}
 					successors = append(successors, *n)
 				}
 			}
 
 			for _, j := range successors {
 				var alt = dist[u.IDX] + distance(ug.GridToCoord(u.grid), ug.GridToCoord(j.grid))
+				//xx := false
+				if j.IDX == to {
+					fmt.Printf("to with dist: %v, %v\n", j, alt)
+				}
 				if alt < dist[j.IDX] {
+					//xx = true
+					// dist[j] always +inf?
+					//fmt.Printf("alt < dist[j]: %v < %v\n", alt, dist[j.IDX])
 					dist[j.IDX] = alt
 					prev[j.IDX] = u.IDX
 					item := &NodeJPS{
@@ -64,8 +77,14 @@ func AStarJPS(from, to int, ug *grids.UniformGrid) ([][][]float64, int) {
 						dir:      j.dir,
 						priority: -(dist[j.IDX] + distance(ug.GridToCoord(j.grid), ug.GridToCoord(ug.IDToGrid(to)))),
 					}
+					if j.IDX == to {
+						fmt.Printf("to item: %v\n", item)
+					}
 					heap.Push(&pq, item)
 				}
+				/*if !xx {
+					fmt.Printf("got none\n")
+				}*/
 			}
 		}
 	}
@@ -118,10 +137,11 @@ func AStarJPSAllNodes(from, to int, ug *grids.UniformGrid) ([][][]float64, [][]f
 			//fmt.Printf("pruned: %v\n", neighbours)
 			//fmt.Printf("nb: %v\n", neighbours)
 
-			fmt.Printf("do you wanna stick 9 inch nails?\n")
+			fmt.Printf("do you wanna stick 9 inch nails\n")
 			var successors []NodeJPS
 			for _, j := range *neighbours {
-				n := jump(u, j.dir, from, to, ug)
+				fmt.Printf("u.IDX, u: %v %v\n", u.IDX, u)
+				n := jump(u.IDX, u, j.dir, from, to, ug)
 				if n != nil {
 					if n.IDX == to {
 						fmt.Printf("to: %v\n", n)
@@ -163,54 +183,63 @@ func AStarJPSAllNodes(from, to int, ug *grids.UniformGrid) ([][][]float64, [][]f
 	return ExtractRouteUg(&prev, to, ug), ExtractNodesUg(&np, ug)
 }
 
-func jump(u *NodeJPS, dir, from, to int, ug *grids.UniformGrid) *NodeJPS {
-	n := step(u, dir, ug)
+func jump(u int, n *NodeJPS, dir, from, to int, ug *grids.UniformGrid) *NodeJPS {
+	n = step(n, dir, ug)
+	//fmt.Printf("nn, u: %v, %v\n", nn.IDX, u)
 	// ToDo: "outside the grid"
 	if n == nil || ug.VertexData[n.grid[0]][n.grid[1]] {
+		np = append(np, n.IDX)
+		return nil
+	}
+	if u == n.IDX {
+		fmt.Printf("u,n: %v %v\n", u, n.IDX)
 		return nil
 	}
 	if n.IDX == to {
 		return n
 	}
+
 	nbs := prune(n, to, neighboursUgJPS(*n, ug), ug)
 	for _, i := range *nbs {
 		if i.forced {
 			return n
 		}
 	}
+
 	if dir == 0 {
-		if jump(n, 1, from, to, ug) != nil {
+		if jump(n.IDX, n, 1, from, to, ug) != nil {
 			return n
 		}
-		if jump(n, 3, from, to, ug) != nil {
+		if jump(n.IDX, n, 3, from, to, ug) != nil {
 			return n
 		}
 	}
 	if dir == 2 {
-		if jump(n, 1, from, to, ug) != nil {
+		if jump(n.IDX, n, 1, from, to, ug) != nil {
 			return n
 		}
-		if jump(n, 4, from, to, ug) != nil {
+		if jump(n.IDX, n, 4, from, to, ug) != nil {
 			return n
 		}
 	}
 	if dir == 5 {
-		if jump(n, 3, from, to, ug) != nil {
+		if jump(n.IDX, n, 3, from, to, ug) != nil {
 			return n
 		}
-		if jump(n, 6, from, to, ug) != nil {
+		if jump(n.IDX, n, 6, from, to, ug) != nil {
 			return n
 		}
 	}
 	if dir == 7 {
-		if jump(n, 4, from, to, ug) != nil {
+		if jump(n.IDX, n, 4, from, to, ug) != nil {
 			return n
 		}
-		if jump(n, 6, from, to, ug) != nil {
+		if jump(n.IDX, n, 6, from, to, ug) != nil {
 			return n
 		}
 	}
-	return jump(n, dir, from, to, ug)
+	//fmt.Printf("end\n")
+	return jump(u, n, n.dir, from, to, ug)
 }
 
 func prune(i *NodeJPS, to int, nbs *map[int]NodeJPS, ug *grids.UniformGrid) *map[int]NodeJPS {
@@ -319,6 +348,7 @@ func neighboursUgJPS(in NodeJPS, ug *grids.UniformGrid) *map[int]NodeJPS {
 		neighbours = append(neighbours, neighboursRowUgJPS([]float64{coord[0], coordDown[1]}, ug, 1)...)
 	}
 
+	// Nort Pole which neighbour is up? not nothing...
 	if m < len(ug.VertexData)-1 {
 		coordUp := ug.GridToCoord([]int{m + 1, n})
 		neighbours = append(neighbours, neighboursRowUgJPS([]float64{coord[0], coordUp[1]}, ug, 0)...)
@@ -372,6 +402,7 @@ func step(i *NodeJPS, dir int, ug *grids.UniformGrid) *NodeJPS {
 		}
 	}
 	if dir == 4 {
+		//fmt.Printf("step right\n")
 		return &NodeJPS{
 			grid: []int{m, mod(n+1, len(ug.VertexData[m]))},
 			IDX:  ug.GridToID([]int{m, mod(n+1, len(ug.VertexData[m]))}),
@@ -416,6 +447,7 @@ func step(i *NodeJPS, dir int, ug *grids.UniformGrid) *NodeJPS {
 				}
 			}
 		} else {
+			fmt.Printf("not probable\n")
 			return &NodeJPS{
 				grid: []int{m, mod(n-1, len(ug.VertexData[m]))},
 				IDX:  ug.GridToID([]int{m, mod(n-1, len(ug.VertexData[m]))}),
@@ -458,13 +490,37 @@ func step(i *NodeJPS, dir int, ug *grids.UniformGrid) *NodeJPS {
 				}
 			}
 		} else {
-			return &NodeJPS{
-				grid: []int{m - 1, mod(n, len(ug.VertexData[m]))},
-				IDX:  ug.GridToID([]int{m - 1, mod(n, len(ug.VertexData[m]))}),
-				dir:  5,
+			//fmt.Printf("hello Nort Pole\n")
+			ratio := float64(n) / float64(len(ug.VertexData[m]))
+			lmm := len(ug.VertexData[m-1])
+			nDown := int(math.Round(ratio * float64(lmm)))
+			// fmt.Printf("np i: %v, %v\n", i.IDX, i.dir)
+			x := &NodeJPS{}
+			switch dir {
+			case 0:
+				x = &NodeJPS{
+					grid: []int{m - 1, mod(nDown+len(ug.VertexData[m-1])/2, len(ug.VertexData[m-1]))},
+					IDX:  ug.GridToID([]int{m - 1, mod(nDown+len(ug.VertexData[m-1])/2, len(ug.VertexData[m-1]))}),
+					dir:  7,
+				}
+			case 1:
+				x = &NodeJPS{
+					grid: []int{m - 1, mod(nDown+len(ug.VertexData[m-1])/2, len(ug.VertexData[m-1]))},
+					IDX:  ug.GridToID([]int{m - 1, mod(nDown+len(ug.VertexData[m-1])/2, len(ug.VertexData[m-1]))}),
+					dir:  6,
+				}
+			case 2:
+				x = &NodeJPS{
+					grid: []int{m - 1, mod(nDown+len(ug.VertexData[m-1])/2, len(ug.VertexData[m-1]))},
+					IDX:  ug.GridToID([]int{m - 1, mod(nDown+len(ug.VertexData[m-1])/2, len(ug.VertexData[m-1]))}),
+					dir:  5,
+				}
 			}
+			fmt.Printf("np i: %v, %v --  x: %v, %v\n", i.grid, i.dir, x.grid, x.dir)
+			return x
 		}
 	}
+	fmt.Printf("how?")
 	return nil
 }
 
