@@ -443,7 +443,7 @@ func prune(i *NodeJPS, to int, nbs *map[int]NodeJPS, ug *grids.UniformGrid) *map
 			if _, ok := (*nbs)[i[1]]; ok {
 				x := (*nbs)[i[1]]
 				x.forced = true
-				res[i[1]] = (*nbs)[i[1]]
+				res[i[1]] = x
 			}
 		}
 	}
