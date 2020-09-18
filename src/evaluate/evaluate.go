@@ -235,6 +235,9 @@ func WayFinding(xSize, ySize, nRuns, algorithm int, basicPointInPolygon bool, no
 	case 3:
 		algoStr = "_bias"
 		algoStrPrint = "Bi-A-Star"
+	case 4:
+		algoStr = "_asjps"
+		algoStrPrint = "AStar-JPS"
 	default:
 		algoStr = "_dij"
 		algoStrPrint = "Dijkstra"
@@ -290,6 +293,8 @@ func WayFinding(xSize, ySize, nRuns, algorithm int, basicPointInPolygon bool, no
 			_, popped = algorithms.BiDijkstra(from[i], to[i], &ug)
 		case 3:
 			_, popped = algorithms.BiAStar(from[i], to[i], &ug)
+		case 4:
+			_, popped = algorithms.AStarJPS(from[i], to[i], &ug)
 		default:
 			_, popped = algorithms.Dijkstra(from[i], to[i], &ug)
 		}
