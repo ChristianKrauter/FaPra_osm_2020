@@ -266,8 +266,8 @@ func RunUnidistant(xSize, ySize int, basicPointInPolygon bool) {
 			if !ug.VertexData[from[0]][from[1]] && !ug.VertexData[to[0]][to[1]] {
 				if strings.Contains(r.URL.Path, "/wayfindingAllNodes") {
 					var start = time.Now()
-					var route [][][]float64
-					var nodesProcessed [][]float64
+					var route *[][][]float64
+					var nodesProcessed *[][]float64
 					switch algorithm {
 					case 0:
 						route, nodesProcessed = algorithms.DijkstraAllNodes(ug.GridToID(from), ug.GridToID(to), &ug)
@@ -287,10 +287,10 @@ func RunUnidistant(xSize, ySize int, basicPointInPolygon bool) {
 					elapsed := t.Sub(start)
 					fmt.Printf("time: %s\n", elapsed)
 
-					var result = toGeojson(route)
+					var result = toGeojson(*route)
 					data := dijkstraData{
 						Route:    result,
-						AllNodes: nodesProcessed,
+						AllNodes: *nodesProcessed,
 					}
 
 					var jsonData, errJd = json.Marshal(data)
@@ -301,7 +301,7 @@ func RunUnidistant(xSize, ySize int, basicPointInPolygon bool) {
 					w.Write(jsonData)
 				} else {
 					var start = time.Now()
-					var route [][][]float64
+					var route *[][][]float64
 					switch algorithm {
 					case 0:
 						route, _ = algorithms.Dijkstra(ug.GridToID(from), ug.GridToID(to), &ug)
@@ -319,7 +319,7 @@ func RunUnidistant(xSize, ySize int, basicPointInPolygon bool) {
 					t := time.Now()
 					elapsed := t.Sub(start)
 					fmt.Printf("time: %s\n", elapsed)
-					var result = toGeojson(route)
+					var result = toGeojson(*route)
 					rawJSON, err := result.MarshalJSON()
 					check(err)
 					w.Write(rawJSON)

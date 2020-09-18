@@ -7,7 +7,7 @@ import (
 )
 
 // ExtractRouteUg ...
-func ExtractRouteUg(prev *[]int, end int, ug *grids.UniformGrid) [][][]float64 {
+func ExtractRouteUg(prev *[]int, end int, ug *grids.UniformGrid) *[][][]float64 {
 	var route = make([][][]float64, 1)
 	for {
 		route[0] = append(route[0], ug.GridToCoord(ug.IDToGrid(end)))
@@ -18,18 +18,18 @@ func ExtractRouteUg(prev *[]int, end int, ug *grids.UniformGrid) [][][]float64 {
 		end = (*prev)[end]
 	}
 	//fmt.Printf("route: %v\n", route)
-	return route
+	return &route
 }
 
 // ExtractNodesUg ...
-func ExtractNodesUg(nodesProcessed *[]int, ug *grids.UniformGrid) [][]float64 {
+func ExtractNodesUg(nodesProcessed *[]int, ug *grids.UniformGrid) *[][]float64 {
 	var nodesExtended [][]float64
 	for _, node := range *nodesProcessed {
 		x := ug.IDToGrid(node)
 		coord := ug.GridToCoord([]int{x[0], x[1]})
 		nodesExtended = append(nodesExtended, coord)
 	}
-	return nodesExtended
+	return &nodesExtended
 }
 
 // SimpleNeighboursUg gets ug neighbours cheaper
@@ -120,7 +120,7 @@ func NeighboursUg(in int, ug *grids.UniformGrid) []int {
 }
 
 // ExtractRouteUgBi ...
-func ExtractRouteUgBi(prev *[][]int, meeting int, ug *grids.UniformGrid) [][][]float64 {
+func ExtractRouteUgBi(prev *[][]int, meeting int, ug *grids.UniformGrid) *[][][]float64 {
 	var routes = make([][][]float64, 2)
 
 	var secondMeeting = meeting
@@ -141,7 +141,7 @@ func ExtractRouteUgBi(prev *[][]int, meeting int, ug *grids.UniformGrid) [][][]f
 		}
 		meeting = (*prev)[meeting][1]
 	}
-	return routes
+	return &routes
 }
 
 func hUg(dir, node, from, to int, ug *grids.UniformGrid) float64 {

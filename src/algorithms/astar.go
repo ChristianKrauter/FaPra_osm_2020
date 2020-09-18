@@ -7,7 +7,7 @@ import (
 )
 
 // AStar implementation on uniform grid
-func AStar(from, to int, ug *grids.UniformGrid) ([][][]float64, int) {
+func AStar(from, to int, ug *grids.UniformGrid) (*[][][]float64, int) {
 	var popped int
 	var dist = make([]float64, ug.N)
 	var prev = make([]int, ug.N)
@@ -36,7 +36,9 @@ func AStar(from, to int, ug *grids.UniformGrid) ([][][]float64, int) {
 				return ExtractRouteUg(&prev, to, ug), popped
 			}
 
-			neighbours := NeighboursUg(u, ug)
+			//neighbours := NeighboursUg(u, ug)
+			neighbours := SimpleNeighboursUg(u, ug)
+
 			for _, j := range neighbours {
 				var alt = dist[u] + distance(ug.GridToCoord(ug.IDToGrid(u)), ug.GridToCoord(ug.IDToGrid(j)))
 				if alt < dist[j] {
@@ -55,7 +57,7 @@ func AStar(from, to int, ug *grids.UniformGrid) ([][][]float64, int) {
 }
 
 // AStarAllNodes additionally returns all visited nodes on uniform grid
-func AStarAllNodes(from, to int, ug *grids.UniformGrid) ([][][]float64, [][]float64) {
+func AStarAllNodes(from, to int, ug *grids.UniformGrid) (*[][][]float64, *[][]float64) {
 	var dist = make([]float64, ug.N)
 	var prev = make([]int, ug.N)
 	var nodesProcessed []int
@@ -84,12 +86,11 @@ func AStarAllNodes(from, to int, ug *grids.UniformGrid) ([][][]float64, [][]floa
 			nodesProcessed = append(nodesProcessed, u)
 
 			if u == to {
-				var route = ExtractRouteUg(&prev, to, ug)
-				var processedNodes = ExtractNodesUg(&nodesProcessed, ug)
-				return route, processedNodes
+				return ExtractRouteUg(&prev, to, ug), ExtractNodesUg(&nodesProcessed, ug)
 			}
 
-			neighbours := NeighboursUg(u, ug)
+			//neighbours := NeighboursUg(u, ug)
+			neighbours := SimpleNeighboursUg(u, ug)
 
 			for _, j := range neighbours {
 				var alt = dist[u] + distance(ug.GridToCoord(ug.IDToGrid(u)), ug.GridToCoord(ug.IDToGrid(j)))
@@ -105,7 +106,5 @@ func AStarAllNodes(from, to int, ug *grids.UniformGrid) ([][][]float64, [][]floa
 			}
 		}
 	}
-	var route = ExtractRouteUg(&prev, to, ug)
-	var processedNodes = ExtractNodesUg(&nodesProcessed, ug)
-	return route, processedNodes
+	return ExtractRouteUg(&prev, to, ug), ExtractNodesUg(&nodesProcessed, ug)
 }
