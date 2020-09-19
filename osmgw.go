@@ -60,9 +60,9 @@ func main() {
 	case 0:
 		fmt.Printf("Starting osmGW server with a %s\n", info)
 		if basicGrid {
-			server.Run(xSize, ySize, basicPointInPolygon)
+			server.RunBg(xSize, ySize, basicPointInPolygon)
 		} else {
-			server.RunUnidistant(xSize, ySize, basicPointInPolygon)
+			server.Run(xSize, ySize, basicPointInPolygon)
 		}
 	case 1:
 		fmt.Printf("Starting data processing for a %s", info)
@@ -74,7 +74,7 @@ func main() {
 		fmt.Printf("Starting evaluation of wayfinding for %s\n", info)
 		fmt.Printf("Averaging over %v routings ", nRuns)
 		if basicGrid {
-			evaluate.WayFindingBG(xSize, ySize, nRuns, algo, basicPointInPolygon, note)
+			evaluate.WayFindingBg(xSize, ySize, nRuns, algo, basicPointInPolygon, note)
 		} else {
 			evaluate.WayFinding(xSize, ySize, nRuns, algo, basicPointInPolygon, note)
 		}

@@ -72,7 +72,7 @@ func ReadPBF(pbfFileName, note string) {
 }
 
 // WayFindingBG is evaluated
-func WayFindingBG(xSize, ySize, nRuns, algorithm int, basicPointInPolygon bool, note string) {
+func WayFindingBg(xSize, ySize, nRuns, algorithm int, basicPointInPolygon bool, note string) {
 	var filename string
 	var bg grids.BasicGrid
 	var bg2D [][]bool
