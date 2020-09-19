@@ -1,0 +1,16 @@
+{
+    "basicGrid": "false",
+    "basicPointInPolygon": "false",
+    "count_runs": "1000",
+    "filename": "_asjps",
+    "nodes_popped_avg": "498",
+    "note": "old neighbours",
+    "numCPU": "8",
+    "time_avg": "914.233312ms",
+    "time_max": "33.3872336s",
+    "time_min": "4.9945ms",
+    "time_sum": "15m14.2333126s",
+    "totalAlloc": "406447",
+    "xSize": "360",
+    "ySize": "360"
+}
