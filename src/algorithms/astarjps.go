@@ -41,26 +41,21 @@ func AStarJPS(from, to int, ug *grids.UniformGrid) (*[][][]float64, int) {
 			}
 
 			neighbours := prune(u, SimpleNeighboursUgJPS(*u, ug), ug)
-			var successors []NodeJPS
-			for _, j := range *neighbours {
-				n := jump(u.IDX, u, j.dir, from, to, ug)
-				if n != nil {
-					successors = append(successors, *n)
-				}
-			}
-
-			for _, j := range successors {
-				var alt = dist[u.IDX] + distance(ug.GridToCoord(u.grid), ug.GridToCoord(j.grid))
-				if alt < dist[j.IDX] {
-					dist[j.IDX] = alt
-					prev[j.IDX] = u.IDX
-					item := &NodeJPS{
-						grid:     j.grid,
-						IDX:      j.IDX,
-						dir:      j.dir,
-						priority: -(dist[j.IDX] + distance(ug.GridToCoord(j.grid), ug.GridToCoord(ug.IDToGrid(to)))),
+			for _, n := range *neighbours {
+				j := jump(u.IDX, u, n.dir, from, to, ug)
+				if j != nil {
+					var alt = dist[u.IDX] + distance(ug.GridToCoord(u.grid), ug.GridToCoord(j.grid))
+					if alt < dist[j.IDX] {
+						dist[j.IDX] = alt
+						prev[j.IDX] = u.IDX
+						item := &NodeJPS{
+							grid:     j.grid,
+							IDX:      j.IDX,
+							dir:      j.dir,
+							priority: -(dist[j.IDX] + distance(ug.GridToCoord(j.grid), ug.GridToCoord(ug.IDToGrid(to)))),
+						}
+						heap.Push(&pq, item)
 					}
-					heap.Push(&pq, item)
 				}
 			}
 		}
@@ -106,26 +101,21 @@ func AStarJPSAllNodes(from, to int, ug *grids.UniformGrid) (*[][][]float64, *[][
 			}
 
 			neighbours := prune(u, SimpleNeighboursUgJPS(*u, ug), ug)
-			var successors []NodeJPS
-			for _, j := range *neighbours {
-				n := jump(u.IDX, u, j.dir, from, to, ug)
-				if n != nil {
-					successors = append(successors, *n)
-				}
-			}
-
-			for _, j := range successors {
-				var alt = dist[u.IDX] + distance(ug.GridToCoord(u.grid), ug.GridToCoord(j.grid))
-				if alt < dist[j.IDX] {
-					dist[j.IDX] = alt
-					prev[j.IDX] = u.IDX
-					item := &NodeJPS{
-						grid:     j.grid,
-						IDX:      j.IDX,
-						dir:      j.dir,
-						priority: -(dist[j.IDX] + distance(ug.GridToCoord(j.grid), ug.GridToCoord(ug.IDToGrid(to)))),
+			for _, n := range *neighbours {
+				j := jump(u.IDX, u, n.dir, from, to, ug)
+				if j != nil {
+					var alt = dist[u.IDX] + distance(ug.GridToCoord(u.grid), ug.GridToCoord(j.grid))
+					if alt < dist[j.IDX] {
+						dist[j.IDX] = alt
+						prev[j.IDX] = u.IDX
+						item := &NodeJPS{
+							grid:     j.grid,
+							IDX:      j.IDX,
+							dir:      j.dir,
+							priority: -(dist[j.IDX] + distance(ug.GridToCoord(j.grid), ug.GridToCoord(ug.IDToGrid(to)))),
+						}
+						heap.Push(&pq, item)
 					}
-					heap.Push(&pq, item)
 				}
 			}
 		}
