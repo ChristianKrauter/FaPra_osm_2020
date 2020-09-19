@@ -40,11 +40,11 @@ func extractRoute(prev *[]int, end int, bg *grids.BasicGrid) [][][]float64 {
 }
 
 func extractNodes(nodesProcessed *[]int, bg *grids.BasicGrid) [][]float64 {
-    var nodesExtended [][]float64
-    for _, node := range *nodesProcessed {
+    var nodesExtended = make([][]float64, len(*nodesProcessed))
+    for i, node := range *nodesProcessed {
         x := bg.IDToGrid(node)
         coord := bg.GridToCoord([]int{x[0], x[1]})
-        nodesExtended = append(nodesExtended, coord)
+        nodesExtended[i] = coord
     }
     return nodesExtended
 }

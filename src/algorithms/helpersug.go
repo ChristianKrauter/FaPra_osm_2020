@@ -11,23 +11,21 @@ func ExtractRouteUg(prev *[]int, end int, ug *grids.UniformGrid) *[][][]float64 
 	var route = make([][][]float64, 1)
 	for {
 		route[0] = append(route[0], ug.GridToCoord(ug.IDToGrid(end)))
-		//fmt.Printf("RP: %v\n", (*prev)[end])
 		if (*prev)[end] == -1 {
 			break
 		}
 		end = (*prev)[end]
 	}
-	//fmt.Printf("route: %v\n", route)
 	return &route
 }
 
 // ExtractNodesUg ...
 func ExtractNodesUg(nodesProcessed *[]int, ug *grids.UniformGrid) *[][]float64 {
-	var nodesExtended [][]float64
-	for _, node := range *nodesProcessed {
+	var nodesExtended = make([][]float64, len(*nodesProcessed))
+	for i, node := range *nodesProcessed {
 		x := ug.IDToGrid(node)
 		coord := ug.GridToCoord([]int{x[0], x[1]})
-		nodesExtended = append(nodesExtended, coord)
+		nodesExtended[i] = coord
 	}
 	return &nodesExtended
 }
