@@ -149,24 +149,34 @@ func WayFindingBg(xSize, ySize, nRuns, algorithm int, basicPointInPolygon bool, 
 	}
 
 	for i := 0; i < len(from); i++ {
-		var start = time.Now()
+		var start time.Time
+		var end time.Time
 		var popped int
 		switch algorithm {
 		case 0:
+			start = time.Now()
 			_, popped = algorithms.DijkstraBg(from[i], to[i], &bg)
+			end = time.Now()
 		case 1:
+			start = time.Now()
 			_, popped = algorithms.AStarBg(from[i], to[i], &bg)
+			end = time.Now()
 		case 2:
+			start = time.Now()
 			_, popped = algorithms.BiDijkstraBg(from[i], to[i], &bg)
+			end = time.Now()
 		case 3:
+			start = time.Now()
 			_, popped = algorithms.BiAStarBg(from[i], to[i], &bg)
+			end = time.Now()
 		default:
+			start = time.Now()
 			_, popped = algorithms.DijkstraBg(from[i], to[i], &bg)
+			end = time.Now()
 		}
 
 		poppedSum += popped
-		t := time.Now()
-		var elapsed = t.Sub(start)
+		var elapsed = end.Sub(start)
 		if elapsed > max {
 			max = elapsed
 		}
@@ -282,25 +292,38 @@ func WayFinding(xSize, ySize, nRuns, algorithm int, basicPointInPolygon bool, no
 	}
 
 	for i := 0; i < len(from); i++ {
-		var start = time.Now()
+		var start time.Time
+		var end time.Time
 		var popped int
+
 		switch algorithm {
 		case 0:
+			start = time.Now()
 			_, popped = algorithms.Dijkstra(from[i], to[i], &ug)
+			end = time.Now()
 		case 1:
+			start = time.Now()
 			_, popped = algorithms.AStar(from[i], to[i], &ug)
+			end = time.Now()
 		case 2:
+			start = time.Now()
 			_, popped = algorithms.BiDijkstra(from[i], to[i], &ug)
+			end = time.Now()
 		case 3:
+			start = time.Now()
 			_, popped = algorithms.BiAStar(from[i], to[i], &ug)
+			end = time.Now()
 		case 4:
+			start = time.Now()
 			_, popped = algorithms.AStarJPS(from[i], to[i], &ug)
+			end = time.Now()
 		default:
+			start = time.Now()
 			_, popped = algorithms.Dijkstra(from[i], to[i], &ug)
+			end = time.Now()
 		}
 		poppedSum += popped
-		t := time.Now()
-		var elapsed = t.Sub(start)
+		var elapsed = end.Sub(start)
 		if elapsed > max {
 			max = elapsed
 		}
