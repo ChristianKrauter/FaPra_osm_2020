@@ -16,7 +16,13 @@ import (
 )
 
 var port int = 8081
-var algoStr = []string{"Dij", "A*", "BiDij", "BiA*", "A*-JPS"}
+var algoStr = []string{
+	"Dij   ",
+	"A*    ",
+	"BiDij ",
+	"BiA*  ",
+	"A*-JPS",
+}
 
 type dijkstraData struct {
 	Route    *geojson.FeatureCollection
@@ -109,31 +115,32 @@ func RunBg(xSize, ySize int, basicPointInPolygon bool) {
 					var start time.Time
 					var end time.Time
 					var route [][][]float64
+					var length float64
 					var nodesProcessed [][]float64
 					switch algorithm {
 					case 0:
 						start = time.Now()
-						route, nodesProcessed, _ = algorithms.DijkstraAllNodesBg(bg.GridToID(from), bg.GridToID(to), &bg)
+						route, nodesProcessed, length = algorithms.DijkstraAllNodesBg(bg.GridToID(from), bg.GridToID(to), &bg)
 						end = time.Now()
 					case 1:
 						start = time.Now()
-						route, nodesProcessed, _ = algorithms.AStarAllNodesBg(bg.GridToID(from), bg.GridToID(to), &bg)
+						route, nodesProcessed, length = algorithms.AStarAllNodesBg(bg.GridToID(from), bg.GridToID(to), &bg)
 						end = time.Now()
 					case 2:
 						start = time.Now()
-						route, nodesProcessed, _ = algorithms.BiDijkstraAllNodesBg(bg.GridToID(from), bg.GridToID(to), &bg)
+						route, nodesProcessed, length = algorithms.BiDijkstraAllNodesBg(bg.GridToID(from), bg.GridToID(to), &bg)
 						end = time.Now()
 					case 3:
 						start = time.Now()
-						route, nodesProcessed, _ = algorithms.BiAStarAllNodesBg(bg.GridToID(from), bg.GridToID(to), &bg)
+						route, nodesProcessed, length = algorithms.BiAStarAllNodesBg(bg.GridToID(from), bg.GridToID(to), &bg)
 						end = time.Now()
 					default:
 						start = time.Now()
-						route, nodesProcessed, _ = algorithms.DijkstraAllNodesBg(bg.GridToID(from), bg.GridToID(to), &bg)
+						route, nodesProcessed, length = algorithms.DijkstraAllNodesBg(bg.GridToID(from), bg.GridToID(to), &bg)
 						end = time.Now()
 					}
 					elapsed := end.Sub(start)
-					fmt.Printf("time: %v (%s)\n", elapsed, algoStr[algorithm])
+					fmt.Printf("(%s) time: %s length: %v\n", algoStr[algorithm], elapsed, length)
 
 					var result = toGeojson(route)
 					data := dijkstraData{
@@ -151,30 +158,31 @@ func RunBg(xSize, ySize int, basicPointInPolygon bool) {
 					var start time.Time
 					var end time.Time
 					var route [][][]float64
+					var length float64
 					switch algorithm {
 					case 0:
 						start = time.Now()
-						route, _, _ = algorithms.DijkstraBg(bg.GridToID(from), bg.GridToID(to), &bg)
+						route, _, length = algorithms.DijkstraBg(bg.GridToID(from), bg.GridToID(to), &bg)
 						end = time.Now()
 					case 1:
 						start = time.Now()
-						route, _, _ = algorithms.AStarBg(bg.GridToID(from), bg.GridToID(to), &bg)
+						route, _, length = algorithms.AStarBg(bg.GridToID(from), bg.GridToID(to), &bg)
 						end = time.Now()
 					case 2:
 						start = time.Now()
-						route, _, _ = algorithms.BiDijkstraBg(bg.GridToID(from), bg.GridToID(to), &bg)
+						route, _, length = algorithms.BiDijkstraBg(bg.GridToID(from), bg.GridToID(to), &bg)
 						end = time.Now()
 					case 3:
 						start = time.Now()
-						route, _, _ = algorithms.BiAStarBg(bg.GridToID(from), bg.GridToID(to), &bg)
+						route, _, length = algorithms.BiAStarBg(bg.GridToID(from), bg.GridToID(to), &bg)
 						end = time.Now()
 					default:
 						start = time.Now()
-						route, _, _ = algorithms.DijkstraBg(bg.GridToID(from), bg.GridToID(to), &bg)
+						route, _, length = algorithms.DijkstraBg(bg.GridToID(from), bg.GridToID(to), &bg)
 						end = time.Now()
 					}
 					elapsed := end.Sub(start)
-					fmt.Printf("time: %s (%s)\n", elapsed, algoStr[algorithm])
+					fmt.Printf("(%s) time: %s length: %v\n", algoStr[algorithm], elapsed, length)
 					var result = toGeojson(route)
 					rawJSON, err := result.MarshalJSON()
 					check(err)
@@ -289,35 +297,36 @@ func Run(xSize, ySize int, basicPointInPolygon bool) {
 					var start time.Time
 					var end time.Time
 					var route *[][][]float64
+					var length float64
 					var nodesProcessed *[][]float64
 					switch algorithm {
 					case 0:
 						start = time.Now()
-						route, nodesProcessed, _ = algorithms.DijkstraAllNodes(ug.GridToID(from), ug.GridToID(to), &ug)
+						route, nodesProcessed, length = algorithms.DijkstraAllNodes(ug.GridToID(from), ug.GridToID(to), &ug)
 						end = time.Now()
 					case 1:
 						start = time.Now()
-						route, nodesProcessed, _ = algorithms.AStarAllNodes(ug.GridToID(from), ug.GridToID(to), &ug)
+						route, nodesProcessed, length = algorithms.AStarAllNodes(ug.GridToID(from), ug.GridToID(to), &ug)
 						end = time.Now()
 					case 2:
 						start = time.Now()
-						route, nodesProcessed, _ = algorithms.BiDijkstraAllNodes(ug.GridToID(from), ug.GridToID(to), &ug)
+						route, nodesProcessed, length = algorithms.BiDijkstraAllNodes(ug.GridToID(from), ug.GridToID(to), &ug)
 						end = time.Now()
 					case 3:
 						start = time.Now()
-						route, nodesProcessed, _ = algorithms.BiAStarAllNodes(ug.GridToID(from), ug.GridToID(to), &ug)
+						route, nodesProcessed, length = algorithms.BiAStarAllNodes(ug.GridToID(from), ug.GridToID(to), &ug)
 						end = time.Now()
 					case 4:
 						start = time.Now()
-						route, nodesProcessed, _ = algorithms.AStarJPSAllNodes(ug.GridToID(from), ug.GridToID(to), &ug)
+						route, nodesProcessed, length = algorithms.AStarJPSAllNodes(ug.GridToID(from), ug.GridToID(to), &ug)
 						end = time.Now()
 					default:
 						start = time.Now()
-						route, nodesProcessed, _ = algorithms.DijkstraAllNodes(ug.GridToID(from), ug.GridToID(to), &ug)
+						route, nodesProcessed, length = algorithms.DijkstraAllNodes(ug.GridToID(from), ug.GridToID(to), &ug)
 						end = time.Now()
 					}
 					elapsed := end.Sub(start)
-					fmt.Printf("time: %s (%s)\n", elapsed, algoStr[algorithm])
+					fmt.Printf("(%s) time: %s length: %v\n", algoStr[algorithm], elapsed, length)
 
 					var result = toGeojson(*route)
 					data := dijkstraData{
@@ -335,34 +344,35 @@ func Run(xSize, ySize int, basicPointInPolygon bool) {
 					var start time.Time
 					var end time.Time
 					var route *[][][]float64
+					var length float64
 					switch algorithm {
 					case 0:
 						start = time.Now()
-						route, _, _ = algorithms.Dijkstra(ug.GridToID(from), ug.GridToID(to), &ug)
+						route, _, length = algorithms.Dijkstra(ug.GridToID(from), ug.GridToID(to), &ug)
 						end = time.Now()
 					case 1:
 						start = time.Now()
-						route, _, _ = algorithms.AStar(ug.GridToID(from), ug.GridToID(to), &ug)
+						route, _, length = algorithms.AStar(ug.GridToID(from), ug.GridToID(to), &ug)
 						end = time.Now()
 					case 2:
 						start = time.Now()
-						route, _, _ = algorithms.BiDijkstra(ug.GridToID(from), ug.GridToID(to), &ug)
+						route, _, length = algorithms.BiDijkstra(ug.GridToID(from), ug.GridToID(to), &ug)
 						end = time.Now()
 					case 3:
 						start = time.Now()
-						route, _, _ = algorithms.BiAStar(ug.GridToID(from), ug.GridToID(to), &ug)
+						route, _, length = algorithms.BiAStar(ug.GridToID(from), ug.GridToID(to), &ug)
 						end = time.Now()
 					case 4:
 						start = time.Now()
-						route, _, _ = algorithms.AStarJPS(ug.GridToID(from), ug.GridToID(to), &ug)
+						route, _, length = algorithms.AStarJPS(ug.GridToID(from), ug.GridToID(to), &ug)
 						end = time.Now()
 					default:
 						start = time.Now()
-						route, _, _ = algorithms.Dijkstra(ug.GridToID(from), ug.GridToID(to), &ug)
+						route, _, length = algorithms.Dijkstra(ug.GridToID(from), ug.GridToID(to), &ug)
 						end = time.Now()
 					}
 					elapsed := end.Sub(start)
-					fmt.Printf("time: %s (%s)\n", elapsed, algoStr[algorithm])
+					fmt.Printf("(%s) time: %s length: %v\n", algoStr[algorithm], elapsed, length)
 					rawJSON, err := toGeojson(*route).MarshalJSON()
 					check(err)
 					w.Write(rawJSON)
