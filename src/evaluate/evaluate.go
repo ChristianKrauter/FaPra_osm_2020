@@ -38,8 +38,8 @@ func saveLog(filename string, jsonString []byte) {
 
 // ReadPBF is evaluated
 func ReadPBF(pbfFileName, note string) {
-	log := make(map[string]string)
-	log["pbfFileName"] = pbfFileName
+	logs := make(map[string]string)
+	logs["pbfFileName"] = pbfFileName
 	pbfFileName = fmt.Sprintf("data/%s", pbfFileName)
 
 	fmt.Printf("\nNormal:\n")
@@ -57,17 +57,17 @@ func ReadPBF(pbfFileName, note string) {
 	var readLessMemoryTime = dataprocessing.ReadFileLessMemory(pbfFileName, &coastlineMap, &nodeMap)
 
 	runtime.ReadMemStats(&m)
-	log["note"] = note
-	log["numCPU"] = strconv.Itoa(runtime.NumCPU())
-	log["totalAllocNormal"] = strconv.FormatUint(totalAllocNormal/1024/1024, 10)
-	log["totalAllocLessMemory"] = strconv.FormatUint((m.TotalAlloc-totalAllocNormal)/1024/1024, 10)
-	log["time_read"] = string(readTime)
-	log["time_readLessMemory"] = string(readLessMemoryTime)
+	logs["note"] = note
+	logs["numCPU"] = strconv.Itoa(runtime.NumCPU())
+	logs["totalAllocNormal"] = strconv.FormatUint(totalAllocNormal/1024/1024, 10)
+	logs["totalAllocLessMemory"] = strconv.FormatUint((m.TotalAlloc-totalAllocNormal)/1024/1024, 10)
+	logs["time_read"] = string(readTime)
+	logs["time_readLessMemory"] = string(readLessMemoryTime)
 
-	jsonString, _ := json.MarshalIndent(log, "", "    ")
+	jsonString, _ := json.MarshalIndent(logs, "", "    ")
 	var filename string
 	var timestamp = time.Now().Format("2006-01-02_15-04-05")
-	filename = fmt.Sprintf("data/evaluation/rf_%s_%s.json", strings.Split(log["pbfFileName"], ".")[0], timestamp)
+	filename = fmt.Sprintf("data/evaluation/rf_%s_%s.json", strings.Split(logs["pbfFileName"], ".")[0], timestamp)
 	saveLog(filename, jsonString)
 }
 
@@ -84,7 +84,7 @@ func WayFindingBg(xSize, ySize, nRuns, algorithm int, basicPointInPolygon bool, 
 	var min = time.Duration(math.MaxInt64)
 	from := make([]int, nRuns)
 	to := make([]int, nRuns)
-	log := make(map[string]string)
+	logs := make(map[string]string)
 
 	bg.XSize = xSize
 	bg.YSize = ySize
@@ -111,7 +111,7 @@ func WayFindingBg(xSize, ySize, nRuns, algorithm int, basicPointInPolygon bool, 
 	}
 
 	fmt.Printf("using %s.\n", algoStrPrint)
-	log["filename"] = algoStr
+	logs["filename"] = algoStr
 
 	if basicPointInPolygon {
 		filename = fmt.Sprintf("data/output/meshgrid_%v_%v_bpip.json", xSize, ySize)
@@ -191,27 +191,26 @@ func WayFindingBg(xSize, ySize, nRuns, algorithm int, basicPointInPolygon bool, 
 		count, sum, sum/time.Duration(count), strconv.Itoa(poppedSum/count), min, max)
 
 	runtime.ReadMemStats(&m)
-	log["note"] = note
-	log["basicGrid"] = "true"
-	log["basicPointInPolygon"] = strconv.FormatBool(basicPointInPolygon)
-	log["xSize"] = strconv.Itoa(xSize)
-	log["ySize"] = strconv.Itoa(ySize)
-	log["numCPU"] = strconv.Itoa(runtime.NumCPU())
-	log["totalAlloc"] = strconv.FormatUint(m.TotalAlloc/1024/1024, 10)
-	log["time_sum"] = sum.String()
-	log["count_runs"] = strconv.Itoa(count)
-	log["time_avg"] = (sum / time.Duration(count)).String()
-	log["time_min"] = min.String()
-	log["time_max"] = max.String()
-	log["nodes_popped_avg"] = strconv.Itoa(poppedSum / count)
+	logs["note"] = note
+	logs["basicGrid"] = "true"
+	logs["xSize"] = strconv.Itoa(xSize)
+	logs["ySize"] = strconv.Itoa(ySize)
+	logs["numCPU"] = strconv.Itoa(runtime.NumCPU())
+	logs["totalAlloc"] = strconv.FormatUint(m.TotalAlloc/1024/1024, 10)
+	logs["time_sum"] = sum.String()
+	logs["count_runs"] = strconv.Itoa(count)
+	logs["time_avg"] = (sum / time.Duration(count)).String()
+	logs["time_min"] = min.String()
+	logs["time_max"] = max.String()
+	logs["nodes_popped_avg"] = strconv.Itoa(poppedSum / count)
 
-	jsonString, _ := json.MarshalIndent(log, "", "    ")
+	jsonString, _ := json.MarshalIndent(logs, "", "    ")
 	var outFilename string
 	var timestamp = time.Now().Format("2006-01-02_15-04-05")
-	if val, ok := log["filename"]; ok {
-		outFilename = fmt.Sprintf("data/evaluation/wf_%s_%s_bg%s_%s.json", log["xSize"], log["ySize"], val, timestamp)
+	if val, ok := logs["filename"]; ok {
+		outFilename = fmt.Sprintf("data/evaluation/wf_%s_%s_bg%s_%s.json", logs["xSize"], logs["ySize"], val, timestamp)
 	} else {
-		outFilename = fmt.Sprintf("data/evaluation/wf_%s_%s_bg_%s.json", log["xSize"], log["ySize"], timestamp)
+		outFilename = fmt.Sprintf("data/evaluation/wf_%s_%s_bg_%s.json", logs["xSize"], logs["ySize"], timestamp)
 	}
 	saveLog(outFilename, jsonString)
 }
@@ -229,7 +228,7 @@ func WayFinding(xSize, ySize, nRuns, algorithm int, basicPointInPolygon bool, no
 	var min = time.Duration(math.MaxInt64)
 	from := make([]int, nRuns)
 	to := make([]int, nRuns)
-	log := make(map[string]string)
+	logs := make(map[string]string)
 
 	var algoStr, algoStrPrint string
 	switch algorithm {
@@ -254,7 +253,6 @@ func WayFinding(xSize, ySize, nRuns, algorithm int, basicPointInPolygon bool, no
 	}
 
 	fmt.Printf("using %s.\n", algoStrPrint)
-	log["filename"] = algoStr
 
 	if basicPointInPolygon {
 		filename = fmt.Sprintf("data/output/uniformGrid_%v_%v_bpip.json", xSize, ySize)
@@ -262,6 +260,7 @@ func WayFinding(xSize, ySize, nRuns, algorithm int, basicPointInPolygon bool, no
 	} else {
 		filename = fmt.Sprintf("data/output/uniformGrid_%v_%v.json", xSize, ySize)
 	}
+	logs["filename"] = algoStr
 
 	uniformgridRaw, errJSON := os.Open(filename)
 	if errJSON != nil {
@@ -338,49 +337,48 @@ func WayFinding(xSize, ySize, nRuns, algorithm int, basicPointInPolygon bool, no
 		count, sum, sum/time.Duration(count), strconv.Itoa(poppedSum/count), min, max)
 
 	runtime.ReadMemStats(&m)
-	log["note"] = note
-	log["basicGrid"] = "false"
-	log["basicPointInPolygon"] = strconv.FormatBool(basicPointInPolygon)
-	log["xSize"] = strconv.Itoa(xSize)
-	log["ySize"] = strconv.Itoa(ySize)
-	log["numCPU"] = strconv.Itoa(runtime.NumCPU())
-	log["totalAlloc"] = strconv.FormatUint(m.TotalAlloc/1024/1024, 10)
-	log["time_sum"] = sum.String()
-	log["count_runs"] = strconv.Itoa(count)
-	log["time_avg"] = (sum / time.Duration(count)).String()
-	log["time_min"] = min.String()
-	log["time_max"] = max.String()
-	log["nodes_popped_avg"] = strconv.Itoa(poppedSum / count)
+	logs["note"] = note
+	logs["basicGrid"] = "false"
+	logs["xSize"] = strconv.Itoa(xSize)
+	logs["ySize"] = strconv.Itoa(ySize)
+	logs["numCPU"] = strconv.Itoa(runtime.NumCPU())
+	logs["totalAlloc"] = strconv.FormatUint(m.TotalAlloc/1024/1024, 10)
+	logs["time_sum"] = sum.String()
+	logs["count_runs"] = strconv.Itoa(count)
+	logs["time_avg"] = (sum / time.Duration(count)).String()
+	logs["time_min"] = min.String()
+	logs["time_max"] = max.String()
+	logs["nodes_popped_avg"] = strconv.Itoa(poppedSum / count)
 
-	jsonString, _ := json.MarshalIndent(log, "", "    ")
+	jsonString, _ := json.MarshalIndent(logs, "", "    ")
 	var outFilename string
 	var timestamp = time.Now().Format("2006-01-02_15-04-05")
-	outFilename = fmt.Sprintf("data/evaluation/wf_%s_%s%s_%s.json", log["xSize"], log["ySize"], log["filename"], timestamp)
+	outFilename = fmt.Sprintf("data/evaluation/wf_%s_%s%s_%s.json", logs["xSize"], logs["ySize"], logs["filename"], timestamp)
 	saveLog(outFilename, jsonString)
 }
 
 // DataProcessing is evaluated
 func DataProcessing(pbfFileName, note string, xSize, ySize int, createCoastlineGeoJSON, lessMemory, noBoundingTree, basicGrid, basicPointInPolygon bool) {
-	var log = dataprocessing.Start(pbfFileName, xSize, ySize, createCoastlineGeoJSON, lessMemory, noBoundingTree, basicGrid, basicPointInPolygon)
+	var logs = dataprocessing.Start(pbfFileName, xSize, ySize, createCoastlineGeoJSON, lessMemory, noBoundingTree, basicGrid, basicPointInPolygon)
 
 	var m runtime.MemStats
 	runtime.ReadMemStats(&m)
-	log["pbfFileName"] = pbfFileName
-	log["note"] = note
-	log["basicGrid"] = strconv.FormatBool(basicGrid)
-	log["basicPointInPolygon"] = strconv.FormatBool(basicPointInPolygon)
-	log["xSize"] = strconv.Itoa(xSize)
-	log["ySize"] = strconv.Itoa(ySize)
-	log["numCPU"] = strconv.Itoa(runtime.NumCPU())
-	log["totalAlloc"] = strconv.FormatUint(m.TotalAlloc/1024/1024, 10)
+	logs["pbfFileName"] = pbfFileName
+	logs["note"] = note
+	logs["basicGrid"] = strconv.FormatBool(basicGrid)
+	logs["basicPointInPolygon"] = strconv.FormatBool(basicPointInPolygon)
+	logs["xSize"] = strconv.Itoa(xSize)
+	logs["ySize"] = strconv.Itoa(ySize)
+	logs["numCPU"] = strconv.Itoa(runtime.NumCPU())
+	logs["totalAlloc"] = strconv.FormatUint(m.TotalAlloc/1024/1024, 10)
 
-	jsonString, _ := json.MarshalIndent(log, "", "    ")
+	jsonString, _ := json.MarshalIndent(logs, "", "    ")
 	var filename string
 	var timestamp = time.Now().Format("2006-01-02_15-04-05")
-	if val, ok := log["filename"]; ok {
-		filename = fmt.Sprintf("data/evaluation/dp_%s_%s_%s%s_%s.json", strings.Split(log["pbfFileName"], ".")[0], log["xSize"], log["ySize"], val, timestamp)
+	if val, ok := logs["filename"]; ok {
+		filename = fmt.Sprintf("data/evaluation/dp_%s_%s_%s%s_%s.json", strings.Split(logs["pbfFileName"], ".")[0], logs["xSize"], logs["ySize"], val, timestamp)
 	} else {
-		filename = fmt.Sprintf("data/evaluation/dp_%s_%s_%s_%s.json", strings.Split(log["pbfFileName"], ".")[0], log["xSize"], log["ySize"], timestamp)
+		filename = fmt.Sprintf("data/evaluation/dp_%s_%s_%s_%s.json", strings.Split(logs["pbfFileName"], ".")[0], logs["xSize"], logs["ySize"], timestamp)
 	}
 	saveLog(filename, jsonString)
 }
