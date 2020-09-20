@@ -17,7 +17,7 @@ func ReadFile(pbfFileName string, coastlineMap *map[int64][]int64, nodeMap *map[
 	// Read coastlines
 	f, err := os.Open(pbfFileName)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal(fmt.Sprintf("\nThe file '%s'\ncould not be found.\nPlease make sure it is in '/data' and the name is correct.\n", pbfFileName))
 	}
 	defer f.Close()
 

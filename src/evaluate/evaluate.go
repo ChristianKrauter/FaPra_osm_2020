@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"math"
 	"math/rand"
 	"os"
@@ -122,7 +123,7 @@ func WayFindingBg(xSize, ySize, nRuns, algorithm int, basicPointInPolygon bool, 
 
 	meshgridRaw, errJSON := os.Open(filename)
 	if errJSON != nil {
-		panic(errJSON)
+		log.Fatal(fmt.Sprintf("\nThe meshgrid '%s'\ncould not be found. Please create it first.\n", filename))
 	}
 	defer meshgridRaw.Close()
 	byteValue, _ := ioutil.ReadAll(meshgridRaw)
@@ -264,7 +265,7 @@ func WayFinding(xSize, ySize, nRuns, algorithm int, basicPointInPolygon bool, no
 
 	uniformgridRaw, errJSON := os.Open(filename)
 	if errJSON != nil {
-		panic(errJSON)
+		log.Fatal(fmt.Sprintf("\nThe meshgrid '%s'\ncould not be found. Please create it first.\n", filename))
 	}
 	defer uniformgridRaw.Close()
 	byteValue, _ := ioutil.ReadAll(uniformgridRaw)
@@ -396,7 +397,7 @@ func NeighboursUg(xSize, ySize int, note string) {
 
 	uniformgridRaw, errJSON := os.Open(filename)
 	if errJSON != nil {
-		panic(errJSON)
+		log.Fatal(fmt.Sprintf("\nThe meshgrid '%s'\ncould not be found. Please create it first.\n", filename))
 	}
 	defer uniformgridRaw.Close()
 	byteValue, _ := ioutil.ReadAll(uniformgridRaw)
