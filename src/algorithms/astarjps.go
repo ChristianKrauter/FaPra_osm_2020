@@ -284,7 +284,7 @@ func step(i *NodeJPS, dir int, ug *grids.UniformGrid) *NodeJPS {
 	return nil
 }
 
-// SimpleNeighboursUg gets ug neighbours cheaper
+// SimpleNeighboursUgJPS gets ug neighbours cheaper
 func SimpleNeighboursUgJPS(in NodeJPS, ug *grids.UniformGrid) *map[int]NodeJPS {
 	//var neighbours []NodeJPS
 	var ratio float64

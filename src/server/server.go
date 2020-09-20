@@ -37,7 +37,7 @@ func toGeojson(route [][][]float64) *geojson.FeatureCollection {
 	return routes
 }
 
-// Run the server with the basic grid
+// RunBg the server with the basic grid
 func RunBg(xSize, ySize int, basicPointInPolygon bool) {
 	var bg grids.BasicGrid
 	var bg2D [][]bool
@@ -222,7 +222,7 @@ func RunBg(xSize, ySize int, basicPointInPolygon bool) {
 	log.Fatal(http.ListenAndServe(portStr, nil))
 }
 
-// RunUnidistant server
+// Run server
 func Run(xSize, ySize int, basicPointInPolygon bool) {
 	var ug1D []bool
 	var ug grids.UniformGrid

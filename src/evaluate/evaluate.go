@@ -72,7 +72,7 @@ func ReadPBF(pbfFileName, note string) {
 	saveLog(filename, jsonString)
 }
 
-// WayFindingBG is evaluated
+// WayFindingBg is evaluated
 func WayFindingBg(xSize, ySize, nRuns, algorithm int, note string) {
 	var filename string
 	var bg grids.BasicGrid
