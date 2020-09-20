@@ -7,7 +7,7 @@ import (
 )
 
 // BiDijkstraBg implementation on uniform grid
-func BiDijkstraBg(from, to int, bg *grids.BasicGrid) ([][][]float64, int) {
+func BiDijkstraBg(from, to int, bg *grids.BasicGrid) ([][][]float64, int, float64) {
 	var prev = make([][]int, len(bg.VertexData))
 	dist := [][]float64{make([]float64, len(bg.VertexData)), make([]float64, len(bg.VertexData))}
 	pq := []priorityQueue{make(priorityQueue, 1), make(priorityQueue, 1)}
@@ -88,11 +88,11 @@ func BiDijkstraBg(from, to int, bg *grids.BasicGrid) ([][][]float64, int) {
 	}
 
 	var route = ExtractRouteBi(&prev, meeting, bg)
-	return route, len(proc[0]) + len(proc[1])
+	return route, len(proc[0]) + len(proc[1]), dist[0][meeting] + dist[1][meeting]
 }
 
 // BiDijkstraAllNodesBg additionally returns all visited nodes on uniform grid
-func BiDijkstraAllNodesBg(from, to int, bg *grids.BasicGrid) ([][][]float64, [][]float64) {
+func BiDijkstraAllNodesBg(from, to int, bg *grids.BasicGrid) ([][][]float64, [][]float64, float64) {
 	var prev = make([][]int, len(bg.VertexData))
 	dist := [][]float64{make([]float64, len(bg.VertexData)), make([]float64, len(bg.VertexData))}
 	pq := []priorityQueue{make(priorityQueue, 1), make(priorityQueue, 1)}
@@ -184,5 +184,5 @@ func BiDijkstraAllNodesBg(from, to int, bg *grids.BasicGrid) ([][][]float64, [][
 	}
 	var processedNodes = extractNodes(&keys, bg)
 	var route = ExtractRouteBi(&prev, meeting, bg)
-	return route, processedNodes
+	return route, processedNodes, dist[0][meeting] + dist[1][meeting]
 }

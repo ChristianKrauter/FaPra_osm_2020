@@ -7,7 +7,7 @@ import (
 )
 
 // DijkstraBg implementation
-func DijkstraBg(from, to int, bg *grids.BasicGrid) ([][][]float64, int) {
+func DijkstraBg(from, to int, bg *grids.BasicGrid) ([][][]float64, int, float64) {
 	var popped int
 	var dist = make([]float64, len(bg.VertexData))
 	var prev = make([]int, len(bg.VertexData))
@@ -34,7 +34,7 @@ func DijkstraBg(from, to int, bg *grids.BasicGrid) ([][][]float64, int) {
 			popped++
 
 			if u == to {
-				return extractRoute(&prev, to, bg), popped
+				return extractRoute(&prev, to, bg), popped, dist[to]
 			}
 
 			neighbours := neighboursBg(u, bg)
@@ -53,11 +53,11 @@ func DijkstraBg(from, to int, bg *grids.BasicGrid) ([][][]float64, int) {
 			}
 		}
 	}
-	return extractRoute(&prev, to, bg), popped
+	return extractRoute(&prev, to, bg), popped, dist[to]
 }
 
 // DijkstraAllNodesBg additionally returns all visited nodes
-func DijkstraAllNodesBg(from, to int, bg *grids.BasicGrid) ([][][]float64, [][]float64) {
+func DijkstraAllNodesBg(from, to int, bg *grids.BasicGrid) ([][][]float64, [][]float64, float64) {
 	var dist = make([]float64, len(bg.VertexData))
 	var prev = make([]int, len(bg.VertexData))
 	var nodesProcessed []int
@@ -89,7 +89,7 @@ func DijkstraAllNodesBg(from, to int, bg *grids.BasicGrid) ([][][]float64, [][]f
 				// ToDo: return pointers
 				var route = extractRoute(&prev, to, bg)
 				var processedNodes = extractNodes(&nodesProcessed, bg)
-				return route, processedNodes
+				return route, processedNodes, dist[to]
 			}
 
 			neighbours := neighboursBg(u, bg)
@@ -110,5 +110,5 @@ func DijkstraAllNodesBg(from, to int, bg *grids.BasicGrid) ([][][]float64, [][]f
 	}
 	var route = extractRoute(&prev, to, bg)
 	var processedNodes = extractNodes(&nodesProcessed, bg)
-	return route, processedNodes
+	return route, processedNodes, dist[to]
 }

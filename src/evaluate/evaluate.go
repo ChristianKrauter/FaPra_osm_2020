@@ -155,23 +155,23 @@ func WayFindingBg(xSize, ySize, nRuns, algorithm int, basicPointInPolygon bool, 
 		switch algorithm {
 		case 0:
 			start = time.Now()
-			_, popped = algorithms.DijkstraBg(from[i], to[i], &bg)
+			_, popped, _ = algorithms.DijkstraBg(from[i], to[i], &bg)
 			end = time.Now()
 		case 1:
 			start = time.Now()
-			_, popped = algorithms.AStarBg(from[i], to[i], &bg)
+			_, popped, _ = algorithms.AStarBg(from[i], to[i], &bg)
 			end = time.Now()
 		case 2:
 			start = time.Now()
-			_, popped = algorithms.BiDijkstraBg(from[i], to[i], &bg)
+			_, popped, _ = algorithms.BiDijkstraBg(from[i], to[i], &bg)
 			end = time.Now()
 		case 3:
 			start = time.Now()
-			_, popped = algorithms.BiAStarBg(from[i], to[i], &bg)
+			_, popped, _ = algorithms.BiAStarBg(from[i], to[i], &bg)
 			end = time.Now()
 		default:
 			start = time.Now()
-			_, popped = algorithms.DijkstraBg(from[i], to[i], &bg)
+			_, popped, _ = algorithms.DijkstraBg(from[i], to[i], &bg)
 			end = time.Now()
 		}
 
@@ -299,27 +299,27 @@ func WayFinding(xSize, ySize, nRuns, algorithm int, basicPointInPolygon bool, no
 		switch algorithm {
 		case 0:
 			start = time.Now()
-			_, popped = algorithms.Dijkstra(from[i], to[i], &ug)
+			_, popped, _ = algorithms.Dijkstra(from[i], to[i], &ug)
 			end = time.Now()
 		case 1:
 			start = time.Now()
-			_, popped = algorithms.AStar(from[i], to[i], &ug)
+			_, popped, _ = algorithms.AStar(from[i], to[i], &ug)
 			end = time.Now()
 		case 2:
 			start = time.Now()
-			_, popped = algorithms.BiDijkstra(from[i], to[i], &ug)
+			_, popped, _ = algorithms.BiDijkstra(from[i], to[i], &ug)
 			end = time.Now()
 		case 3:
 			start = time.Now()
-			_, popped = algorithms.BiAStar(from[i], to[i], &ug)
+			_, popped, _ = algorithms.BiAStar(from[i], to[i], &ug)
 			end = time.Now()
 		case 4:
 			start = time.Now()
-			_, popped = algorithms.AStarJPS(from[i], to[i], &ug)
+			_, popped, _ = algorithms.AStarJPS(from[i], to[i], &ug)
 			end = time.Now()
 		default:
 			start = time.Now()
-			_, popped = algorithms.Dijkstra(from[i], to[i], &ug)
+			_, popped, _ = algorithms.Dijkstra(from[i], to[i], &ug)
 			end = time.Now()
 		}
 		poppedSum += popped

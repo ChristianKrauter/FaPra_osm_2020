@@ -7,7 +7,7 @@ import (
 )
 
 // AStarBg implementation
-func AStarBg(from, to int, bg *grids.BasicGrid) ([][][]float64, int) {
+func AStarBg(from, to int, bg *grids.BasicGrid) ([][][]float64, int, float64) {
 	var popped int
 	var dist = make([]float64, len(bg.VertexData))
 	var prev = make([]int, len(bg.VertexData))
@@ -34,7 +34,7 @@ func AStarBg(from, to int, bg *grids.BasicGrid) ([][][]float64, int) {
 			popped++
 
 			if u == to {
-				return extractRoute(&prev, to, bg), popped
+				return extractRoute(&prev, to, bg), popped, dist[to]
 			}
 
 			neighbours := neighboursBg(u, bg)
@@ -53,11 +53,11 @@ func AStarBg(from, to int, bg *grids.BasicGrid) ([][][]float64, int) {
 			}
 		}
 	}
-	return extractRoute(&prev, to, bg), popped
+	return extractRoute(&prev, to, bg), popped, dist[to]
 }
 
 // AStarAllNodesBg additionally returns all visited nodes
-func AStarAllNodesBg(from, to int, bg *grids.BasicGrid) ([][][]float64, [][]float64) {
+func AStarAllNodesBg(from, to int, bg *grids.BasicGrid) ([][][]float64, [][]float64, float64) {
 	var dist = make([]float64, len(bg.VertexData))
 	var prev = make([]int, len(bg.VertexData))
 	var nodesProcessed []int
@@ -87,7 +87,7 @@ func AStarAllNodesBg(from, to int, bg *grids.BasicGrid) ([][][]float64, [][]floa
 			if u == to {
 				var route = extractRoute(&prev, to, bg)
 				var processedNodes = extractNodes(&nodesProcessed, bg)
-				return route, processedNodes
+				return route, processedNodes, dist[to]
 			}
 
 			neighbours := neighboursBg(u, bg)
@@ -108,5 +108,5 @@ func AStarAllNodesBg(from, to int, bg *grids.BasicGrid) ([][][]float64, [][]floa
 	}
 	var route = extractRoute(&prev, to, bg)
 	var processedNodes = extractNodes(&nodesProcessed, bg)
-	return route, processedNodes
+	return route, processedNodes, dist[to]
 }

@@ -7,7 +7,7 @@ import (
 )
 
 // AStar implementation on uniform grid
-func AStar(from, to int, ug *grids.UniformGrid) (*[][][]float64, int) {
+func AStar(from, to int, ug *grids.UniformGrid) (*[][][]float64, int, float64) {
 	var popped int
 	var dist = make([]float64, ug.N)
 	var prev = make([]int, ug.N)
@@ -33,7 +33,7 @@ func AStar(from, to int, ug *grids.UniformGrid) (*[][][]float64, int) {
 			u := heap.Pop(&pq).(*Item).value
 			popped++
 			if u == to {
-				return ExtractRouteUg(&prev, to, ug), popped
+				return ExtractRouteUg(&prev, to, ug), popped, dist[to]
 			}
 
 			//neighbours := NeighboursUg(u, ug)
@@ -53,11 +53,11 @@ func AStar(from, to int, ug *grids.UniformGrid) (*[][][]float64, int) {
 			}
 		}
 	}
-	return ExtractRouteUg(&prev, to, ug), popped
+	return ExtractRouteUg(&prev, to, ug), popped, dist[to]
 }
 
 // AStarAllNodes additionally returns all visited nodes on uniform grid
-func AStarAllNodes(from, to int, ug *grids.UniformGrid) (*[][][]float64, *[][]float64) {
+func AStarAllNodes(from, to int, ug *grids.UniformGrid) (*[][][]float64, *[][]float64, float64) {
 	var dist = make([]float64, ug.N)
 	var prev = make([]int, ug.N)
 	var nodesProcessed []int
@@ -86,7 +86,7 @@ func AStarAllNodes(from, to int, ug *grids.UniformGrid) (*[][][]float64, *[][]fl
 			nodesProcessed = append(nodesProcessed, u)
 
 			if u == to {
-				return ExtractRouteUg(&prev, to, ug), ExtractNodesUg(&nodesProcessed, ug)
+				return ExtractRouteUg(&prev, to, ug), ExtractNodesUg(&nodesProcessed, ug), dist[to]
 			}
 
 			//neighbours := NeighboursUg(u, ug)
@@ -106,5 +106,5 @@ func AStarAllNodes(from, to int, ug *grids.UniformGrid) (*[][][]float64, *[][]fl
 			}
 		}
 	}
-	return ExtractRouteUg(&prev, to, ug), ExtractNodesUg(&nodesProcessed, ug)
+	return ExtractRouteUg(&prev, to, ug), ExtractNodesUg(&nodesProcessed, ug), dist[to]
 }

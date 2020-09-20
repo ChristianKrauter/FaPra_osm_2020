@@ -113,23 +113,23 @@ func RunBg(xSize, ySize int, basicPointInPolygon bool) {
 					switch algorithm {
 					case 0:
 						start = time.Now()
-						route, nodesProcessed = algorithms.DijkstraAllNodesBg(bg.GridToID(from), bg.GridToID(to), &bg)
+						route, nodesProcessed, _ = algorithms.DijkstraAllNodesBg(bg.GridToID(from), bg.GridToID(to), &bg)
 						end = time.Now()
 					case 1:
 						start = time.Now()
-						route, nodesProcessed = algorithms.AStarAllNodesBg(bg.GridToID(from), bg.GridToID(to), &bg)
+						route, nodesProcessed, _ = algorithms.AStarAllNodesBg(bg.GridToID(from), bg.GridToID(to), &bg)
 						end = time.Now()
 					case 2:
 						start = time.Now()
-						route, nodesProcessed = algorithms.BiDijkstraAllNodesBg(bg.GridToID(from), bg.GridToID(to), &bg)
+						route, nodesProcessed, _ = algorithms.BiDijkstraAllNodesBg(bg.GridToID(from), bg.GridToID(to), &bg)
 						end = time.Now()
 					case 3:
 						start = time.Now()
-						route, nodesProcessed = algorithms.BiAStarAllNodesBg(bg.GridToID(from), bg.GridToID(to), &bg)
+						route, nodesProcessed, _ = algorithms.BiAStarAllNodesBg(bg.GridToID(from), bg.GridToID(to), &bg)
 						end = time.Now()
 					default:
 						start = time.Now()
-						route, nodesProcessed = algorithms.DijkstraAllNodesBg(bg.GridToID(from), bg.GridToID(to), &bg)
+						route, nodesProcessed, _ = algorithms.DijkstraAllNodesBg(bg.GridToID(from), bg.GridToID(to), &bg)
 						end = time.Now()
 					}
 					elapsed := end.Sub(start)
@@ -154,23 +154,23 @@ func RunBg(xSize, ySize int, basicPointInPolygon bool) {
 					switch algorithm {
 					case 0:
 						start = time.Now()
-						route, _ = algorithms.DijkstraBg(bg.GridToID(from), bg.GridToID(to), &bg)
+						route, _, _ = algorithms.DijkstraBg(bg.GridToID(from), bg.GridToID(to), &bg)
 						end = time.Now()
 					case 1:
 						start = time.Now()
-						route, _ = algorithms.AStarBg(bg.GridToID(from), bg.GridToID(to), &bg)
+						route, _, _ = algorithms.AStarBg(bg.GridToID(from), bg.GridToID(to), &bg)
 						end = time.Now()
 					case 2:
 						start = time.Now()
-						route, _ = algorithms.BiDijkstraBg(bg.GridToID(from), bg.GridToID(to), &bg)
+						route, _, _ = algorithms.BiDijkstraBg(bg.GridToID(from), bg.GridToID(to), &bg)
 						end = time.Now()
 					case 3:
 						start = time.Now()
-						route, _ = algorithms.BiAStarBg(bg.GridToID(from), bg.GridToID(to), &bg)
+						route, _, _ = algorithms.BiAStarBg(bg.GridToID(from), bg.GridToID(to), &bg)
 						end = time.Now()
 					default:
 						start = time.Now()
-						route, _ = algorithms.DijkstraBg(bg.GridToID(from), bg.GridToID(to), &bg)
+						route, _, _ = algorithms.DijkstraBg(bg.GridToID(from), bg.GridToID(to), &bg)
 						end = time.Now()
 					}
 					elapsed := end.Sub(start)
@@ -293,27 +293,27 @@ func Run(xSize, ySize int, basicPointInPolygon bool) {
 					switch algorithm {
 					case 0:
 						start = time.Now()
-						route, nodesProcessed = algorithms.DijkstraAllNodes(ug.GridToID(from), ug.GridToID(to), &ug)
+						route, nodesProcessed, _ = algorithms.DijkstraAllNodes(ug.GridToID(from), ug.GridToID(to), &ug)
 						end = time.Now()
 					case 1:
 						start = time.Now()
-						route, nodesProcessed = algorithms.AStarAllNodes(ug.GridToID(from), ug.GridToID(to), &ug)
+						route, nodesProcessed, _ = algorithms.AStarAllNodes(ug.GridToID(from), ug.GridToID(to), &ug)
 						end = time.Now()
 					case 2:
 						start = time.Now()
-						route, nodesProcessed = algorithms.BiDijkstraAllNodes(ug.GridToID(from), ug.GridToID(to), &ug)
+						route, nodesProcessed, _ = algorithms.BiDijkstraAllNodes(ug.GridToID(from), ug.GridToID(to), &ug)
 						end = time.Now()
 					case 3:
 						start = time.Now()
-						route, nodesProcessed = algorithms.BiAStarAllNodes(ug.GridToID(from), ug.GridToID(to), &ug)
+						route, nodesProcessed, _ = algorithms.BiAStarAllNodes(ug.GridToID(from), ug.GridToID(to), &ug)
 						end = time.Now()
 					case 4:
 						start = time.Now()
-						route, nodesProcessed = algorithms.AStarJPSAllNodes(ug.GridToID(from), ug.GridToID(to), &ug)
+						route, nodesProcessed, _ = algorithms.AStarJPSAllNodes(ug.GridToID(from), ug.GridToID(to), &ug)
 						end = time.Now()
 					default:
 						start = time.Now()
-						route, nodesProcessed = algorithms.DijkstraAllNodes(ug.GridToID(from), ug.GridToID(to), &ug)
+						route, nodesProcessed, _ = algorithms.DijkstraAllNodes(ug.GridToID(from), ug.GridToID(to), &ug)
 						end = time.Now()
 					}
 					elapsed := end.Sub(start)
@@ -338,27 +338,27 @@ func Run(xSize, ySize int, basicPointInPolygon bool) {
 					switch algorithm {
 					case 0:
 						start = time.Now()
-						route, _ = algorithms.Dijkstra(ug.GridToID(from), ug.GridToID(to), &ug)
+						route, _, _ = algorithms.Dijkstra(ug.GridToID(from), ug.GridToID(to), &ug)
 						end = time.Now()
 					case 1:
 						start = time.Now()
-						route, _ = algorithms.AStar(ug.GridToID(from), ug.GridToID(to), &ug)
+						route, _, _ = algorithms.AStar(ug.GridToID(from), ug.GridToID(to), &ug)
 						end = time.Now()
 					case 2:
 						start = time.Now()
-						route, _ = algorithms.BiDijkstra(ug.GridToID(from), ug.GridToID(to), &ug)
+						route, _, _ = algorithms.BiDijkstra(ug.GridToID(from), ug.GridToID(to), &ug)
 						end = time.Now()
 					case 3:
 						start = time.Now()
-						route, _ = algorithms.BiAStar(ug.GridToID(from), ug.GridToID(to), &ug)
+						route, _, _ = algorithms.BiAStar(ug.GridToID(from), ug.GridToID(to), &ug)
 						end = time.Now()
 					case 4:
 						start = time.Now()
-						route, _ = algorithms.AStarJPS(ug.GridToID(from), ug.GridToID(to), &ug)
+						route, _, _ = algorithms.AStarJPS(ug.GridToID(from), ug.GridToID(to), &ug)
 						end = time.Now()
 					default:
 						start = time.Now()
-						route, _ = algorithms.Dijkstra(ug.GridToID(from), ug.GridToID(to), &ug)
+						route, _, _ = algorithms.Dijkstra(ug.GridToID(from), ug.GridToID(to), &ug)
 						end = time.Now()
 					}
 					elapsed := end.Sub(start)
