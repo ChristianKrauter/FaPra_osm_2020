@@ -1,0 +1,10 @@
+{
+    "A*": "0 x shorter, 98 x equal and 2 x longer\n",
+    "A*-JPS": "31 x shorter, 2 x equal and 67 x longer\n",
+    "Bi-A*": "52 x shorter, 13 x equal and 35 x longer\n",
+    "Bi-Dij": "50 x shorter, 15 x equal and 35 x longer\n",
+    "basicGrid": "false",
+    "note": "",
+    "xSize": "360",
+    "ySize": "360"
+}

@@ -11,7 +11,7 @@ import (
 func main() {
 	var mode int
 	flag.IntVar(&mode, "m", 0,
-		"Select Mode:\n  0: Start server \n  1: Start dataprocessing \n  2: Evaluate data processing\n  3: Evaluate wayfinding\n  4: Evaluate reading pbf\n  5: Evaluate & Test UG neighbours")
+		"Select Mode:\n  0: Start server \n  1: Start dataprocessing \n  2: Evaluate dataprocessing\n  3: Evaluate wayfinding speed\n  4: Evaluate wayfinding route length\n  5: Evaluate reading pbf\n  6: Evaluate & Test Simple UG neighbours")
 
 	var pbfFileName, note string
 	var xSize, ySize int
@@ -73,17 +73,25 @@ func main() {
 		fmt.Printf("Starting evaluation of data processing for %s", info)
 		evaluate.DataProcessing(pbfFileName, note, xSize, ySize, createCoastlineGeoJSON, lessMemory, noBoundingTree, basicGrid, basicPointInPolygon)
 	case 3:
-		fmt.Printf("Starting evaluation of wayfinding for %s\n", info)
-		fmt.Printf("Averaging over %v routings ", nRuns)
+		fmt.Printf("Starting evaluation of wayfinding speed for %s\n", info)
+		fmt.Printf("Averaging over %v random routings ", nRuns)
 		if basicGrid {
-			evaluate.WayFindingBg(xSize, ySize, nRuns, algo, note)
+			evaluate.SpeedBg(xSize, ySize, nRuns, algo, note)
 		} else {
-			evaluate.WayFinding(xSize, ySize, nRuns, algo, note)
+			evaluate.Speed(xSize, ySize, nRuns, algo, note)
 		}
 	case 4:
+		fmt.Printf("Starting evaluation of wayfinding route length for %s\n", info)
+		fmt.Printf("Testing %v random routes ", nRuns)
+		if basicGrid {
+			evaluate.LengthBg(xSize, ySize, nRuns, note)
+		} else {
+			evaluate.Length(xSize, ySize, nRuns, note)
+		}
+	case 5:
 		fmt.Printf("Starting evaluation of pbf reading for %s\n", pbfFileName)
 		evaluate.ReadPBF(pbfFileName, note)
-	case 5:
+	case 6:
 		evaluate.NeighboursUg(xSize, ySize, note)
 	default:
 		fmt.Printf("Error: No mode %d specified", mode)

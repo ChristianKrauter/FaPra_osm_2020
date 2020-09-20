@@ -72,8 +72,8 @@ func ReadPBF(pbfFileName, note string) {
 	saveLog(filename, jsonString)
 }
 
-// WayFindingBg is evaluated
-func WayFindingBg(xSize, ySize, nRuns, algorithm int, note string) {
+// SpeedBg is evaluated
+func SpeedBg(xSize, ySize, nRuns, algorithm int, note string) {
 	var filename string
 	var bg grids.BasicGrid
 	var bg2D [][]bool
@@ -203,16 +203,12 @@ func WayFindingBg(xSize, ySize, nRuns, algorithm int, note string) {
 	jsonString, _ := json.MarshalIndent(logs, "", "    ")
 	var outFilename string
 	var timestamp = time.Now().Format("2006-01-02_15-04-05")
-	if val, ok := logs["filename"]; ok {
-		outFilename = fmt.Sprintf("data/evaluation/wf_%s_%s_bg%s_%s.json", logs["xSize"], logs["ySize"], val, timestamp)
-	} else {
-		outFilename = fmt.Sprintf("data/evaluation/wf_%s_%s_bg_%s.json", logs["xSize"], logs["ySize"], timestamp)
-	}
+	outFilename = fmt.Sprintf("data/evaluation/wf_speed_%s_%s_bg%s_%s.json", logs["xSize"], logs["ySize"], logs["filename"], timestamp)
 	saveLog(outFilename, jsonString)
 }
 
-// WayFinding is evaluated
-func WayFinding(xSize, ySize, nRuns, algorithm int, note string) {
+// Speed is evaluated
+func Speed(xSize, ySize, nRuns, algorithm int, note string) {
 	var filename string
 	var ug1D []bool
 	var ug grids.UniformGrid
@@ -343,7 +339,7 @@ func WayFinding(xSize, ySize, nRuns, algorithm int, note string) {
 	jsonString, _ := json.MarshalIndent(logs, "", "    ")
 	var outFilename string
 	var timestamp = time.Now().Format("2006-01-02_15-04-05")
-	outFilename = fmt.Sprintf("data/evaluation/wf_%s_%s%s_%s.json", logs["xSize"], logs["ySize"], logs["filename"], timestamp)
+	outFilename = fmt.Sprintf("data/evaluation/wf_speed_%s_%s%s_%s.json", logs["xSize"], logs["ySize"], logs["filename"], timestamp)
 	saveLog(outFilename, jsonString)
 }
 
@@ -441,4 +437,185 @@ func NeighboursUg(xSize, ySize int, note string) {
 		fmt.Printf("sn: %v\n", sn)
 		fmt.Printf("n : %v\n", n)
 	}
+}
+
+// Length of the different algorithms' routes are compared
+func Length(xSize, ySize, nRuns int, note string) {
+	var filename string
+	var ug1D []bool
+	var ug grids.UniformGrid
+	from := make([]int, nRuns)
+	to := make([]int, nRuns)
+	logs := make(map[string]string)
+	type result struct {
+		shorter int
+		equal   int
+		longer  int
+	}
+	var results = make([]result, 5)
+
+	filename = fmt.Sprintf("data/output/uniformGrid_%v_%v.json", xSize, ySize)
+	uniformgridRaw, errJSON := os.Open(filename)
+	if errJSON != nil {
+		log.Fatal(fmt.Sprintf("\nThe meshgrid '%s'\ncould not be found. Please create it first.\n", filename))
+	}
+	defer uniformgridRaw.Close()
+	byteValue, _ := ioutil.ReadAll(uniformgridRaw)
+	json.Unmarshal(byteValue, &ug)
+
+	ug1D = make([]bool, ug.N)
+	k := 0
+	for i := 0; i < len(ug.VertexData); i++ {
+		for j := 0; j < len(ug.VertexData[i]); j++ {
+			ug1D[k] = ug.VertexData[i][j]
+			k++
+		}
+	}
+
+	rand.Seed(time.Now().UnixNano())
+	for i := 0; i < nRuns; i++ {
+		for {
+			from[i] = rand.Intn(len(ug1D))
+			to[i] = rand.Intn(len(ug1D))
+			if !ug1D[from[i]] && !ug1D[to[i]] {
+				break
+			}
+		}
+	}
+
+	for i := 0; i < len(from); i++ {
+		var dists = make([]float64, 5)
+
+		_, _, dists[0] = algorithms.Dijkstra(from[i], to[i], &ug)
+		_, _, dists[1] = algorithms.BiDijkstra(from[i], to[i], &ug)
+		_, _, dists[2] = algorithms.AStar(from[i], to[i], &ug)
+		_, _, dists[3] = algorithms.BiAStar(from[i], to[i], &ug)
+		_, _, dists[4] = algorithms.AStarJPS(from[i], to[i], &ug)
+
+		for j := 0; j < 5; j++ {
+			if dists[0] < dists[j] {
+				results[j].longer++
+			} else if dists[0] > dists[j] {
+				results[j].shorter++
+			} else {
+				results[j].equal++
+			}
+		}
+	}
+
+	fmt.Printf("\nThe routes' lengths of\n")
+	fmt.Printf("Bi-Dij were %v x shorter, %v x equal and %v x longer\n", results[1].shorter, results[1].equal, results[1].longer)
+	fmt.Printf("A*     were %v x shorter, %v x equal and %v x longer\n", results[2].shorter, results[2].equal, results[2].longer)
+	fmt.Printf("Bi-A*  were %v x shorter, %v x equal and %v x longer\n", results[3].shorter, results[3].equal, results[3].longer)
+	fmt.Printf("A*-JPS were %v x shorter, %v x equal and %v x longer\n", results[4].shorter, results[4].equal, results[4].longer)
+	fmt.Printf("compared to Dijkstra.\n")
+
+	logs["note"] = note
+	logs["basicGrid"] = "false"
+	logs["xSize"] = strconv.Itoa(xSize)
+	logs["ySize"] = strconv.Itoa(ySize)
+	logs["Bi-Dij"] = fmt.Sprintf("%v x shorter, %v x equal and %v x longer\n", results[1].shorter, results[1].equal, results[1].longer)
+	logs["A*"] = fmt.Sprintf("%v x shorter, %v x equal and %v x longer\n", results[2].shorter, results[2].equal, results[2].longer)
+	logs["Bi-A*"] = fmt.Sprintf("%v x shorter, %v x equal and %v x longer\n", results[3].shorter, results[3].equal, results[3].longer)
+	logs["A*-JPS"] = fmt.Sprintf("%v x shorter, %v x equal and %v x longer\n", results[4].shorter, results[4].equal, results[4].longer)
+
+	jsonString, _ := json.MarshalIndent(logs, "", "    ")
+	var outFilename string
+	var timestamp = time.Now().Format("2006-01-02_15-04-05")
+	outFilename = fmt.Sprintf("data/evaluation/wf_len_%s_%s_%s.json", logs["xSize"], logs["ySize"], timestamp)
+	saveLog(outFilename, jsonString)
+}
+
+// LengthBg of the different algorithms' routes are compared
+func LengthBg(xSize, ySize, nRuns int, note string) {
+	var filename string
+	var bg grids.BasicGrid
+	var bg2D [][]bool
+	from := make([]int, nRuns)
+	to := make([]int, nRuns)
+	logs := make(map[string]string)
+
+	bg.XSize = xSize
+	bg.YSize = ySize
+	bg.XFactor = float64(xSize) / 360.0
+	bg.YFactor = float64(ySize) / 360.0
+
+	type result struct {
+		shorter int
+		equal   int
+		longer  int
+	}
+	var results = make([]result, 5)
+
+	filename = fmt.Sprintf("data/output/meshgrid_%v_%v.json", xSize, ySize)
+
+	meshgridRaw, errJSON := os.Open(filename)
+	if errJSON != nil {
+		log.Fatal(fmt.Sprintf("\nThe meshgrid '%s'\ncould not be found. Please create it first.\n", filename))
+	}
+	defer meshgridRaw.Close()
+	byteValue, _ := ioutil.ReadAll(meshgridRaw)
+	json.Unmarshal(byteValue, &bg2D)
+
+	bg.VertexData = make([]bool, xSize*ySize)
+	k := 0
+	for i := 0; i < len(bg2D[0]); i++ {
+		for j := 0; j < len(bg2D); j++ {
+			bg.VertexData[k] = bg2D[j][i]
+			k++
+		}
+	}
+
+	rand.Seed(time.Now().UnixNano())
+	for i := 0; i < nRuns; i++ {
+		for {
+			from[i] = rand.Intn(len(bg.VertexData))
+			to[i] = rand.Intn(len(bg.VertexData))
+			if !bg.VertexData[from[i]] && !bg.VertexData[to[i]] {
+				break
+			}
+		}
+	}
+
+	for i := 0; i < len(from); i++ {
+		var dists = make([]float64, 5)
+
+		_, _, dists[0] = algorithms.DijkstraBg(from[i], to[i], &bg)
+		_, _, dists[1] = algorithms.BiDijkstraBg(from[i], to[i], &bg)
+		_, _, dists[2] = algorithms.AStarBg(from[i], to[i], &bg)
+		_, _, dists[3] = algorithms.BiAStarBg(from[i], to[i], &bg)
+		//_, _, dists[4] = algorithms.AStarJPSBg(from[i], to[i], &bg)
+
+		for j := 0; j < 4; j++ {
+			if dists[0] < dists[j] {
+				results[j].longer++
+			} else if dists[0] > dists[j] {
+				results[j].shorter++
+			} else {
+				results[j].equal++
+			}
+		}
+	}
+
+	fmt.Printf("\nThe routes' lengths of\n")
+	fmt.Printf("Bi-Dij were %v x shorter, %v x equal and %v x longer\n", results[1].shorter, results[1].equal, results[1].longer)
+	fmt.Printf("A*     were %v x shorter, %v x equal and %v x longer\n", results[2].shorter, results[2].equal, results[2].longer)
+	fmt.Printf("Bi-A*  were %v x shorter, %v x equal and %v x longer\n", results[3].shorter, results[3].equal, results[3].longer)
+	//fmt.Printf("A*-JPS were %v x shorter, %v x equal and %v x longer\n", results[4].shorter, results[4].equal, results[4].longer)
+	fmt.Printf("compared to Dijkstra.\n")
+
+	logs["note"] = note
+	logs["basicGrid"] = "false"
+	logs["xSize"] = strconv.Itoa(xSize)
+	logs["ySize"] = strconv.Itoa(ySize)
+	logs["Bi-Dij"] = fmt.Sprintf("%v x shorter, %v x equal and %v x longer\n", results[1].shorter, results[1].equal, results[1].longer)
+	logs["A*"] = fmt.Sprintf("%v x shorter, %v x equal and %v x longer\n", results[2].shorter, results[2].equal, results[2].longer)
+	logs["Bi-A*"] = fmt.Sprintf("%v x shorter, %v x equal and %v x longer\n", results[3].shorter, results[3].equal, results[3].longer)
+	//logs["A*-JPS"] = fmt.Sprintf("%v x shorter, %v x equal and %v x longer\n", results[4].shorter, results[4].equal, results[4].longer)
+
+	jsonString, _ := json.MarshalIndent(logs, "", "    ")
+	var outFilename string
+	var timestamp = time.Now().Format("2006-01-02_15-04-05")
+	outFilename = fmt.Sprintf("data/evaluation/wf_len_%s_%s_bg_%s.json", logs["xSize"], logs["ySize"], timestamp)
+	saveLog(outFilename, jsonString)
 }
