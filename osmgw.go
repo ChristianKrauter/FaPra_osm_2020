@@ -50,10 +50,12 @@ func main() {
 		info += fmt.Sprintf("\non the %s file", pbfFileName)
 
 	}
-	if basicPointInPolygon {
-		info += "\nwith the basic point in polygon test"
-	} else {
-		info += "\nwith the spherical point in polygon test"
+	if mode == 0 || mode == 1 || mode == 2 {
+		if basicPointInPolygon {
+			info += "\nwith the basic point in polygon test"
+		} else {
+			info += "\nwith the spherical point in polygon test"
+		}
 	}
 
 	switch mode {
@@ -74,9 +76,9 @@ func main() {
 		fmt.Printf("Starting evaluation of wayfinding for %s\n", info)
 		fmt.Printf("Averaging over %v routings ", nRuns)
 		if basicGrid {
-			evaluate.WayFindingBg(xSize, ySize, nRuns, algo, basicPointInPolygon, note)
+			evaluate.WayFindingBg(xSize, ySize, nRuns, algo, note)
 		} else {
-			evaluate.WayFinding(xSize, ySize, nRuns, algo, basicPointInPolygon, note)
+			evaluate.WayFinding(xSize, ySize, nRuns, algo, note)
 		}
 	case 4:
 		fmt.Printf("Starting evaluation of pbf reading for %s\n", pbfFileName)

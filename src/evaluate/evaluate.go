@@ -73,7 +73,7 @@ func ReadPBF(pbfFileName, note string) {
 }
 
 // WayFindingBG is evaluated
-func WayFindingBg(xSize, ySize, nRuns, algorithm int, basicPointInPolygon bool, note string) {
+func WayFindingBg(xSize, ySize, nRuns, algorithm int, note string) {
 	var filename string
 	var bg grids.BasicGrid
 	var bg2D [][]bool
@@ -114,12 +114,7 @@ func WayFindingBg(xSize, ySize, nRuns, algorithm int, basicPointInPolygon bool, 
 	fmt.Printf("using %s.\n", algoStrPrint)
 	logs["filename"] = algoStr
 
-	if basicPointInPolygon {
-		filename = fmt.Sprintf("data/output/meshgrid_%v_%v_bpip.json", xSize, ySize)
-		log["filename"] += "_bpip"
-	} else {
-		filename = fmt.Sprintf("data/output/meshgrid_%v_%v.json", xSize, ySize)
-	}
+	filename = fmt.Sprintf("data/output/meshgrid_%v_%v.json", xSize, ySize)
 
 	meshgridRaw, errJSON := os.Open(filename)
 	if errJSON != nil {
@@ -217,7 +212,7 @@ func WayFindingBg(xSize, ySize, nRuns, algorithm int, basicPointInPolygon bool, 
 }
 
 // WayFinding is evaluated
-func WayFinding(xSize, ySize, nRuns, algorithm int, basicPointInPolygon bool, note string) {
+func WayFinding(xSize, ySize, nRuns, algorithm int, note string) {
 	var filename string
 	var ug1D []bool
 	var ug grids.UniformGrid
@@ -254,15 +249,9 @@ func WayFinding(xSize, ySize, nRuns, algorithm int, basicPointInPolygon bool, no
 	}
 
 	fmt.Printf("using %s.\n", algoStrPrint)
-
-	if basicPointInPolygon {
-		filename = fmt.Sprintf("data/output/uniformGrid_%v_%v_bpip.json", xSize, ySize)
-		log["filename"] += "_bpip"
-	} else {
-		filename = fmt.Sprintf("data/output/uniformGrid_%v_%v.json", xSize, ySize)
-	}
 	logs["filename"] = algoStr
 
+	filename = fmt.Sprintf("data/output/uniformGrid_%v_%v.json", xSize, ySize)
 	uniformgridRaw, errJSON := os.Open(filename)
 	if errJSON != nil {
 		log.Fatal(fmt.Sprintf("\nThe meshgrid '%s'\ncould not be found. Please create it first.\n", filename))
