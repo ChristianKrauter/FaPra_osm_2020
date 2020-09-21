@@ -70,12 +70,11 @@ func BiAStar(from, to int, ug *grids.UniformGrid) (*[][][]float64, int, float64)
 				break
 			}
 
-			neighbours := NeighboursUg(u, ug)
+			neighbours := SimpleNeighboursUg(u, ug)
 			for _, j := range neighbours {
 				var alt = dist[dir][u] + distance(ug.GridToCoord(ug.IDToGrid(u)), ug.GridToCoord(ug.IDToGrid(j)))
 				if alt < dist[dir][j] {
 					dist[dir][j] = alt
-					//fScore[dir][j] = dist[dir][j] + hUg(dir, j, from, to, ug)
 					prev[j][dir] = u
 					item := &Item{
 						value:    j,
@@ -155,7 +154,7 @@ func BiAStarAllNodes(from, to int, ug *grids.UniformGrid) (*[][][]float64, *[][]
 				break
 			}
 
-			neighbours := NeighboursUg(u, ug)
+			neighbours := SimpleNeighboursUg(u, ug)
 			for _, j := range neighbours {
 				var alt = dist[dir][u] + distance(ug.GridToCoord(ug.IDToGrid(u)), ug.GridToCoord(ug.IDToGrid(j)))
 				if alt < dist[dir][j] {

@@ -70,7 +70,7 @@ func BiDijkstra(from, to int, ug *grids.UniformGrid) (*[][][]float64, int, float
 				break
 			}
 
-			neighbours := NeighboursUg(u, ug)
+			neighbours := SimpleNeighboursUg(u, ug)
 			for _, j := range neighbours {
 				var alt = dist[dir][u] + distance(ug.GridToCoord(ug.IDToGrid(u)), ug.GridToCoord(ug.IDToGrid(j)))
 				if alt < dist[dir][j] {
@@ -86,6 +86,7 @@ func BiDijkstra(from, to int, ug *grids.UniformGrid) (*[][][]float64, int, float
 		}
 		dir = 1 - dir // Change direction
 	}
+
 	return ExtractRouteUgBi(&prev, meeting, ug), len(proc[0]) + len(proc[1]), dist[0][meeting] + dist[1][meeting]
 }
 
@@ -153,7 +154,7 @@ func BiDijkstraAllNodes(from, to int, ug *grids.UniformGrid) (*[][][]float64, *[
 				break
 			}
 
-			neighbours := NeighboursUg(u, ug)
+			neighbours := SimpleNeighboursUg(u, ug)
 			for _, j := range neighbours {
 				var alt = dist[dir][u] + distance(ug.GridToCoord(ug.IDToGrid(u)), ug.GridToCoord(ug.IDToGrid(j)))
 				if alt < dist[dir][j] {
@@ -180,5 +181,6 @@ func BiDijkstraAllNodes(from, to int, ug *grids.UniformGrid) (*[][][]float64, *[
 		keys[i] = k
 		i++
 	}
+
 	return ExtractRouteUgBi(&prev, meeting, ug), ExtractNodesUg(&keys, ug), dist[0][meeting] + dist[1][meeting]
 }

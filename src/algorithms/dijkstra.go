@@ -36,7 +36,7 @@ func Dijkstra(from, to int, ug *grids.UniformGrid) (*[][][]float64, int, float64
 				return ExtractRouteUg(&prev, to, ug), popped, dist[to]
 			}
 
-			neighbours := NeighboursUg(u, ug)
+			neighbours := SimpleNeighboursUg(u, ug)
 			for _, j := range neighbours {
 				var alt = dist[u] + distance(ug.GridToCoord(ug.IDToGrid(u)), ug.GridToCoord(ug.IDToGrid(j)))
 				if alt < dist[j] {
@@ -86,7 +86,7 @@ func DijkstraAllNodes(from, to int, ug *grids.UniformGrid) (*[][][]float64, *[][
 				return ExtractRouteUg(&prev, to, ug), ExtractNodesUg(&nodesProcessed, ug), dist[to]
 			}
 
-			neighbours := NeighboursUg(u, ug)
+			neighbours := SimpleNeighboursUg(u, ug)
 
 			for _, j := range neighbours {
 				var alt = dist[u] + distance(ug.GridToCoord(ug.IDToGrid(u)), ug.GridToCoord(ug.IDToGrid(j)))
