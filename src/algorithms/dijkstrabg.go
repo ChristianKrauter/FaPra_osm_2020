@@ -53,6 +53,7 @@ func DijkstraBg(from, to int, bg *grids.BasicGrid) ([][][]float64, int, float64)
 			}
 		}
 	}
+
 	return extractRoute(&prev, to, bg), popped, dist[to]
 }
 
@@ -85,11 +86,8 @@ func DijkstraAllNodesBg(from, to int, bg *grids.BasicGrid) ([][][]float64, [][]f
 			nodesProcessed = append(nodesProcessed, u)
 
 			if u == to {
-				// ToDo: Don't save in var
 				// ToDo: return pointers
-				var route = extractRoute(&prev, to, bg)
-				var processedNodes = extractNodes(&nodesProcessed, bg)
-				return route, processedNodes, dist[to]
+				return extractRoute(&prev, to, bg), extractNodes(&nodesProcessed, bg), dist[to]
 			}
 
 			neighbours := neighboursBg(u, bg)
@@ -108,7 +106,6 @@ func DijkstraAllNodesBg(from, to int, bg *grids.BasicGrid) ([][][]float64, [][]f
 			}
 		}
 	}
-	var route = extractRoute(&prev, to, bg)
-	var processedNodes = extractNodes(&nodesProcessed, bg)
-	return route, processedNodes, dist[to]
+
+	return extractRoute(&prev, to, bg), extractNodes(&nodesProcessed, bg), dist[to]
 }
