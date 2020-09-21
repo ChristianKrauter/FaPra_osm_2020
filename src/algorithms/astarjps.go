@@ -40,7 +40,7 @@ func AStarJPS(from, to int, ug *grids.UniformGrid) (*[][][]float64, int, float64
 				return extractRouteUg(&prev, to, ug), popped, dist[to]
 			}
 
-			neighbours := prune(u, SimpleNeighboursUgJPS(*u, ug), ug)
+			neighbours := prune(u, SimpleNeighboursUgJPS(*u, ug))
 			for _, n := range *neighbours {
 				j := jump(u.IDX, u, n.dir, from, to, ug)
 				if j != nil {
@@ -63,16 +63,15 @@ func AStarJPS(from, to int, ug *grids.UniformGrid) (*[][][]float64, int, float64
 	return extractRouteUg(&prev, to, ug), popped, dist[to]
 }
 
-var nodesProcessed []int
+//var nodesProcessed []int
 
 // AStarJPSAllNodes implementation on uniform grid
 func AStarJPSAllNodes(from, to int, ug *grids.UniformGrid) (*[][][]float64, *[][]float64, float64) {
 	var popped int
 	var dist = make([]float64, ug.N)
 	var prev = make([]int, ug.N)
-	//np = make([]int, 0)
 	pq := make(pqJPS, 1)
-	//var nodesProcessed []int
+	var nodesProcessed []int
 	for i := 0; i < ug.N; i++ {
 		dist[i] = math.Inf(1)
 		prev[i] = -1
@@ -100,7 +99,7 @@ func AStarJPSAllNodes(from, to int, ug *grids.UniformGrid) (*[][][]float64, *[][
 				return extractRouteUg(&prev, to, ug), extractNodesUg(&nodesProcessed, ug), dist[to]
 			}
 
-			neighbours := prune(u, SimpleNeighboursUgJPS(*u, ug), ug)
+			neighbours := prune(u, SimpleNeighboursUgJPS(*u, ug))
 			for _, n := range *neighbours {
 				j := jump(u.IDX, u, n.dir, from, to, ug)
 				if j != nil {
@@ -135,7 +134,7 @@ func jump(u int, nn *NodeJPS, dir, from, to int, ug *grids.UniformGrid) *NodeJPS
 		return n
 	}
 
-	for _, i := range *prune(n, SimpleNeighboursUgJPS(*n, ug), ug) {
+	for _, i := range *prune(n, SimpleNeighboursUgJPS(*n, ug)) {
 		if i.forced {
 			//nodesProcessed = append(nodesProcessed, n.IDX)
 			return n
@@ -251,12 +250,12 @@ func step(i *NodeJPS, dir int, ug *grids.UniformGrid) *NodeJPS {
 		} else {
 			lmm := len(ug.VertexData[m-2])
 			nDown := int(math.Round(ratio * float64(lmm)))
-			nodesProcessed = append(nodesProcessed, i.IDX)
+			// nodesProcessed = append(nodesProcessed, i.IDX)
 
 			switch dir {
 			case 0:
 				grid := []int{m - 2, mod(nDown+lmm/2, lmm)}
-				nodesProcessed = append(nodesProcessed, ug.GridToID(grid))
+				// nodesProcessed = append(nodesProcessed, ug.GridToID(grid))
 				return &NodeJPS{
 					grid: grid,
 					IDX:  ug.GridToID(grid),
@@ -264,7 +263,7 @@ func step(i *NodeJPS, dir int, ug *grids.UniformGrid) *NodeJPS {
 				}
 			case 1:
 				grid := []int{m - 2, mod(nDown+lmm/2, lmm)}
-				nodesProcessed = append(nodesProcessed, ug.GridToID(grid))
+				// nodesProcessed = append(nodesProcessed, ug.GridToID(grid))
 				return &NodeJPS{
 					grid: grid,
 					IDX:  ug.GridToID(grid),
@@ -272,7 +271,7 @@ func step(i *NodeJPS, dir int, ug *grids.UniformGrid) *NodeJPS {
 				}
 			case 2:
 				grid := []int{m - 2, mod(nDown+lmm/2, lmm)}
-				nodesProcessed = append(nodesProcessed, ug.GridToID(grid))
+				// nodesProcessed = append(nodesProcessed, ug.GridToID(grid))
 				return &NodeJPS{
 					grid: grid,
 					IDX:  ug.GridToID(grid),
@@ -378,7 +377,7 @@ func SimpleNeighboursUgJPS(in NodeJPS, ug *grids.UniformGrid) *map[int]NodeJPS {
 	return &neighbours1d
 }
 
-func prune(i *NodeJPS, nbs *map[int]NodeJPS, ug *grids.UniformGrid) *map[int]NodeJPS {
+func prune(i *NodeJPS, nbs *map[int]NodeJPS) *map[int]NodeJPS {
 	var res = make(map[int]NodeJPS)
 	if i.dir == -1 {
 		return nbs
