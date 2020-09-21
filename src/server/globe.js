@@ -43,7 +43,7 @@ function createPoint(worldPosition, processed = false, start = false) {
                 createColoredPoint(worldPosition, Cesium.Color.DARKSALMON, 2)
                 break
             case "1":
-                createColoredPoint(worldPosition, Cesium.Color.LIGHTGREEN , 2)
+                createColoredPoint(worldPosition, Cesium.Color.LIGHTGREEN, 2)
                 break
             case "2":
                 createColoredPoint(worldPosition, Cesium.Color.KHAKI, 2)
@@ -87,7 +87,7 @@ function createPoint(worldPosition, processed = false, start = false) {
 }
 
 function drawLine(viewer, coords) {
-    var color = Cesium.RED
+    var color = Cesium.Color.RED
     var x = document.getElementById("algos").value
     var width = 4
     switch (x) {
@@ -114,7 +114,6 @@ function drawLine(viewer, coords) {
             positions: Cesium.Cartesian3.fromDegreesArray(coords),
             width: width,
             material: color,
-
         }
     })
 }

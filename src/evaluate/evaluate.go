@@ -492,18 +492,27 @@ func Length(xSize, ySize, nRuns int, note string) {
 		_, _, dists[3] = algorithms.BiAStar(from[i], to[i], &ug)
 		_, _, dists[4] = algorithms.AStarJPS(from[i], to[i], &ug)
 
-		for j := 0; j < 5; j++ {
-			if dists[0] < dists[j] {
-				results[j].longer++
-			} else if dists[0] > dists[j] {
-				results[j].shorter++
-			} else {
-				results[j].equal++
+		if dists[0] == math.Inf(1) {
+			fmt.Printf("\nThere was a combination which returned no route: %v, %v\nLengths: %v", from[i], to[i], dists)
+		} else {
+			eq := false
+			for j := 0; j < 5; j++ {
+				if dists[0] < dists[j] {
+					results[j].longer++
+				} else if dists[0] > dists[j] {
+					results[j].shorter++
+				} else {
+					eq = true
+					results[j].equal++
+				}
+			}
+			if !eq {
+				fmt.Printf("\nLonger: %v, %v\nLengths: %v", from[i], to[i], dists)
 			}
 		}
 	}
 
-	fmt.Printf("\nThe routes' lengths of\n")
+	fmt.Printf("\n\nThe routes' lengths of\n")
 	fmt.Printf("Bi-Dij were %v x shorter, %v x equal and %v x longer\n", results[1].shorter, results[1].equal, results[1].longer)
 	fmt.Printf("A*     were %v x shorter, %v x equal and %v x longer\n", results[2].shorter, results[2].equal, results[2].longer)
 	fmt.Printf("Bi-A*  were %v x shorter, %v x equal and %v x longer\n", results[3].shorter, results[3].equal, results[3].longer)
