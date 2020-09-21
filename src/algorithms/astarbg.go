@@ -37,7 +37,7 @@ func AStarBg(from, to int, bg *grids.BasicGrid) ([][][]float64, int, float64) {
 				return extractRoute(&prev, to, bg), popped, dist[to]
 			}
 
-			neighbours := neighboursBg(u, bg)
+			neighbours := NeighboursBg(u, bg)
 
 			for _, j := range neighbours {
 				var alt = dist[u] + distance(bg.GridToCoord(bg.IDToGrid(u)), bg.GridToCoord(bg.IDToGrid(j)))
@@ -88,7 +88,7 @@ func AStarAllNodesBg(from, to int, bg *grids.BasicGrid) ([][][]float64, [][]floa
 				return extractRoute(&prev, to, bg), extractNodes(&nodesProcessed, bg), dist[to]
 			}
 
-			neighbours := neighboursBg(u, bg)
+			neighbours := NeighboursBg(u, bg)
 
 			for _, j := range neighbours {
 				var alt = dist[u] + distance(bg.GridToCoord(bg.IDToGrid(u)), bg.GridToCoord(bg.IDToGrid(j)))

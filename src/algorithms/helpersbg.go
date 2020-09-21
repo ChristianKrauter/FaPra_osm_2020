@@ -4,7 +4,8 @@ import (
     "../grids"
 )
 
-func neighboursBg(idx int, bg *grids.BasicGrid) []int {
+// NeighboursBg ...
+func NeighboursBg(idx int, bg *grids.BasicGrid) []int {
     var neighbours = make([]int, 8)
     var result []int
 
