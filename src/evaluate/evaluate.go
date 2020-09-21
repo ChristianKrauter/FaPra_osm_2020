@@ -483,6 +483,11 @@ func Length(xSize, ySize, nRuns int, note string) {
 		}
 	}
 
+	fmt.Printf("\n\nNon-equal examples (currently excluding JPS):\n")
+
+	const TOLERANCE = 10000
+	fmt.Printf("with a tolerance of %v.\n", TOLERANCE)
+
 	for i := 0; i < len(from); i++ {
 		var dists = make([]float64, 5)
 
@@ -493,21 +498,32 @@ func Length(xSize, ySize, nRuns int, note string) {
 		_, _, dists[4] = algorithms.AStarJPS(from[i], to[i], &ug)
 
 		if dists[0] == math.Inf(1) {
-			fmt.Printf("\nThere was a combination which returned no route: %v, %v\nLengths: %v", from[i], to[i], dists)
+			fmt.Printf("\nThere was a combination which returned no route: %v, %v\n", from[i], to[i])
 		} else {
-			eq := false
+			eq := true
+			text := "longer"
+			var difference float64
 			for j := 0; j < 5; j++ {
-				if dists[0] < dists[j] {
-					results[j].longer++
-				} else if dists[0] > dists[j] {
-					results[j].shorter++
-				} else {
-					eq = true
+				diff := math.Abs(dists[0] - dists[j])
+				if diff < TOLERANCE {
 					results[j].equal++
+				} else if dists[0]-dists[j] < 0 {
+					if j < 4 {
+						difference = diff
+						eq = false
+					}
+					results[j].longer++
+				} else {
+					if j < 4 {
+						text = "shorter"
+						difference = diff
+						eq = false
+					}
+					results[j].shorter++
 				}
 			}
 			if !eq {
-				fmt.Printf("\nLonger: %v, %v\nLengths: %v", from[i], to[i], dists)
+				fmt.Printf("\n%v: %v, %v -- Difference: %v", text, from[i], to[i], difference)
 			}
 		}
 	}
