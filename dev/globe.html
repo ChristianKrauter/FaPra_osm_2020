@@ -14,15 +14,17 @@
     <div class="container">
         <div class="buttonContainer">
             <div class="checkBoxContainer">
-                <input id="processedNodes" type="checkbox" name="allNodes"> Show Processed Nodes
-            </div>
-            <div class="checkBoxContainer">
                 <input id="simpleNbs" type="checkbox" name="simpleNbs"> Use Simple Neighbours
             </div>
-            <div>
+            <!--div>
                 <input id="gridX" type="text" name="gridX">
                 <input id="gridY" type="text" name="gridY">
                 <button id="showGridNode">Show Grid Node</button>
+            </div-->
+            <div>
+                <input id="gridIDXx" type="text" name="gridIDXx">
+                <input id="gridIDXy" type="text" name="gridIDXy">
+                <button id="showRoutes">Show Routes</button>
             </div>
             <div>
                 <input id="gridIDX" type="text" name="gridIDX">
@@ -30,6 +32,14 @@
             </div>
             <button id="gridButton">Show Grid</button>
             <button id="clearButton">Clear</button>
+            <div> Toggle: </div>
+            <div class="checkBoxContainer">
+                <input id="Dij" type="checkbox" name="Dij" onclick="toggle(this,0)"> Dijkstra <br>
+                <input id="A*" type="checkbox" name="A*" onclick="toggle(this,1)"> A* <br>
+                <input id="BiDij" type="checkbox" name="BiDij" onclick="toggle(this,2)"> Bi-Dijkstra <br>
+                <input id="BiA*" type="checkbox" name="BiA*" onclick="toggle(this,3)"> BiA* <br>
+                <input id="A*-JPS" type="checkbox" name="A*-JPS" onclick="toggle(this,4)"> A*-JPS <br>
+            </div>
         </div>
         <div id="cesiumContainer" class="fullSize"></div>
     </div>
