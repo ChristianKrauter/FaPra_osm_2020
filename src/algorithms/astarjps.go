@@ -37,7 +37,7 @@ func AStarJPS(from, to int, ug *grids.UniformGrid) (*[][][]float64, int, float64
 			u := heap.Pop(&pq).(*NodeJPS)
 			popped++
 			if u.IDX == to {
-				return ExtractRouteUg(&prev, to, ug), popped, dist[to]
+				return extractRouteUg(&prev, to, ug), popped, dist[to]
 			}
 
 			neighbours := prune(u, SimpleNeighboursUgJPS(*u, ug), ug)
@@ -60,7 +60,7 @@ func AStarJPS(from, to int, ug *grids.UniformGrid) (*[][][]float64, int, float64
 			}
 		}
 	}
-	return ExtractRouteUg(&prev, to, ug), popped, dist[to]
+	return extractRouteUg(&prev, to, ug), popped, dist[to]
 }
 
 var nodesProcessed []int
@@ -97,7 +97,7 @@ func AStarJPSAllNodes(from, to int, ug *grids.UniformGrid) (*[][][]float64, *[][
 
 			popped++
 			if u.IDX == to {
-				return ExtractRouteUg(&prev, to, ug), ExtractNodesUg(&nodesProcessed, ug), dist[to]
+				return extractRouteUg(&prev, to, ug), extractNodesUg(&nodesProcessed, ug), dist[to]
 			}
 
 			neighbours := prune(u, SimpleNeighboursUgJPS(*u, ug), ug)
@@ -120,7 +120,7 @@ func AStarJPSAllNodes(from, to int, ug *grids.UniformGrid) (*[][][]float64, *[][
 			}
 		}
 	}
-	return ExtractRouteUg(&prev, to, ug), ExtractNodesUg(&nodesProcessed, ug), dist[to]
+	return extractRouteUg(&prev, to, ug), extractNodesUg(&nodesProcessed, ug), dist[to]
 }
 
 func jump(u int, nn *NodeJPS, dir, from, to int, ug *grids.UniformGrid) *NodeJPS {

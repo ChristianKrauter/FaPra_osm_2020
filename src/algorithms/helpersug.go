@@ -6,8 +6,8 @@ import (
 	"math"
 )
 
-// ExtractRouteUg ...
-func ExtractRouteUg(prev *[]int, end int, ug *grids.UniformGrid) *[][][]float64 {
+// extractRouteUg ...
+func extractRouteUg(prev *[]int, end int, ug *grids.UniformGrid) *[][][]float64 {
 	var route = make([][][]float64, 1)
 	for {
 		route[0] = append(route[0], ug.GridToCoord(ug.IDToGrid(end)))
@@ -19,8 +19,8 @@ func ExtractRouteUg(prev *[]int, end int, ug *grids.UniformGrid) *[][][]float64 
 	return &route
 }
 
-// ExtractNodesUg ...
-func ExtractNodesUg(nodesProcessed *[]int, ug *grids.UniformGrid) *[][]float64 {
+// extractNodesUg ...
+func extractNodesUg(nodesProcessed *[]int, ug *grids.UniformGrid) *[][]float64 {
 	var nodesExtended = make([][]float64, len(*nodesProcessed))
 	for i, node := range *nodesProcessed {
 		x := ug.IDToGrid(node)
@@ -117,8 +117,8 @@ func NeighboursUg(in int, ug *grids.UniformGrid) []int {
 	return neighbours1d
 }
 
-// ExtractRouteUgBi ...
-func ExtractRouteUgBi(prev *[][]int, meeting int, ug *grids.UniformGrid) *[][][]float64 {
+// extractRouteUgBi ...
+func extractRouteUgBi(prev *[][]int, meeting int, ug *grids.UniformGrid) *[][][]float64 {
 	var routes = make([][][]float64, 2)
 
 	var secondMeeting = meeting

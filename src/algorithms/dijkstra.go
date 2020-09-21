@@ -33,7 +33,7 @@ func Dijkstra(from, to int, ug *grids.UniformGrid) (*[][][]float64, int, float64
 			u := heap.Pop(&pq).(*Item).value
 			popped++
 			if u == to {
-				return ExtractRouteUg(&prev, to, ug), popped, dist[to]
+				return extractRouteUg(&prev, to, ug), popped, dist[to]
 			}
 
 			neighbours := SimpleNeighboursUg(u, ug)
@@ -51,7 +51,7 @@ func Dijkstra(from, to int, ug *grids.UniformGrid) (*[][][]float64, int, float64
 			}
 		}
 	}
-	return ExtractRouteUg(&prev, to, ug), popped, dist[to]
+	return extractRouteUg(&prev, to, ug), popped, dist[to]
 }
 
 // DijkstraAllNodes additionally returns all visited nodes on uniform grid
@@ -83,7 +83,7 @@ func DijkstraAllNodes(from, to int, ug *grids.UniformGrid) (*[][][]float64, *[][
 			nodesProcessed = append(nodesProcessed, u)
 
 			if u == to {
-				return ExtractRouteUg(&prev, to, ug), ExtractNodesUg(&nodesProcessed, ug), dist[to]
+				return extractRouteUg(&prev, to, ug), extractNodesUg(&nodesProcessed, ug), dist[to]
 			}
 
 			neighbours := SimpleNeighboursUg(u, ug)
@@ -102,5 +102,5 @@ func DijkstraAllNodes(from, to int, ug *grids.UniformGrid) (*[][][]float64, *[][
 			}
 		}
 	}
-	return ExtractRouteUg(&prev, to, ug), ExtractNodesUg(&nodesProcessed, ug), dist[to]
+	return extractRouteUg(&prev, to, ug), extractNodesUg(&nodesProcessed, ug), dist[to]
 }

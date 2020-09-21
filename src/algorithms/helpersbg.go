@@ -50,8 +50,8 @@ func extractNodes(nodesProcessed *[]int, bg *grids.BasicGrid) [][]float64 {
     return nodesExtended
 }
 
-// ExtractRouteBi ...
-func ExtractRouteBi(prev *[][]int, meeting int, bg *grids.BasicGrid) [][][]float64 {
+// extractRouteBi ...
+func extractRouteBi(prev *[][]int, meeting int, bg *grids.BasicGrid) [][][]float64 {
     var routes = make([][][]float64, 2)
 
     var secondMeeting = meeting

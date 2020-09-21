@@ -87,7 +87,7 @@ func BiDijkstra(from, to int, ug *grids.UniformGrid) (*[][][]float64, int, float
 		dir = 1 - dir // Change direction
 	}
 
-	return ExtractRouteUgBi(&prev, meeting, ug), len(proc[0]) + len(proc[1]), dist[0][meeting] + dist[1][meeting]
+	return extractRouteUgBi(&prev, meeting, ug), len(proc[0]) + len(proc[1]), dist[0][meeting] + dist[1][meeting]
 }
 
 // BiDijkstraAllNodes additionally returns all visited nodes on uniform grid
@@ -182,5 +182,5 @@ func BiDijkstraAllNodes(from, to int, ug *grids.UniformGrid) (*[][][]float64, *[
 		i++
 	}
 
-	return ExtractRouteUgBi(&prev, meeting, ug), ExtractNodesUg(&keys, ug), dist[0][meeting] + dist[1][meeting]
+	return extractRouteUgBi(&prev, meeting, ug), extractNodesUg(&keys, ug), dist[0][meeting] + dist[1][meeting]
 }
