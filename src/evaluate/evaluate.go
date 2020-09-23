@@ -447,11 +447,15 @@ func Length(xSize, ySize, nRuns int, note string) {
 	from := make([]int, nRuns)
 	to := make([]int, nRuns)
 	logs := make(map[string]string)
+	const TOLERANCE = 0.001 // 0.1%#
+	var fails = 0
+
 	type result struct {
 		shorter int
 		equal   int
 		longer  int
 	}
+
 	var results = make([]result, 5)
 
 	filename = fmt.Sprintf("data/output/uniformGrid_%v_%v.json", xSize, ySize)
@@ -483,10 +487,8 @@ func Length(xSize, ySize, nRuns int, note string) {
 		}
 	}
 
-	fmt.Printf("\n\nNon-equal examples (currently excluding JPS):\n")
-
-	const TOLERANCE = 10000
-	fmt.Printf("with a tolerance of %v.\n", TOLERANCE)
+	fmt.Printf("with a tolerance of %v%%.\n", TOLERANCE*100)
+	fmt.Printf("\n\nNon-equal examples:\n")
 
 	for i := 0; i < len(from); i++ {
 		var dists = make([]float64, 5)
@@ -498,43 +500,40 @@ func Length(xSize, ySize, nRuns int, note string) {
 		_, _, dists[4] = algorithms.AStarJPS(from[i], to[i], &ug)
 
 		if dists[0] == math.Inf(1) {
+			fails++
 			fmt.Printf("\nThere was a combination which returned no route: %v, %v\n", from[i], to[i])
 		} else {
 			eq := true
-			text := "longer"
+			text := "Longer"
 			var difference float64
 			for j := 0; j < 5; j++ {
-				diff := math.Abs(dists[0] - dists[j])
-				if diff < TOLERANCE {
+				diff := dists[0] / dists[j]
+				if diff <= 1+TOLERANCE && diff >= 1-TOLERANCE {
 					results[j].equal++
-				} else if dists[0]-dists[j] < 0 {
-					if j < 4 {
-						difference = diff
-						eq = false
-					}
-					results[j].longer++
-				} else {
-					if j < 4 {
-						text = "shorter"
-						difference = diff
-						eq = false
-					}
+				} else if diff > 1+TOLERANCE {
+					text = "Shorter"
 					results[j].shorter++
+				} else {
+					results[j].longer++
 				}
 			}
 			if !eq {
-				fmt.Printf("\n%v: %v, %v -- Difference: %v", text, from[i], to[i], difference)
+				fmt.Printf("\n%v: %v, %v -- Difference: %v%%", text, from[i], to[i], difference*100)
 			}
 		}
 	}
 
 	fmt.Printf("\n\nThe routes' lengths of\n")
+	if fails > 0 {
+		fmt.Printf("%v combinations returned no route\n", fails)
+	}
 	fmt.Printf("Bi-Dij were %v x shorter, %v x equal and %v x longer\n", results[1].shorter, results[1].equal, results[1].longer)
 	fmt.Printf("A*     were %v x shorter, %v x equal and %v x longer\n", results[2].shorter, results[2].equal, results[2].longer)
 	fmt.Printf("Bi-A*  were %v x shorter, %v x equal and %v x longer\n", results[3].shorter, results[3].equal, results[3].longer)
 	fmt.Printf("A*-JPS were %v x shorter, %v x equal and %v x longer\n", results[4].shorter, results[4].equal, results[4].longer)
 	fmt.Printf("compared to Dijkstra.\n")
 
+	logs["tolerance (%)"] = strconv.FormatFloat(TOLERANCE, 'f', -1, 64)
 	logs["note"] = note
 	logs["basicGrid"] = "false"
 	logs["xSize"] = strconv.Itoa(xSize)
@@ -559,6 +558,8 @@ func LengthBg(xSize, ySize, nRuns int, note string) {
 	from := make([]int, nRuns)
 	to := make([]int, nRuns)
 	logs := make(map[string]string)
+	const TOLERANCE = 0.001 // 0.1%#
+	var fails = 0
 
 	bg.XSize = xSize
 	bg.YSize = ySize
@@ -602,6 +603,9 @@ func LengthBg(xSize, ySize, nRuns int, note string) {
 		}
 	}
 
+	fmt.Printf("with a tolerance of %v%%.\n", TOLERANCE*100)
+	fmt.Printf("\n\nNon-equal examples:\n")
+
 	for i := 0; i < len(from); i++ {
 		var dists = make([]float64, 5)
 
@@ -611,24 +615,41 @@ func LengthBg(xSize, ySize, nRuns int, note string) {
 		_, _, dists[3] = algorithms.BiAStarBg(from[i], to[i], &bg)
 		//_, _, dists[4] = algorithms.AStarJPSBg(from[i], to[i], &bg)
 
-		for j := 0; j < 4; j++ {
-			if dists[0] < dists[j] {
-				results[j].longer++
-			} else if dists[0] > dists[j] {
-				results[j].shorter++
-			} else {
-				results[j].equal++
+		if dists[0] == math.Inf(1) {
+			fails++
+			fmt.Printf("\nThere was a combination which returned no route: %v, %v\n", from[i], to[i])
+		} else {
+			eq := true
+			text := "Longer"
+			var difference float64
+			for j := 0; j < 4; j++ {
+				diff := dists[0] / dists[j]
+				if diff <= 1+TOLERANCE && diff >= 1-TOLERANCE {
+					results[j].equal++
+				} else if diff > 1+TOLERANCE {
+					text = "Shorter"
+					results[j].shorter++
+				} else {
+					results[j].longer++
+				}
+			}
+			if !eq {
+				fmt.Printf("\n%v: %v, %v -- Difference: %v%%", text, from[i], to[i], difference*100)
 			}
 		}
 	}
 
-	fmt.Printf("\nThe routes' lengths of\n")
+	fmt.Printf("\n\nThe routes' lengths of\n")
+	if fails > 0 {
+		fmt.Printf("%v combinations returned no route\n", fails)
+	}
 	fmt.Printf("Bi-Dij were %v x shorter, %v x equal and %v x longer\n", results[1].shorter, results[1].equal, results[1].longer)
 	fmt.Printf("A*     were %v x shorter, %v x equal and %v x longer\n", results[2].shorter, results[2].equal, results[2].longer)
 	fmt.Printf("Bi-A*  were %v x shorter, %v x equal and %v x longer\n", results[3].shorter, results[3].equal, results[3].longer)
 	//fmt.Printf("A*-JPS were %v x shorter, %v x equal and %v x longer\n", results[4].shorter, results[4].equal, results[4].longer)
 	fmt.Printf("compared to Dijkstra.\n")
 
+	logs["tolerance (%)"] = strconv.FormatFloat(TOLERANCE, 'f', -1, 64)
 	logs["note"] = note
 	logs["basicGrid"] = "false"
 	logs["xSize"] = strconv.Itoa(xSize)
