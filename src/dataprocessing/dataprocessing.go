@@ -54,7 +54,7 @@ func createPolygons(polygons *Polygons, coastlineMap *map[int64][]int64, nodeMap
 				var bT = poly.Points[(i+1)%len(poly.Points)][0]
 				if aT == bT {
 					x[0] -= 0.000000001
-					nortPole = []float64{0.000000001, 90.0}
+					nortPole = []float64{0.1, 89.9}
 					aT = transformLon(nortPole, x)
 					bT = transformLon(nortPole, poly.Points[(i+1)%len(poly.Points)])
 				}

@@ -63,7 +63,7 @@ func pointInPolygonSphere(poly *Polygon, point []float64) bool {
 		var pT = point[0]
 		var bT = b[0]
 		if a[0] == b[0] {
-			// a[0] -= 0.000000001
+			a[0] -= 0.000000001
 			nortPole = []float64{0.1, 89.9}
 			aT = transformLon(nortPole, a)
 			pT = transformLon(nortPole, point)
