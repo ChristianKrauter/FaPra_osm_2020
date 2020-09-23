@@ -106,6 +106,9 @@ func SpeedBg(xSize, ySize, nRuns, algorithm int, note string) {
 	case 3:
 		algoStr = "_bias"
 		algoStrPrint = "Bi-A-Star"
+	case 4:
+		algoStr = "_asjps"
+		algoStrPrint = "AStar-JPS"
 	default:
 		algoStr = "_dij"
 		algoStrPrint = "Dijkstra"
@@ -164,6 +167,10 @@ func SpeedBg(xSize, ySize, nRuns, algorithm int, note string) {
 		case 3:
 			start = time.Now()
 			_, popped, _ = algorithms.BiAStarBg(from[i], to[i], &bg)
+			end = time.Now()
+		case 4:
+			start = time.Now()
+			_, popped, _ = algorithms.AStarJPSBg(from[i], to[i], &bg)
 			end = time.Now()
 		default:
 			start = time.Now()
@@ -613,7 +620,7 @@ func LengthBg(xSize, ySize, nRuns int, note string) {
 		_, _, dists[1] = algorithms.BiDijkstraBg(from[i], to[i], &bg)
 		_, _, dists[2] = algorithms.AStarBg(from[i], to[i], &bg)
 		_, _, dists[3] = algorithms.BiAStarBg(from[i], to[i], &bg)
-		//_, _, dists[4] = algorithms.AStarJPSBg(from[i], to[i], &bg)
+		_, _, dists[4] = algorithms.AStarJPSBg(from[i], to[i], &bg)
 
 		if dists[0] == math.Inf(1) {
 			fails++
@@ -622,7 +629,7 @@ func LengthBg(xSize, ySize, nRuns int, note string) {
 			eq := true
 			text := "Longer"
 			var difference float64
-			for j := 0; j < 4; j++ {
+			for j := 0; j < 5; j++ {
 				diff := dists[0] / dists[j]
 				if diff <= 1+TOLERANCE && diff >= 1-TOLERANCE {
 					results[j].equal++
@@ -646,7 +653,7 @@ func LengthBg(xSize, ySize, nRuns int, note string) {
 	fmt.Printf("Bi-Dij were %v x shorter, %v x equal and %v x longer\n", results[1].shorter, results[1].equal, results[1].longer)
 	fmt.Printf("A*     were %v x shorter, %v x equal and %v x longer\n", results[2].shorter, results[2].equal, results[2].longer)
 	fmt.Printf("Bi-A*  were %v x shorter, %v x equal and %v x longer\n", results[3].shorter, results[3].equal, results[3].longer)
-	//fmt.Printf("A*-JPS were %v x shorter, %v x equal and %v x longer\n", results[4].shorter, results[4].equal, results[4].longer)
+	fmt.Printf("A*-JPS were %v x shorter, %v x equal and %v x longer\n", results[4].shorter, results[4].equal, results[4].longer)
 	fmt.Printf("compared to Dijkstra.\n")
 
 	logs["tolerance (%)"] = strconv.FormatFloat(TOLERANCE, 'f', -1, 64)
@@ -657,7 +664,7 @@ func LengthBg(xSize, ySize, nRuns int, note string) {
 	logs["Bi-Dij"] = fmt.Sprintf("%v x shorter, %v x equal and %v x longer\n", results[1].shorter, results[1].equal, results[1].longer)
 	logs["A*"] = fmt.Sprintf("%v x shorter, %v x equal and %v x longer\n", results[2].shorter, results[2].equal, results[2].longer)
 	logs["Bi-A*"] = fmt.Sprintf("%v x shorter, %v x equal and %v x longer\n", results[3].shorter, results[3].equal, results[3].longer)
-	//logs["A*-JPS"] = fmt.Sprintf("%v x shorter, %v x equal and %v x longer\n", results[4].shorter, results[4].equal, results[4].longer)
+	logs["A*-JPS"] = fmt.Sprintf("%v x shorter, %v x equal and %v x longer\n", results[4].shorter, results[4].equal, results[4].longer)
 
 	jsonString, _ := json.MarshalIndent(logs, "", "    ")
 	var outFilename string

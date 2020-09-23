@@ -124,9 +124,11 @@ func AStarJPSAllNodesBg(from, to int, bg *grids.BasicGrid) ([][][]float64, [][]f
 }
 
 func jumpBg(u int, nn *NodeJPS, dir, from, to int, bg *grids.BasicGrid) *NodeJPS {
+	//fmt.Printf("nn %v\n", nn)
 	n := stepBg(nn.IDX, dir, bg)
 	//nodesProcessed = append(nodesProcessed, n.IDX)
-	if u == n.IDX || bg.VertexData[n.IDX] { //n == nil ||
+	//fmt.Printf("n %v\n", n)
+	if n == nil || u == n.IDX || bg.VertexData[n.IDX] {
 		//nodesProcessed = append(nodesProcessed, n.IDX)
 		return nil
 	}

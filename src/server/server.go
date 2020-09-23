@@ -134,6 +134,10 @@ func RunBg(xSize, ySize int, basicPointInPolygon bool) {
 						start = time.Now()
 						route, nodesProcessed, length = algorithms.BiAStarAllNodesBg(bg.GridToID(from), bg.GridToID(to), &bg)
 						end = time.Now()
+					case 4:
+						start = time.Now()
+						route, nodesProcessed, length = algorithms.AStarJPSAllNodesBg(bg.GridToID(from), bg.GridToID(to), &bg)
+						end = time.Now()
 					default:
 						start = time.Now()
 						route, nodesProcessed, length = algorithms.DijkstraAllNodesBg(bg.GridToID(from), bg.GridToID(to), &bg)
@@ -175,6 +179,10 @@ func RunBg(xSize, ySize int, basicPointInPolygon bool) {
 					case 3:
 						start = time.Now()
 						route, _, length = algorithms.BiAStarBg(bg.GridToID(from), bg.GridToID(to), &bg)
+						end = time.Now()
+					case 4:
+						start = time.Now()
+						route, _, length = algorithms.AStarJPSBg(bg.GridToID(from), bg.GridToID(to), &bg)
 						end = time.Now()
 					default:
 						start = time.Now()
