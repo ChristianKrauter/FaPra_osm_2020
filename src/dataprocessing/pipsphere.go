@@ -52,7 +52,8 @@ func pointInPolygonSphere(poly *Polygon, point []float64) bool {
 	if point[1] == 90.0 {
 		return false
 	}
-
+	point[0] = point[0] + 0.00001
+	point[1] = point[1] + 0.00001
 	for i := 0; i < len(poly.Points); i++ {
 		var a = (poly.Points)[i]
 		var b = (poly.Points)[(i+1)%len(poly.Points)]
