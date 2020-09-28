@@ -77,8 +77,8 @@ func pointInPolygonSphere(poly *Polygon, point []float64) bool {
 
 			var aToP = eastOrWest(aT, pT)
 			var pToB = eastOrWest(pT, bT)
-
-			if aToP == (poly.EoWNext)[i] && pToB == (poly.EoWNext)[i] {
+			var eoWNext = eastOrWest(aT, bT)
+			if aToP == eoWNext && pToB == eoWNext {
 				strike = true
 			}
 		}
@@ -89,13 +89,16 @@ func pointInPolygonSphere(poly *Polygon, point []float64) bool {
 			}
 
 			var pLonTransformed = transformLon(a, point)
+			var lngtNext = transformLon(x, b)
 
-			if (poly.LngTNext)[i] == pLonTransformed {
+			if lngTNext == pLonTransformed {
 				return true
 			}
 
-			var bToP = eastOrWest((poly.LngTNext)[i], pLonTransformed)
-			if (poly.BtoX)[i] == -bToP {
+			var bToP = eastOrWest(lngTNext, pLonTransformed)
+			var bToX = eastOrWest(lngtNext, transformLon(x, nortPole))
+
+			if btoX == -bToP {
 				inside = !inside
 			}
 		}
