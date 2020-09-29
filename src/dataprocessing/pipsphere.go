@@ -52,8 +52,8 @@ func pointInPolygonSphere(poly *Polygon, point []float64) bool {
 	if point[1] == 90.0 {
 		return false
 	}
-	point[0] = point[0] + 0.001
-	point[1] = point[1] + 0.001
+	point[0] = point[0] + 0.00001
+	point[1] = point[1] + 0.00001
 	for i := 0; i < len(poly.Points); i++ {
 		var a = (poly.Points)[i]
 		var b = (poly.Points)[(i+1)%len(poly.Points)]
@@ -64,8 +64,8 @@ func pointInPolygonSphere(poly *Polygon, point []float64) bool {
 		var pT = point[0]
 		var bT = b[0]
 		if a[0] == b[0] {
-			a[0] -= 0.2
-			nortPole = []float64{0.2, 89.0}
+			a[0] -= 0.000000001
+			nortPole = []float64{0.1, 89.9}
 			aT = transformLon(nortPole, a)
 			pT = transformLon(nortPole, point)
 			bT = transformLon(nortPole, b)
@@ -77,8 +77,8 @@ func pointInPolygonSphere(poly *Polygon, point []float64) bool {
 
 			var aToP = eastOrWest(aT, pT)
 			var pToB = eastOrWest(pT, bT)
-			var eoWNext = eastOrWest(aT, bT)
-			if aToP == eoWNext && pToB == eoWNext {
+
+			if aToP == (poly.EoWNext)[i] && pToB == (poly.EoWNext)[i] {
 				strike = true
 			}
 		}
@@ -89,16 +89,13 @@ func pointInPolygonSphere(poly *Polygon, point []float64) bool {
 			}
 
 			var pLonTransformed = transformLon(a, point)
-			var lngtNext = transformLon(a, b)
 
-			if lngtNext == pLonTransformed {
+			if (poly.LngTNext)[i] == pLonTransformed {
 				return true
 			}
 
-			var bToP = eastOrWest(lngtNext, pLonTransformed)
-			var bToX = eastOrWest(lngtNext, transformLon(a, nortPole))
-
-			if bToX == -bToP {
+			var bToP = eastOrWest((poly.LngTNext)[i], pLonTransformed)
+			if (poly.BtoX)[i] == -bToP {
 				inside = !inside
 			}
 		}
@@ -129,9 +126,6 @@ func isLandSphere(tree *boundingTree, point []float64, polygons *Polygons) bool 
 }
 
 func isLandSphereNBT(allBoundingBoxes *[]map[string]float64, point []float64, polygons *Polygons) bool {
-	if point[1] <= -80.0 {
-		return true
-	}
 	for i, j := range *allBoundingBoxes {
 		if boundingContains(&j, point) {
 			if pointInPolygonSphere(&(*polygons)[i], point) {
