@@ -126,6 +126,9 @@ func isLandSphere(tree *boundingTree, point []float64, polygons *Polygons) bool 
 }
 
 func isLandSphereNBT(allBoundingBoxes *[]map[string]float64, point []float64, polygons *Polygons) bool {
+	if point[1] <= -80.0 {
+		return true
+	}
 	for i, j := range *allBoundingBoxes {
 		if boundingContains(&j, point) {
 			if pointInPolygonSphere(&(*polygons)[i], point) {
