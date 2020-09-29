@@ -86,6 +86,9 @@ func polygonContains(polygon *[][]float64, point []float64) bool {
 
 func isLand(tree *boundingTree, point []float64, polygons *Polygons) bool {
 	land := false
+	if point[1] <= -80.0 {
+		return true
+	}
 	if boundingContains(&tree.boundingBox, point) {
 		for _, child := range (*tree).children {
 			land = isLand(&child, point, polygons)
@@ -101,6 +104,9 @@ func isLand(tree *boundingTree, point []float64, polygons *Polygons) bool {
 }
 
 func isLandNBT(allBoundingBoxes *[]map[string]float64, point []float64, polygons *Polygons) bool {
+	if point[1] <= -80.0 {
+		return true
+	}
 	for i, j := range *allBoundingBoxes {
 		if boundingContains(&j, []float64{point[0], point[1]}) {
 			if polygonContains(&(*polygons)[i].Points, []float64{point[0], point[1]}) {
