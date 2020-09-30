@@ -1,0 +1,48 @@
+{
+    "Parameters": {
+        "basicGrid": "true",
+        "count_runs": "50",
+        "note": "",
+        "numCPU": "4",
+        "totalAlloc": "18099",
+        "xSize": "360",
+        "ySize": "360"
+    },
+    "Results": {
+        "A-Star": {
+            "TotalTime": "1.9033131s",
+            "AVGTime": "38.066262ms",
+            "AVGNodesPopped": "15894",
+            "Mintime": "968.9µs",
+            "Maxtime": "250.3306ms"
+        },
+        "AStar-JPS": {
+            "TotalTime": "17.6996048s",
+            "AVGTime": "353.992096ms",
+            "AVGNodesPopped": "397",
+            "Mintime": "1.995ms",
+            "Maxtime": "3.6532601s"
+        },
+        "Bi-A-Star": {
+            "TotalTime": "2.7106699s",
+            "AVGTime": "54.213398ms",
+            "AVGNodesPopped": "9573",
+            "Mintime": "4.9865ms",
+            "Maxtime": "290.5344ms"
+        },
+        "Bi-Dijkstra": {
+            "TotalTime": "5.3752938s",
+            "AVGTime": "107.505876ms",
+            "AVGNodesPopped": "32348",
+            "Mintime": "6.9809ms",
+            "Maxtime": "273.2974ms"
+        },
+        "Dijkstra": {
+            "TotalTime": "6.3025544s",
+            "AVGTime": "126.051088ms",
+            "AVGNodesPopped": "63913",
+            "Mintime": "3.9942ms",
+            "Maxtime": "251.3224ms"
+        }
+    }
+}

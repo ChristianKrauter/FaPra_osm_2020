@@ -78,44 +78,40 @@ func SpeedBg(xSize, ySize, nRuns, algorithm int, note string) {
 	var bg grids.BasicGrid
 	var bg2D [][]bool
 	var m runtime.MemStats
-	var sum time.Duration
-	var poppedSum int
+	var sum = make([]time.Duration, 5)
+	var poppedSum = make([]int, 5)
 	var count int
-	var max = time.Duration(math.MinInt64)
-	var min = time.Duration(math.MaxInt64)
+	var max = make([]time.Duration, 5)
+	var min = make([]time.Duration, 5)
 	from := make([]int, nRuns)
 	to := make([]int, nRuns)
-	logs := make(map[string]string)
+	var algoStrPrint = []string{"Dijkstra", "A-Star", "Bi-Dijkstra", "Bi-A-Star", "AStar-JPS"}
+
+	type Algostruct struct {
+		TotalTime      string
+		AVGTime        string
+		AVGNodesPopped string
+		Mintime        string
+		Maxtime        string
+	}
+	type Results map[string]Algostruct
+	type Logstruct struct {
+		Parameters map[string]string
+		Results    map[string]Algostruct
+	}
+	var Logs Logstruct
+	Logs.Parameters = make(map[string]string)
+	Logs.Results = make(Results)
 
 	bg.XSize = xSize
 	bg.YSize = ySize
 	bg.XFactor = float64(xSize) / 360.0
 	bg.YFactor = float64(ySize) / 360.0
 
-	var algoStr, algoStrPrint string
-	switch algorithm {
-	case 0:
-		algoStr = "_dij"
-		algoStrPrint = "Dijkstra"
-	case 1:
-		algoStr = "_as"
-		algoStrPrint = "A-Star"
-	case 2:
-		algoStr = "_bidij"
-		algoStrPrint = "Bi-Dijkstra"
-	case 3:
-		algoStr = "_bias"
-		algoStrPrint = "Bi-A-Star"
-	case 4:
-		algoStr = "_asjps"
-		algoStrPrint = "AStar-JPS"
-	default:
-		algoStr = "_dij"
-		algoStrPrint = "Dijkstra"
+	for i := 0; i < 5; i++ {
+		max[i] = time.Duration(math.MinInt64)
+		min[i] = time.Duration(math.MaxInt64)
 	}
-
-	fmt.Printf("using %s.\n", algoStrPrint)
-	logs["filename"] = algoStr
 
 	filename = fmt.Sprintf("data/output/meshgrid_%v_%v.json", xSize, ySize)
 
@@ -148,69 +144,82 @@ func SpeedBg(xSize, ySize, nRuns, algorithm int, note string) {
 	}
 
 	for i := 0; i < len(from); i++ {
-		var start time.Time
-		var end time.Time
-		var popped int
-		switch algorithm {
-		case 0:
+		var start = make([]time.Time, 5)
+		var end = make([]time.Time, 5)
+		var popped = make([]int, 5)
+		var dijdist float64
+		//switch algorithm {
+		//case 0:
+		start[0] = time.Now()
+		_, popped[0], dijdist = algorithms.DijkstraBg(from[i], to[i], &bg)
+		end[0] = time.Now()
+		//case 1:
+		start[1] = time.Now()
+		_, popped[1], _ = algorithms.AStarBg(from[i], to[i], &bg)
+		end[1] = time.Now()
+		//case 2:
+		start[2] = time.Now()
+		_, popped[2], _ = algorithms.BiDijkstraBg(from[i], to[i], &bg)
+		end[2] = time.Now()
+		//case 3:
+		start[3] = time.Now()
+		_, popped[3], _ = algorithms.BiAStarBg(from[i], to[i], &bg)
+		end[3] = time.Now()
+		//case 4:
+		start[4] = time.Now()
+		_, popped[4], _ = algorithms.AStarJPSBg(from[i], to[i], &bg)
+		end[4] = time.Now()
+		/*default:
 			start = time.Now()
 			_, popped, _ = algorithms.DijkstraBg(from[i], to[i], &bg)
 			end = time.Now()
-		case 1:
-			start = time.Now()
-			_, popped, _ = algorithms.AStarBg(from[i], to[i], &bg)
-			end = time.Now()
-		case 2:
-			start = time.Now()
-			_, popped, _ = algorithms.BiDijkstraBg(from[i], to[i], &bg)
-			end = time.Now()
-		case 3:
-			start = time.Now()
-			_, popped, _ = algorithms.BiAStarBg(from[i], to[i], &bg)
-			end = time.Now()
-		case 4:
-			start = time.Now()
-			_, popped, _ = algorithms.AStarJPSBg(from[i], to[i], &bg)
-			end = time.Now()
-		default:
-			start = time.Now()
-			_, popped, _ = algorithms.DijkstraBg(from[i], to[i], &bg)
-			end = time.Now()
+		}*/
+		if dijdist != math.Inf(1) {
+			for j := 0; j < 5; j++ {
+				poppedSum[j] += popped[j]
+				var elapsed = end[j].Sub(start[j])
+				if elapsed > max[j] {
+					max[j] = elapsed
+				}
+				if elapsed < min[j] {
+					min[j] = elapsed
+				}
+				sum[j] += elapsed
+			}
+			count++
+		} else {
+			fmt.Printf("oops")
 		}
-
-		poppedSum += popped
-		var elapsed = end.Sub(start)
-		if elapsed > max {
-			max = elapsed
-		}
-		if elapsed < min {
-			min = elapsed
-		}
-		sum += elapsed
-		count++
 	}
 
-	fmt.Printf("\nNumber of routings: %v\nTotal Time        : %v\nAVG Time          : %v\nAVG nodes popped  : %v\nMin, Max Time     : %v, %v",
-		count, sum, sum/time.Duration(count), strconv.Itoa(poppedSum/count), min, max)
+	for j := 0; j < 5; j++ {
+		fmt.Printf("\n%v", algoStrPrint[j])
+		fmt.Printf("\nNumber of routings: %v\nTotal Time        : %v\nAVG Time          : %v\nAVG nodes popped  : %v\nMin, Max Time     : %v, %v\n",
+			count, sum[j], sum[j]/time.Duration(count), strconv.Itoa(poppedSum[j]/count), min[j], max[j])
+	}
 
 	runtime.ReadMemStats(&m)
-	logs["note"] = note
-	logs["basicGrid"] = "true"
-	logs["xSize"] = strconv.Itoa(xSize)
-	logs["ySize"] = strconv.Itoa(ySize)
-	logs["numCPU"] = strconv.Itoa(runtime.NumCPU())
-	logs["totalAlloc"] = strconv.FormatUint(m.TotalAlloc/1024/1024, 10)
-	logs["time_sum"] = sum.String()
-	logs["count_runs"] = strconv.Itoa(count)
-	logs["time_avg"] = (sum / time.Duration(count)).String()
-	logs["time_min"] = min.String()
-	logs["time_max"] = max.String()
-	logs["nodes_popped_avg"] = strconv.Itoa(poppedSum / count)
+	Logs.Parameters["note"] = note
+	Logs.Parameters["basicGrid"] = "true"
+	Logs.Parameters["xSize"] = strconv.Itoa(xSize)
+	Logs.Parameters["ySize"] = strconv.Itoa(ySize)
+	Logs.Parameters["numCPU"] = strconv.Itoa(runtime.NumCPU())
+	Logs.Parameters["totalAlloc"] = strconv.FormatUint(m.TotalAlloc/1024/1024, 10)
+	Logs.Parameters["count_runs"] = strconv.Itoa(count)
 
-	jsonString, _ := json.MarshalIndent(logs, "", "    ")
+	for j := 0; j < 5; j++ {
+		Logs.Results[algoStrPrint[j]] = Algostruct{
+			TotalTime:      sum[j].String(),
+			AVGTime:        (sum[j] / time.Duration(count)).String(),
+			AVGNodesPopped: strconv.Itoa(poppedSum[j] / count),
+			Mintime:        min[j].String(),
+			Maxtime:        max[j].String()}
+	}
+
+	jsonString, _ := json.MarshalIndent(Logs, "", "    ")
 	var outFilename string
 	var timestamp = time.Now().Format("2006-01-02_15-04-05")
-	outFilename = fmt.Sprintf("data/evaluation/wf_speed_%s_%s_bg%s_%s.json", logs["xSize"], logs["ySize"], logs["filename"], timestamp)
+	outFilename = fmt.Sprintf("data/evaluation/wf_speed_%s_%s_bg%s_%s.json", Logs.Parameters["xSize"], Logs.Parameters["ySize"], Logs.Parameters["filename"], timestamp)
 	saveLog(outFilename, jsonString)
 }
 
