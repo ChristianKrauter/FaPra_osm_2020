@@ -3,6 +3,7 @@ package main
 import (
 	"./src/evaluate"
 	"./src/server"
+	"./src/testserver"
 	"flag"
 	"fmt"
 )
@@ -24,7 +25,7 @@ func main() {
 	var info string
 
 	flag.IntVar(&mode, "m", 0,
-		"Select Mode:\n  0: Start server \n  1: Evaluate dataprocessing\n  2: Evaluate wayfinding\n  3: Evaluate reading pbf\n  4: Evaluate ug neighbours")
+		"Select Mode:\n  0: Start server \n  1: Evaluate dataprocessing\n  2: Evaluate wayfinding\n  3: Evaluate reading pbf\n  4: Evaluate ug neighbours\n  5: Test routes and neighbours")
 
 	flag.StringVar(&pbfFileName, "f", "antarctica-latest.osm.pbf", "Name of the pbf file inside data/")
 	flag.StringVar(&note, "n", "", "Additional note for evaluations.")
@@ -80,6 +81,13 @@ func main() {
 		evaluate.ReadPBF(pbfFileName, note)
 	case 4:
 		evaluate.NeighboursUg(xSize, ySize, note)
+	case 5:
+		fmt.Printf("Starting test server with a %s\n", info)
+		if basicGrid {
+			testserver.StartBg(xSize, ySize)
+		} else {
+			testserver.Start(xSize, ySize)
+		}
 	default:
 		fmt.Printf("Error: No mode %d specified", mode)
 	}

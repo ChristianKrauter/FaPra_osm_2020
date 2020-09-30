@@ -3,7 +3,7 @@ var viewer = new Cesium.Viewer("cesiumContainer", {
     infoBox: false,
     terrainProvider: Cesium.createWorldTerrain(),
 });
-// Zoom in to an area with mountains
+
 viewer.camera.lookAt(
     Cesium.Cartesian3.fromDegrees(0, 0, 0.0),
     new Cesium.Cartesian3(0.0, 0.0, 42000000.0)
@@ -129,23 +129,6 @@ function createColoredPoint(worldPosition, color, size) {
     return point;
 }
 
-$("#clearButton").click(function() {
-    viewer.entities.removeAll();
-});
-
-$("#gridButton").click(function() {
-    $.ajax({
-        url: "/Grid",
-    }).done(function(data) {
-        if (data != "false") {
-            points = JSON.parse(data)
-            for (i = 0; i < points.length; i++) {
-                createColoredPoint(Cesium.Cartesian3.fromDegrees(points[i][0], points[i][1]), Cesium.Color.RED, 4)
-            }
-        }
-    });
-});
-
 function routeProcessing(jsonData) {
     if (jsonData == "false") {
         //Todo
@@ -259,3 +242,20 @@ function onLeftMouseClick(event) {
         }
     }
 }
+
+$("#clearButton").click(function() {
+    viewer.entities.removeAll();
+});
+
+$("#gridButton").click(function() {
+    $.ajax({
+        url: "/Grid",
+    }).done(function(data) {
+        if (data != "false") {
+            points = JSON.parse(data)
+            for (i = 0; i < points.length; i++) {
+                createColoredPoint(Cesium.Cartesian3.fromDegrees(points[i][0], points[i][1]), Cesium.Color.RED, 4)
+            }
+        }
+    });
+});
