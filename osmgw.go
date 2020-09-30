@@ -1,7 +1,6 @@
 package main
 
 import (
-	"./src/dataprocessing"
 	"./src/evaluate"
 	"./src/server"
 	"flag"
@@ -10,10 +9,9 @@ import (
 
 func main() {
 	var mode int
-	flag.IntVar(&mode, "m", 0,
-		"Select Mode:\n  0: Start server \n  1: Start dataprocessing \n  2: Evaluate dataprocessing\n  3: Evaluate wayfinding speed\n  4: Evaluate wayfinding route length\n  5: Evaluate reading pbf\n  6: Evaluate & Test Simple UG neighbours")
 
-	var pbfFileName, note string
+	var pbfFileName string
+	var note string
 	var xSize, ySize int
 	var createCoastlineGeoJSON bool
 
@@ -22,35 +20,35 @@ func main() {
 	var basicGrid bool
 	var basicPointInPolygon bool
 
-	var algo int
 	var nRuns int
+	var info string
+
+	flag.IntVar(&mode, "m", 0,
+		"Select Mode:\n  0: Start server \n  1: Evaluate dataprocessing\n  2: Evaluate wayfinding\n  3: Evaluate reading pbf\n  4: Evaluate ug neighbours")
 
 	flag.StringVar(&pbfFileName, "f", "antarctica-latest.osm.pbf", "Name of the pbf file inside data/")
+	flag.StringVar(&note, "n", "", "Additional note for evaluations.")
 	flag.IntVar(&xSize, "x", 360, "Meshgrid size in x direction.")
 	flag.IntVar(&ySize, "y", 360, "Meshgrid size in y direction.")
-	flag.BoolVar(&createCoastlineGeoJSON, "coastline", false, "Create coastline geoJSON?")
-	flag.StringVar(&note, "n", "", "Additional note for evaluations.")
+	flag.BoolVar(&createCoastlineGeoJSON, "coastline", false, "Create coastline geoJSON.")
 
 	flag.BoolVar(&lessMemory, "lm", false, "Use memory efficient method to read unpruned pbf files.")
 	flag.BoolVar(&noBoundingTree, "nbt", false, "Do not use a tree structure for the bounding boxes.")
-	flag.BoolVar(&basicGrid, "bg", false, "Create a basic (non-unidistant) grid.")
-	flag.BoolVar(&basicPointInPolygon, "bpip", false, "Use a basic 2D point in polygon test.")
+	flag.BoolVar(&basicGrid, "bg", false, "Create a basic (non-uniform) grid.")
+	flag.BoolVar(&basicPointInPolygon, "bpip", false, "Use the basic 2D point in polygon test.")
 
-	flag.IntVar(&algo, "a", 0, "Select Algorithm:\n  0: Dijkstra\n  1: A*\n  2: Bi-Dijkstra\n  3: Bi-A*\n  4: A*-JPS")
 	flag.IntVar(&nRuns, "r", 1000, "Number of runs for wayfinding evaluation.")
 	flag.Parse()
 
-	var info string
 	if basicGrid {
 		info += fmt.Sprintf("basic %vx%v grid ", xSize, ySize)
 	} else {
 		info += fmt.Sprintf("uniform %vx%v grid ", xSize, ySize)
 	}
-	if mode == 1 || mode == 2 {
+	if mode == 1 {
 		info += fmt.Sprintf("\non the %s file", pbfFileName)
-
 	}
-	if mode == 0 || mode == 1 || mode == 2 {
+	if mode == 0 || mode == 1 {
 		if basicPointInPolygon {
 			info += "\nwith the basic point in polygon test"
 		} else {
@@ -67,31 +65,20 @@ func main() {
 			server.Run(xSize, ySize, basicPointInPolygon)
 		}
 	case 1:
-		fmt.Printf("Starting data processing for a %s", info)
-		dataprocessing.Start(pbfFileName, xSize, ySize, createCoastlineGeoJSON, lessMemory, noBoundingTree, basicGrid, basicPointInPolygon)
-	case 2:
-		fmt.Printf("Starting evaluation of data processing for %s", info)
+		fmt.Printf("Starting data processing for %s", info)
 		evaluate.DataProcessing(pbfFileName, note, xSize, ySize, createCoastlineGeoJSON, lessMemory, noBoundingTree, basicGrid, basicPointInPolygon)
-	case 3:
-		fmt.Printf("Starting evaluation of wayfinding speed for %s\n", info)
+	case 2:
+		fmt.Printf("Starting evaluation of wayfinding on %s\n", info)
 		fmt.Printf("Averaging over %v random routings ", nRuns)
 		if basicGrid {
-			evaluate.SpeedBg(xSize, ySize, nRuns, algo, note)
+			evaluate.WayFindingBg(xSize, ySize, nRuns, note)
 		} else {
-			evaluate.Speed(xSize, ySize, nRuns, algo, note)
+			evaluate.WayFinding(xSize, ySize, nRuns, note)
 		}
-	case 4:
-		fmt.Printf("Starting evaluation of wayfinding route length for %s\n", info)
-		fmt.Printf("Testing %v random routes ", nRuns)
-		if basicGrid {
-			evaluate.LengthBg(xSize, ySize, nRuns, note)
-		} else {
-			evaluate.Length(xSize, ySize, nRuns, note)
-		}
-	case 5:
+	case 3:
 		fmt.Printf("Starting evaluation of pbf reading for %s\n", pbfFileName)
 		evaluate.ReadPBF(pbfFileName, note)
-	case 6:
+	case 4:
 		evaluate.NeighboursUg(xSize, ySize, note)
 	default:
 		fmt.Printf("Error: No mode %d specified", mode)
