@@ -40,17 +40,14 @@ func AStarJPS(from, to int, ug *grids.UniformGrid) (*[][][]float64, int, float64
 			u := heap.Pop(&pq).(*NodeJPS)
 			popped++
 			if u.IDX == to {
-				fmt.Printf("u, to: %v, %v\n", u, to)
 				return extractRouteUg(&prev, to, ug), popped, dist[to]
 			}
 
 			neighbours := prune(u, SimpleNeighboursUgJPS(*u, ug))
 			for _, n := range *neighbours {
-				j := jump(u.IDX, u, n.dir, from, to, &prev, &dist, ug)
+				j := jump(u.IDX, u, n.dir, from, to, ug)
 
 				if j != nil {
-					fmt.Printf("j: %v\n", j)
-					fmt.Printf("to: %v\n", to)
 					var alt = dist[u.IDX] + distance(ug.GridToCoord(u.grid), ug.GridToCoord(j.grid))
 					if alt < dist[j.IDX] {
 						dist[j.IDX] = alt
@@ -108,7 +105,7 @@ func AStarJPSAllNodes(from, to int, ug *grids.UniformGrid) (*[][][]float64, *[][
 
 			neighbours := prune(u, SimpleNeighboursUgJPS(*u, ug))
 			for _, n := range *neighbours {
-				j := jump(u.IDX, u, n.dir, from, to, &prev, &dist, ug)
+				j := jump(u.IDX, u, n.dir, from, to, ug)
 				if j != nil {
 					var alt = dist[u.IDX] + distance(ug.GridToCoord(u.grid), ug.GridToCoord(j.grid))
 					if alt < dist[j.IDX] {
@@ -129,108 +126,28 @@ func AStarJPSAllNodes(from, to int, ug *grids.UniformGrid) (*[][][]float64, *[][
 	return extractRouteUg(&prev, to, ug), extractNodesUg(&nodesProcessed, ug), dist[to]
 }
 
-func jump(u int, nn *NodeJPS, dir, from, to int, prev *[]int, dist *[]float64, ug *grids.UniformGrid) *NodeJPS {
+func jump(u int, nn *NodeJPS, dir, from, to int, ug *grids.UniformGrid) *NodeJPS {
 	n := step(nn, dir, ug)
-	//nodesProcessed = append(nodesProcessed, n.IDX)
-	//fmt.Printf("n: %v\n", n)
-	if u == n.IDX || ug.VertexData[n.grid[0]][n.grid[1]] { //n == nil ||
-		//nodesProcessed = append(nodesProcessed, n.IDX)
+
+	/*if ug.VertexData[n.grid[0]][n.grid[1]] != ug.Flat[n.IDX] {
+		fmt.Printf("VD: %v, F: %v\n", ug.VertexData[n.grid[0]][n.grid[1]], ug.Flat[n.IDX])
+
+	}*/
+	if u == n.IDX || ug.VertexData[n.grid[0]][n.grid[1]] {
 		return nil
 	}
 	if n.IDX == to {
-		//if (n.dir == 3 && dir == 3) || (n.dir == 4 && dir == 4) /*&& math.Abs(float64(n.grid[1]-ug.IDToGrid(u)[1])) > float64(len(ug.VertexData[n.grid[0]]))*/ {
-		/*(*prev)[ug.GridToID(grid)] = nn.IDX
-		(*dist)[ug.GridToID(grid)] = (*dist)[nn.IDX] + distance(ug.GridToCoord(nn.grid), ug.GridToCoord(grid))
-		(*dist)[n.IDX] = (*dist)[ug.GridToID(grid)] + distance(ug.GridToCoord(ug.IDToGrid(n.IDX)), ug.GridToCoord(grid))
-		(*prev)[n.IDX] = ug.GridToID(grid)
-		*/
-		//fmt.Printf("%v\n", ug.GridToCoord(n.grid)[1])
-		if /*(n.dir == 3 || n.dir == 4 || dir == 3 || dir == 4) &&*/ didit < 1 /*&& ug.GridToCoord(n.grid)[1] < -60 */ {
-			//grid := []int{n.grid[0], mod(ug.IDToGrid(u)[1]+int(math.Abs(float64(n.grid[1]-ug.IDToGrid(u)[1])))/2, len(ug.VertexData[n.grid[0]]))}
-			//grid := []int{n.grid[0], ug.IDToGrid(u)[1] + int(math.Abs(float64(n.grid[1]-ug.IDToGrid(u)[1])))/2}
-			//var moduplus int
-			var moduplus2 int
-			fmt.Printf("dir: %v\n", dir)
-			fmt.Printf("n.dir: %v\n", n.dir)
+		if didit < 8 {
+			//fmt.Printf("1: %v\n", didit)
+			var lon int
+			leng := len(ug.VertexData[n.grid[0]])
 			if n.dir == 4 {
-
-				leng := len(ug.VertexData[n.grid[0]])
-				diff := n.grid[1] - ug.IDToGrid(u)[1]
-				//diff2 := (n.grid[1] - ug.IDToGrid(u)[1]) / 2
-				//moddiff := mod(diff2, leng)
-				moddiff2 := mod(diff, leng) / 2
-				//uplus := ug.IDToGrid(u)[1] + moddiff
-				uplus2 := ug.IDToGrid(u)[1] + moddiff2
-				//moduplus = mod(uplus, leng)
-				moduplus2 = mod(uplus2, leng)
-				//fmt.Printf("u1: %v,\nn1: %v,\ndiff: %v,\ndiff2: %v,\nmoddiff: %v,\nmoddiff2: %v,\nu+: %v,\nu+2: %v,\nlen: %v,\nmod(u+): %v\nmod(u+2): %v\n",
-				/*fmt.Printf("u1: %v,\nn1: %v,\ndiff: %v,\ndiff2: %v,\nmoddiff2: %v,\nu+2: %v,\nlen: %v,\nmod(u+2): %v\n",
-					ug.IDToGrid(u)[1],
-					n.grid[1],
-					diff,
-					diff2,
-					//moddiff,
-					moddiff2,
-					//uplus,
-					uplus2,
-					leng,
-					//moduplus,
-					moduplus2,
-					//mod(ug.IDToGrid(u)[1]+mod((n.grid[1]-ug.IDToGrid(u)[1]), len(ug.VertexData[n.grid[0]]))/2, len(ug.VertexData[n.grid[0]])),
-				)*/
-
+				lon = mod(ug.IDToGrid(u)[1]+mod(n.grid[1]-ug.IDToGrid(u)[1], leng)/2, leng)
 			} else if n.dir == 3 {
-
-				leng := len(ug.VertexData[n.grid[0]])
-				diff := ug.IDToGrid(u)[1] - n.grid[1]
-				//diff2 := (n.grid[1] - ug.IDToGrid(u)[1]) / 2
-				//diff2 := (ug.IDToGrid(u)[1] - n.grid[1]) / 2
-				/*if diff2 > 0 {
-					diff2 = (ug.IDToGrid(u)[1] - n.grid[1]) / 2
-				}*/
-
-				//diff2 := (ug.IDToGrid(u)[1] - n.grid[1]) / 2
-				//moddiff := mod(diff2, leng)
-				moddiff2 := mod(diff, leng) / 2
-				//uplus := ug.IDToGrid(u)[1] + diff2
-				/*uplus := ug.IDToGrid(u)[1] + diff
-				if diff > 0 {
-					fmt.Printf("diff > 0: %v\n", diff)
-					fmt.Printf("uplus: %v\n", uplus)
-					uplus = ug.IDToGrid(u)[1] - diff
-					fmt.Printf("new uplus: %v\n", uplus)
-				}*/
-				//uplus2 := ug.IDToGrid(u)[1] + moddiff2
-				uplus2 := n.grid[1] + moddiff2
-				//uplus2 := ug.IDToGrid(u)[1] + moddiff2
-				//moduplus = mod(uplus, leng)
-				moduplus2 = mod(uplus2, leng)
-				//fmt.Printf("u1: %v,\nn1: %v,\ndiff: %v,\ndiff2: %v,\nmoddiff: %v,\nmoddiff2: %v,\nu+: %v,\nu+2: %v,\nlen: %v,\nmod(u+): %v\nmod(u+2): %v\n",
-				/*fmt.Printf("u1: %v,\nn1: %v,\ndiff: %v,\ndiff2: %v,\nmoddiff2: %v,\nu+2: %v,\nlen: %v,\nmod(u+2): %v\n",
-					ug.IDToGrid(u)[1],
-					n.grid[1],
-					diff,
-					diff2,
-					//moddiff,
-					moddiff2,
-					//uplus,
-					uplus2,
-					leng,
-					//moduplus,
-					moduplus2,
-					//mod(ug.IDToGrid(u)[1]+mod((n.grid[1]-ug.IDToGrid(u)[1]), len(ug.VertexData[n.grid[0]]))/2, len(ug.VertexData[n.grid[0]])),
-				)*/
+				lon = mod(n.grid[1]+mod(ug.IDToGrid(u)[1]-n.grid[1], leng)/2, leng)
 			}
+			grid := []int{n.grid[0], lon}
 
-			//grid := []int{n.grid[0], mod(ug.IDToGrid(u)[1]+ /*mod(*/ int(math.Abs(float64(n.grid[1]-ug.IDToGrid(u)[1]))) /*, len(ug.VertexData[n.grid[0]]))*/ /2, len(ug.VertexData[n.grid[0]]))}
-			grid := []int{n.grid[0], moduplus2}
-
-			fmt.Printf("u, grid, n, len, mod: %v, %v, %v, %v\n\n",
-				ug.IDToGrid(u)[1],
-				grid[1], n.grid[1],
-				len(ug.VertexData[n.grid[0]])) //, mod(ug.IDToGrid(u)[1]+int(math.Abs(float64(n.grid[1]-ug.IDToGrid(u)[1])))/2, len(ug.VertexData[n.grid[0]])))
-			//fmt.Printf("-- %v, %v, %v, %v\n", n.grid, nn.grid, math.Abs(float64(n.grid[1]-ug.IDToGrid(u)[1])), float64(len(ug.VertexData[n.grid[0]])/100))
-			fmt.Printf("return: %v\n", ug.GridToID(grid))
 			didit++
 			return &NodeJPS{
 				grid: grid,
@@ -238,42 +155,56 @@ func jump(u int, nn *NodeJPS, dir, from, to int, prev *[]int, dist *[]float64, u
 				dir:  n.dir,
 			}
 		}
-		//}
-		//nodesProcessed = append(nodesProcessed, n.IDX)
 		return n
 	}
 
 	for _, i := range *prune(n, SimpleNeighboursUgJPS(*n, ug)) {
 		if i.forced {
+			if didit < 3 {
+				//fmt.Printf("2: %v\n", didit)
+				var lon int
+				leng := len(ug.VertexData[n.grid[0]])
+				if n.dir == 4 {
+					lon = mod(ug.IDToGrid(u)[1]+mod(n.grid[1]-ug.IDToGrid(u)[1], leng)/2, leng)
+				} else if n.dir == 3 {
+					lon = mod(n.grid[1]+mod(ug.IDToGrid(u)[1]-n.grid[1], leng)/2, leng)
+				}
+				grid := []int{n.grid[0], lon}
+
+				didit++
+				return &NodeJPS{
+					grid: grid,
+					IDX:  ug.GridToID(grid),
+					dir:  n.dir,
+				}
+			}
 			return n
 		}
 	}
 
 	switch dir {
 	case 0:
-		if jump(n.IDX, n, 1, from, to, prev, dist, ug) != nil || jump(n.IDX, n, 3, from, to, prev, dist, ug) != nil {
+		if jump(n.IDX, n, 1, from, to, ug) != nil || jump(n.IDX, n, 3, from, to, ug) != nil {
 			return n
 		}
 	case 2:
-		if jump(n.IDX, n, 1, from, to, prev, dist, ug) != nil || jump(n.IDX, n, 4, from, to, prev, dist, ug) != nil {
+		if jump(n.IDX, n, 1, from, to, ug) != nil || jump(n.IDX, n, 4, from, to, ug) != nil {
 			return n
 		}
 	case 5:
-		if jump(n.IDX, n, 3, from, to, prev, dist, ug) != nil || jump(n.IDX, n, 6, from, to, prev, dist, ug) != nil {
+		if jump(n.IDX, n, 3, from, to, ug) != nil || jump(n.IDX, n, 6, from, to, ug) != nil {
 			return n
 		}
 	case 7:
-		if jump(n.IDX, n, 4, from, to, prev, dist, ug) != nil || jump(n.IDX, n, 6, from, to, prev, dist, ug) != nil {
+		if jump(n.IDX, n, 4, from, to, ug) != nil || jump(n.IDX, n, 6, from, to, ug) != nil {
 			return n
 		}
 	}
-	y := jump(u, n, n.dir, from, to, prev, dist, ug)
+	y := jump(u, n, n.dir, from, to, ug)
 	if y != nil && y.IDX == to {
-		fmt.Printf("y %v\n", y)
-		if didit < 3 {
+		if didit < 5 {
+			//fmt.Printf("3: %v\n", didit)
 			var moduplus2 int
-			fmt.Printf("dir: %v\n", dir)
-			fmt.Printf("y.dir: %v\n", y.dir)
 			if y.dir == 4 {
 				leng := len(ug.VertexData[y.grid[0]])
 				diff := y.grid[1] - ug.IDToGrid(u)[1]
@@ -289,13 +220,6 @@ func jump(u int, nn *NodeJPS, dir, from, to int, prev *[]int, dist *[]float64, u
 			}
 
 			grid := []int{y.grid[0], moduplus2}
-
-			fmt.Printf("u, grid, n, len, mod: %v, %v, %v, %v\n\n",
-				ug.IDToGrid(u)[1],
-				grid[1], y.grid[1],
-				len(ug.VertexData[y.grid[0]])) //, mod(ug.IDToGrid(u)[1]+int(math.Abs(float64(y.grid[1]-ug.IDToGrid(u)[1])))/2, len(ug.VertexData[y.grid[0]])))
-			//fmt.Printf("-- %v, %v, %v, %v\n", y.grid, nn.grid, math.Abs(float64(y.grid[1]-ug.IDToGrid(u)[1])), float64(len(ug.VertexData[y.grid[0]])/100))
-			fmt.Printf("return: %v\n", ug.GridToID(grid))
 			didit++
 			return &NodeJPS{
 				grid: grid,
@@ -359,9 +283,6 @@ func step(i *NodeJPS, dir int, ug *grids.UniformGrid) *NodeJPS {
 				}
 			}
 		} else {
-			fmt.Printf("i %v", i)
-			fmt.Printf("dir %v", dir)
-			fmt.Printf("m %v", m)
 			fmt.Printf("Oops that should not happen...\n")
 		}
 	} else {
