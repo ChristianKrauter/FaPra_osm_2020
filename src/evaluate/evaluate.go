@@ -39,7 +39,7 @@ func WayFinding(xSize, ySize, nRuns int, note string) {
 	Logs.Parameters = make(map[string]string)
 	Logs.Results = make(map[string]Algo)
 	var exampleCount = 0
-	var exampleCountMax = 100
+	var exampleCountMax = 10
 
 	for i := 0; i < 5; i++ {
 		max[i] = time.Duration(math.MinInt64)
