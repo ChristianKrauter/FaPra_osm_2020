@@ -1,0 +1,103 @@
+{
+    "Parameters": {
+        "Basic Grid": "true",
+        "CPU Cores": "4",
+        "Lenght Tolerance (%)": "0.1",
+        "Note": "",
+        "Run Count": "1000",
+        "X-Size": "1000",
+        "Y-Size": "500"
+    },
+    "Results": {
+        "A-Star": {
+            "Time": {
+                "Sum": "1m50.2002082s",
+                "AVG": "110.200208ms",
+                "Min": "1.9751ms",
+                "Max": "837.7389ms",
+                "TimesFaster": 4.3
+            },
+            "Length": {
+                "Shorter": 0,
+                "Equal": 1000,
+                "Longer": 0
+            },
+            "PQPops": {
+                "AVG": 50936,
+                "Percent": 19.75
+            }
+        },
+        "AStar-JPS": {
+            "Time": {
+                "Sum": "38m20.6732015s",
+                "AVG": "2.300673201s",
+                "Min": "5.9636ms",
+                "Max": "26.431825s",
+                "TimesFaster": 0.2
+            },
+            "Length": {
+                "Shorter": 255,
+                "Equal": 134,
+                "Longer": 611
+            },
+            "PQPops": {
+                "AVG": 891,
+                "Percent": 0.34
+            }
+        },
+        "Bi-A-Star": {
+            "Time": {
+                "Sum": "2m39.8340435s",
+                "AVG": "159.834043ms",
+                "Min": "15.9574ms",
+                "Max": "1.0262357s",
+                "TimesFaster": 2.97
+            },
+            "Length": {
+                "Shorter": 0,
+                "Equal": 1000,
+                "Longer": 0
+            },
+            "PQPops": {
+                "AVG": 29079,
+                "Percent": 11.27
+            }
+        },
+        "Bi-Dijkstra": {
+            "Time": {
+                "Sum": "6m34.2685458s",
+                "AVG": "394.268545ms",
+                "Min": "17.9583ms",
+                "Max": "1.0292685s",
+                "TimesFaster": 1.2
+            },
+            "Length": {
+                "Shorter": 0,
+                "Equal": 1000,
+                "Longer": 0
+            },
+            "PQPops": {
+                "AVG": 123275,
+                "Percent": 47.81
+            }
+        },
+        "Dijkstra": {
+            "Time": {
+                "Sum": "7m54.8667385s",
+                "AVG": "474.866738ms",
+                "Min": "4.0163ms",
+                "Max": "1.0033169s",
+                "TimesFaster": 1
+            },
+            "Length": {
+                "Shorter": 0,
+                "Equal": 1000,
+                "Longer": 0
+            },
+            "PQPops": {
+                "AVG": 257811,
+                "Percent": 100
+            }
+        }
+    }
+}
