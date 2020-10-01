@@ -75,7 +75,7 @@ func RunBg(xSize, ySize int, basicPointInPolygon bool) {
 		for j := 0; j < len(bg2D); j++ {
 			bg.VertexData[k] = bg2D[j][i]
 			k++
-			if !bg2D[i][j] {
+			if !bg2D[j][i] {
 				points = append(points, bg.GridToCoord([]int{int(i), int(j)}))
 			}
 		}
