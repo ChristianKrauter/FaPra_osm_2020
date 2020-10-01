@@ -42,12 +42,12 @@ func AStarJPS(from, to int, ug *grids.UniformGrid) (*[][][]float64, int, float64
 			}
 
 			neighbours := prune(u, SimpleNeighboursUgJPS(*u, ug))
+			uCoord := ug.GridToCoord(u.grid)
 			for _, n := range *neighbours {
 				j := jump(u.IDX, u, n.dir, from, to, ug)
-
 				if j != nil {
 					j.grid = ug.IDToGrid(j.IDX)
-					var alt = dist[u.IDX] + distance(ug.GridToCoord(u.grid), ug.GridToCoord(j.grid))
+					alt := dist[u.IDX] + distance(uCoord, ug.GridToCoord(j.grid))
 					if alt < dist[j.IDX] {
 						dist[j.IDX] = alt
 						prev[j.IDX] = u.IDX
@@ -102,11 +102,12 @@ func AStarJPSAllNodes(from, to int, ug *grids.UniformGrid) (*[][][]float64, *[][
 			}
 
 			neighbours := prune(u, SimpleNeighboursUgJPS(*u, ug))
+			uCoord := ug.GridToCoord(u.grid)
 			for _, n := range *neighbours {
 				j := jump(u.IDX, u, n.dir, from, to, ug)
 				if j != nil {
 					j.grid = ug.IDToGrid(j.IDX)
-					var alt = dist[u.IDX] + distance(ug.GridToCoord(u.grid), ug.GridToCoord(j.grid))
+					alt := dist[u.IDX] + distance(uCoord, ug.GridToCoord(j.grid))
 					if alt < dist[j.IDX] {
 						dist[j.IDX] = alt
 						prev[j.IDX] = u.IDX

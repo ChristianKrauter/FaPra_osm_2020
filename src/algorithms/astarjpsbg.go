@@ -42,11 +42,12 @@ func AStarJPSBg(from, to int, bg *grids.BasicGrid) ([][][]float64, int, float64)
 			}
 
 			neighbours := pruneBg(u, NeighboursBgJPS(u.IDX, bg))
+			uCoord := bg.GridToCoord(u.grid)
 			for _, n := range *neighbours {
 				j := jumpBg(u.IDX, u, n.dir, from, to, bg)
 				if j != nil {
 					j.grid = bg.IDToGrid(j.IDX)
-					var alt = dist[u.IDX] + distance(bg.GridToCoord(u.grid), bg.GridToCoord(j.grid))
+					alt := dist[u.IDX] + distance(uCoord, bg.GridToCoord(j.grid))
 					if alt < dist[j.IDX] {
 						dist[j.IDX] = alt
 						prev[j.IDX] = u.IDX
@@ -102,11 +103,12 @@ func AStarJPSAllNodesBg(from, to int, bg *grids.BasicGrid) ([][][]float64, [][]f
 			}
 
 			neighbours := pruneBg(u, NeighboursBgJPS(u.IDX, bg))
+			uCoord := bg.GridToCoord(u.grid)
 			for _, n := range *neighbours {
 				j := jumpBg(u.IDX, u, n.dir, from, to, bg)
 				if j != nil {
 					j.grid = bg.IDToGrid(j.IDX)
-					var alt = dist[u.IDX] + distance(bg.GridToCoord(u.grid), bg.GridToCoord(j.grid))
+					alt := dist[u.IDX] + distance(uCoord, bg.GridToCoord(j.grid))
 					if alt < dist[j.IDX] {
 						dist[j.IDX] = alt
 						prev[j.IDX] = u.IDX

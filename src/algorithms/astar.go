@@ -39,9 +39,9 @@ func AStar(from, to int, ug *grids.UniformGrid) (*[][][]float64, int, float64) {
 
 			//neighbours := NeighboursUg(u, ug)
 			neighbours := SimpleNeighboursUg(u, ug)
-
+			uCoord := ug.GridToCoord(ug.IDToGrid(u))
 			for _, j := range neighbours {
-				var alt = dist[u] + distance(ug.GridToCoord(ug.IDToGrid(u)), ug.GridToCoord(ug.IDToGrid(j)))
+				alt := dist[u] + distance(uCoord, ug.GridToCoord(ug.IDToGrid(j)))
 				if alt < dist[j] {
 					dist[j] = alt
 					prev[j] = u
@@ -93,9 +93,9 @@ func AStarAllNodes(from, to int, ug *grids.UniformGrid) (*[][][]float64, *[][]fl
 
 			//neighbours := NeighboursUg(u, ug)
 			neighbours := SimpleNeighboursUg(u, ug)
-
+			uCoord := ug.GridToCoord(ug.IDToGrid(u))
 			for _, j := range neighbours {
-				var alt = dist[u] + distance(ug.GridToCoord(ug.IDToGrid(u)), ug.GridToCoord(ug.IDToGrid(j)))
+				alt := dist[u] + distance(uCoord, ug.GridToCoord(ug.IDToGrid(j)))
 				if alt < dist[j] {
 					dist[j] = alt
 					prev[j] = u

@@ -37,8 +37,9 @@ func Dijkstra(from, to int, ug *grids.UniformGrid) (*[][][]float64, int, float64
 			}
 
 			neighbours := SimpleNeighboursUg(u, ug)
+			uCoord := ug.GridToCoord(ug.IDToGrid(u))
 			for _, j := range neighbours {
-				var alt = dist[u] + distance(ug.GridToCoord(ug.IDToGrid(u)), ug.GridToCoord(ug.IDToGrid(j)))
+				alt := dist[u] + distance(uCoord, ug.GridToCoord(ug.IDToGrid(j)))
 				if alt < dist[j] {
 					dist[j] = alt
 					prev[j] = u
@@ -87,9 +88,9 @@ func DijkstraAllNodes(from, to int, ug *grids.UniformGrid) (*[][][]float64, *[][
 			}
 
 			neighbours := SimpleNeighboursUg(u, ug)
-
+			uCoord := ug.GridToCoord(ug.IDToGrid(u))
 			for _, j := range neighbours {
-				var alt = dist[u] + distance(ug.GridToCoord(ug.IDToGrid(u)), ug.GridToCoord(ug.IDToGrid(j)))
+				alt := dist[u] + distance(uCoord, ug.GridToCoord(ug.IDToGrid(j)))
 				if alt < dist[j] {
 					dist[j] = alt
 					prev[j] = u

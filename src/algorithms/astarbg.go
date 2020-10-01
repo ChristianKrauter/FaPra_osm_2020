@@ -39,9 +39,9 @@ func AStarBg(from, to int, bg *grids.BasicGrid) ([][][]float64, int, float64) {
 			}
 
 			neighbours := NeighboursBg(u, bg)
-
+			uCoord := bg.GridToCoord(bg.IDToGrid(u))
 			for _, j := range neighbours {
-				var alt = dist[u] + distance(bg.GridToCoord(bg.IDToGrid(u)), bg.GridToCoord(bg.IDToGrid(j)))
+				alt := dist[u] + distance(uCoord, bg.GridToCoord(bg.IDToGrid(j)))
 				if alt < dist[j] {
 					dist[j] = alt
 					prev[j] = u
@@ -91,9 +91,9 @@ func AStarAllNodesBg(from, to int, bg *grids.BasicGrid) ([][][]float64, [][]floa
 			}
 
 			neighbours := NeighboursBg(u, bg)
-
+			uCoord := bg.GridToCoord(bg.IDToGrid(u))
 			for _, j := range neighbours {
-				var alt = dist[u] + distance(bg.GridToCoord(bg.IDToGrid(u)), bg.GridToCoord(bg.IDToGrid(j)))
+				alt := dist[u] + distance(uCoord, bg.GridToCoord(bg.IDToGrid(j)))
 				if alt < dist[j] {
 					dist[j] = alt
 					prev[j] = u
