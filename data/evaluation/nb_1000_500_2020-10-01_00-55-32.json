@@ -1,0 +1,11 @@
+{
+    "AVG time Neighbours": "1.565µs",
+    "AVG time Simple Neighbours": "899ns",
+    "CPU Cores": "4",
+    "Errors": "73",
+    "Errors (%)": "0.01",
+    "Note": "",
+    "Times faster": "1.73",
+    "X-Size": "1000",
+    "Y-Size": "500"
+}
