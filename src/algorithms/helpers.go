@@ -27,10 +27,9 @@ func mod(a, b int) int {
 
 // Item of priority queue
 type Item struct {
-	value    int     // The value of the item; arbitrary.
-	priority float64 // The priority of the item in the queue.
-	// The index is needed by update and is maintained by the heap.Interface methods.
-	index int // The index of the item in the heap.
+	value    int
+	priority float64
+	index    int
 }
 
 // A priorityQueue implements heap.Interface and holds Items.
@@ -39,7 +38,6 @@ type priorityQueue []*Item
 func (pq priorityQueue) Len() int { return len(pq) }
 
 func (pq priorityQueue) Less(i, j int) bool {
-	// We want Pop to give us the highest, not lowest, priority so we use greater than here.
 	return pq[i].priority > pq[j].priority
 }
 
@@ -59,6 +57,50 @@ func (pq *priorityQueue) Push(x interface{}) {
 
 // Pop item from priority queue
 func (pq *priorityQueue) Pop() interface{} {
+	old := *pq
+	n := len(old)
+	item := old[n-1]
+	old[n-1] = nil  // avoid memory leak
+	item.index = -1 // for safety
+	*pq = old[0 : n-1]
+	return item
+}
+
+// NodeJPS of priority queue
+type NodeJPS struct {
+	grid     []int
+	IDX      int
+	priority float64
+	index    int
+	dir      int
+	forced   bool
+}
+
+// A pqJPS implements heap.Interface and holds Items.
+type pqJPS []*NodeJPS
+
+func (pq pqJPS) Len() int { return len(pq) }
+
+func (pq pqJPS) Less(i, j int) bool {
+	return pq[i].priority > pq[j].priority
+}
+
+func (pq pqJPS) Swap(i, j int) {
+	pq[i], pq[j] = pq[j], pq[i]
+	pq[i].index = i
+	pq[j].index = j
+}
+
+// Push item into priority queue
+func (pq *pqJPS) Push(x interface{}) {
+	n := len(*pq)
+	item := x.(*NodeJPS)
+	item.index = n
+	*pq = append(*pq, item)
+}
+
+// Pop item from priority queue
+func (pq *pqJPS) Pop() interface{} {
 	old := *pq
 	n := len(old)
 	item := old[n-1]

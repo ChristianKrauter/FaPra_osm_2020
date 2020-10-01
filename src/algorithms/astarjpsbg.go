@@ -3,16 +3,15 @@ package algorithms
 import (
 	"../grids"
 	"container/heap"
-	//"fmt"
 	"math"
 )
 
-// AStarJPSBg implementation on uniform grid
+// AStarJPSBg Jump Point Search implementation on basic grid
 func AStarJPSBg(from, to int, bg *grids.BasicGrid) ([][][]float64, int, float64) {
 	var popped int
 	var dist = make([]float64, len(bg.VertexData))
 	var prev = make([]int, len(bg.VertexData))
-	pq := make(pqJPS, 1)
+	var pq = make(pqJPS, 1)
 	var toCoord = bg.GridToCoord(bg.IDToGrid(to))
 
 	for i := 0; i < len(bg.VertexData); i++ {
@@ -28,7 +27,6 @@ func AStarJPSBg(from, to int, bg *grids.BasicGrid) ([][][]float64, int, float64)
 		index:    0,
 		dir:      -1,
 	}
-
 	heap.Init(&pq)
 
 	for {
@@ -37,6 +35,7 @@ func AStarJPSBg(from, to int, bg *grids.BasicGrid) ([][][]float64, int, float64)
 		} else {
 			u := heap.Pop(&pq).(*NodeJPS)
 			popped++
+
 			if u.IDX == to {
 				return extractRoute(&prev, to, bg), popped, dist[to]
 			}
@@ -66,12 +65,11 @@ func AStarJPSBg(from, to int, bg *grids.BasicGrid) ([][][]float64, int, float64)
 	return extractRoute(&prev, to, bg), popped, dist[to]
 }
 
-// AStarJPSAllNodesBg implementation on uniform grid
+// AStarJPSAllNodesBg also returns visited nodes on basic grid
 func AStarJPSAllNodesBg(from, to int, bg *grids.BasicGrid) ([][][]float64, [][]float64, float64) {
-	var popped int
 	var dist = make([]float64, len(bg.VertexData))
 	var prev = make([]int, len(bg.VertexData))
-	pq := make(pqJPS, 1)
+	var pq = make(pqJPS, 1)
 	var nodesProcessed []int
 	var toCoord = bg.GridToCoord(bg.IDToGrid(to))
 
@@ -88,8 +86,8 @@ func AStarJPSAllNodesBg(from, to int, bg *grids.BasicGrid) ([][][]float64, [][]f
 		index:    0,
 		dir:      -1,
 	}
-
 	heap.Init(&pq)
+
 	for {
 		if len(pq) == 0 {
 			break
@@ -97,7 +95,6 @@ func AStarJPSAllNodesBg(from, to int, bg *grids.BasicGrid) ([][][]float64, [][]f
 			u := heap.Pop(&pq).(*NodeJPS)
 			nodesProcessed = append(nodesProcessed, u.IDX)
 
-			popped++
 			if u.IDX == to {
 				return extractRoute(&prev, to, bg), extractNodes(&nodesProcessed, bg), dist[to]
 			}
@@ -133,6 +130,7 @@ func jumpBg(u int, nn *NodeJPS, dir, from, to int, bg *grids.BasicGrid) *NodeJPS
 	if n == nil || u == n.IDX || bg.VertexData[n.IDX] {
 		return nil
 	}
+
 	if n.IDX == to {
 		return n
 	}
@@ -165,8 +163,37 @@ func jumpBg(u int, nn *NodeJPS, dir, from, to int, bg *grids.BasicGrid) *NodeJPS
 }
 
 func stepBg(IDX int, dir int, bg *grids.BasicGrid) *NodeJPS {
-
 	switch dir {
+	case 0:
+		n := IDX - bg.XSize - 1
+		if n >= 0 {
+			if !bg.VertexData[n] {
+				return &NodeJPS{
+					IDX: n,
+					dir: 0,
+				}
+			}
+		}
+	case 1:
+		n := IDX - bg.XSize
+		if n >= 0 {
+			if !bg.VertexData[n] {
+				return &NodeJPS{
+					IDX: n,
+					dir: 1,
+				}
+			}
+		}
+	case 2:
+		n := IDX - bg.XSize + 1
+		if n >= 0 {
+			if !bg.VertexData[n] {
+				return &NodeJPS{
+					IDX: n,
+					dir: 2,
+				}
+			}
+		}
 	case 3:
 		n := IDX - 1
 		if n >= 0 {
@@ -187,7 +214,6 @@ func stepBg(IDX int, dir int, bg *grids.BasicGrid) *NodeJPS {
 				}
 			}
 		}
-
 	case 5:
 		n := IDX + bg.XSize - 1
 		if n < len(bg.VertexData) {
@@ -198,7 +224,6 @@ func stepBg(IDX int, dir int, bg *grids.BasicGrid) *NodeJPS {
 				}
 			}
 		}
-
 	case 6:
 		n := IDX + bg.XSize
 		if n < len(bg.VertexData) {
@@ -209,7 +234,6 @@ func stepBg(IDX int, dir int, bg *grids.BasicGrid) *NodeJPS {
 				}
 			}
 		}
-
 	case 7:
 		n := IDX + bg.XSize + 1
 		if n < len(bg.VertexData) {
@@ -220,45 +244,11 @@ func stepBg(IDX int, dir int, bg *grids.BasicGrid) *NodeJPS {
 				}
 			}
 		}
-
-	case 0:
-		n := IDX - bg.XSize - 1
-		if n >= 0 {
-			if !bg.VertexData[n] {
-				return &NodeJPS{
-					IDX: n,
-					dir: 0,
-				}
-			}
-		}
-
-	case 1:
-		n := IDX - bg.XSize
-		if n >= 0 {
-			if !bg.VertexData[n] {
-				return &NodeJPS{
-					IDX: n,
-					dir: 1,
-				}
-			}
-		}
-
-	case 2:
-		n := IDX - bg.XSize + 1
-		if n >= 0 {
-			if !bg.VertexData[n] {
-				return &NodeJPS{
-					IDX: n,
-					dir: 2,
-				}
-			}
-		}
 	}
-
 	return nil
 }
 
-// NeighboursBgJPS ...
+// NeighboursBgJPS returns basic grid neighbours for JPS
 func NeighboursBgJPS(IDX int, bg *grids.BasicGrid) *map[int]NodeJPS {
 	var neighbours1d = make(map[int]NodeJPS)
 	var lm = len(bg.VertexData)
@@ -342,19 +332,18 @@ func NeighboursBgJPS(IDX int, bg *grids.BasicGrid) *map[int]NodeJPS {
 			}
 		}
 	}
-
 	return &neighbours1d
 }
 
 func pruneBg(i *NodeJPS, nbs *map[int]NodeJPS) *map[int]NodeJPS {
-	var res = make(map[int]NodeJPS)
 	if i.dir == -1 {
 		return nbs
 	}
-	// forced neighbours to check
-	var n = make([][]int, 2)
-	// natural neighbours to check
-	var m = make([]int, 3)
+
+	var res = make(map[int]NodeJPS)
+	var n = make([][]int, 2) // forced neighbours to check
+	var m = make([]int, 3)   // natural neighbours to check
+
 	m[0] = i.dir
 	// Right
 	switch i.dir {

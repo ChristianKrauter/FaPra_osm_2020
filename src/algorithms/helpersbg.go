@@ -4,7 +4,7 @@ import (
     "../grids"
 )
 
-// NeighboursBg ...
+// NeighboursBg return neighbours for basic grid
 func NeighboursBg(idx int, bg *grids.BasicGrid) []int {
     var neighbours = make([]int, 8)
     var result []int
@@ -50,11 +50,10 @@ func extractNodes(nodesProcessed *[]int, bg *grids.BasicGrid) [][]float64 {
     return nodesExtended
 }
 
-// extractRouteBi ...
 func extractRouteBi(prev *[][]int, meeting int, bg *grids.BasicGrid) [][][]float64 {
     var routes = make([][][]float64, 2)
-
     var secondMeeting = meeting
+
     for {
         routes[0] = append(routes[0], bg.GridToCoord(bg.IDToGrid(meeting)))
         if (*prev)[meeting][0] == -1 {
@@ -81,5 +80,4 @@ func hBg(dir, node int, from, to []float64, bg *grids.BasicGrid) float64 {
         return 0.5 * (distance(bg.GridToCoord(bg.IDToGrid(node)), to) - distance(bg.GridToCoord(bg.IDToGrid(node)), from))
     }
     return 0.5 * (distance(bg.GridToCoord(bg.IDToGrid(node)), from) - distance(bg.GridToCoord(bg.IDToGrid(node)), to))
-
 }

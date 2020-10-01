@@ -131,7 +131,6 @@ function createColoredPoint(worldPosition, color, size) {
 
 function routeProcessing(jsonData) {
     if (jsonData == "false") {
-        //Todo
     } else {
         tempData = JSON.parse(jsonData).features
         console.log(tempData)
@@ -146,7 +145,6 @@ function routeProcessing(jsonData) {
 
 function routeAndNodesProcessing(jsonData) {
     if (jsonData == "false") {
-        //Todo
     } else {
         tempData = JSON.parse(jsonData)
         console.log(tempData)

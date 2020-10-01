@@ -9,16 +9,15 @@ import (
 // BiAStar implementation on uniform grid
 func BiAStar(from, to int, ug *grids.UniformGrid) (*[][][]float64, int, float64) {
 	var prev = make([][]int, ug.N)
-	dist := [][]float64{make([]float64, ug.N), make([]float64, ug.N)}
-	pq := []priorityQueue{make(priorityQueue, 1), make(priorityQueue, 1)}
-	proc := []map[int]bool{make(map[int]bool), make(map[int]bool)}
+	var dist = [][]float64{make([]float64, ug.N), make([]float64, ug.N)}
+	var pq = []priorityQueue{make(priorityQueue, 1), make(priorityQueue, 1)}
+	var proc = []map[int]bool{make(map[int]bool), make(map[int]bool)}
 	var met = false
 	var meeting int
 	var bestDist = math.MaxFloat64
 	var toCoord = ug.GridToCoord(ug.IDToGrid(to))
 	var fromCoord = ug.GridToCoord(ug.IDToGrid(from))
 
-	// Init
 	for i := 0; i < ug.N; i++ {
 		dist[0][i] = math.Inf(1)
 		dist[1][i] = math.Inf(1)
@@ -48,7 +47,6 @@ func BiAStar(from, to int, ug *grids.UniformGrid) (*[][][]float64, int, float64)
 			break
 		} else {
 			if len(pq[dir]) > 0 {
-
 				u := heap.Pop(&pq[dir]).(*Item).value
 				proc[dir][u] = true
 
@@ -89,19 +87,18 @@ func BiAStar(from, to int, ug *grids.UniformGrid) (*[][][]float64, int, float64)
 	return extractRouteUgBi(&prev, meeting, ug), len(proc[0]) + len(proc[1]), dist[0][meeting] + dist[1][meeting]
 }
 
-// BiAStarAllNodes additionally returns all visited nodes on uniform grid
+// BiAStarAllNodes also returns visited nodes on uniform grid
 func BiAStarAllNodes(from, to int, ug *grids.UniformGrid) (*[][][]float64, *[][]float64, float64) {
 	var prev = make([][]int, ug.N)
-	dist := [][]float64{make([]float64, ug.N), make([]float64, ug.N)}
-	pq := []priorityQueue{make(priorityQueue, 1), make(priorityQueue, 1)}
-	proc := []map[int]bool{make(map[int]bool), make(map[int]bool)}
+	var dist = [][]float64{make([]float64, ug.N), make([]float64, ug.N)}
+	var pq = []priorityQueue{make(priorityQueue, 1), make(priorityQueue, 1)}
+	var proc = []map[int]bool{make(map[int]bool), make(map[int]bool)}
 	var met = false
 	var meeting int
 	var bestDist = math.MaxFloat64
 	var toCoord = ug.GridToCoord(ug.IDToGrid(to))
 	var fromCoord = ug.GridToCoord(ug.IDToGrid(from))
 
-	// Init
 	for i := 0; i < ug.N; i++ {
 		dist[0][i] = math.Inf(1)
 		dist[1][i] = math.Inf(1)
@@ -131,7 +128,6 @@ func BiAStarAllNodes(from, to int, ug *grids.UniformGrid) (*[][][]float64, *[][]
 			break
 		} else {
 			if len(pq[dir]) > 0 {
-
 				u := heap.Pop(&pq[dir]).(*Item).value
 				proc[dir][u] = true
 
@@ -179,5 +175,6 @@ func BiAStarAllNodes(from, to int, ug *grids.UniformGrid) (*[][][]float64, *[][]
 		keys[i] = k
 		i++
 	}
+
 	return extractRouteUgBi(&prev, meeting, ug), extractNodesUg(&keys, ug), dist[0][meeting] + dist[1][meeting]
 }

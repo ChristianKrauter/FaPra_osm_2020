@@ -20,15 +20,18 @@ func getSomeKey(m *map[int64][]int64) int64 {
 func createPolygons(polygons *Polygons, coastlineMap *map[int64][]int64, nodeMap *map[int64][]float64, basicPointInPolygon bool) string {
 	start := time.Now()
 	var poly Polygon
+
 	for len(*coastlineMap) > 0 {
 		var key = getSomeKey(coastlineMap)
 		var nodeIDs = (*coastlineMap)[key]
 		poly = Polygon{}
+
 		for _, x := range nodeIDs {
 			poly.Points = append(poly.Points, []float64{(*nodeMap)[x][0], (*nodeMap)[x][1]})
 		}
 		delete(*coastlineMap, key)
 		key = nodeIDs[len(nodeIDs)-1]
+
 		for {
 			if val, ok := (*coastlineMap)[key]; ok {
 				for i, x := range val {
@@ -58,13 +61,11 @@ func createPolygons(polygons *Polygons, coastlineMap *map[int64][]int64, nodeMap
 					aT = transformLon(nortPole, x)
 					bT = transformLon(nortPole, poly.Points[(i+1)%len(poly.Points)])
 				}
-
 				poly.EoWNext[i] = eastOrWest(aT, bT)
 				poly.LngTNext[i] = transformLon(x, poly.Points[(i+1)%len(poly.Points)])
 				poly.BtoX[i] = eastOrWest((poly.LngTNext)[i], transformLon(x, nortPole))
 			}
 		}
-
 		*polygons = append(*polygons, poly)
 	}
 
@@ -78,6 +79,7 @@ func createPolygons(polygons *Polygons, coastlineMap *map[int64][]int64, nodeMap
 
 func createAndStoreCoastlineGeoJSON(polygons *Polygons, filename string) string {
 	start := time.Now()
+
 	var mpg = make([][][]float64, len(*polygons))
 	for i, j := range *polygons {
 		mpg[i] = j.Points

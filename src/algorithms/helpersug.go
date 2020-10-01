@@ -2,11 +2,9 @@ package algorithms
 
 import (
 	"../grids"
-	//"fmt"
 	"math"
 )
 
-// extractRouteUg ...
 func extractRouteUg(prev *[]int, end int, ug *grids.UniformGrid) *[][][]float64 {
 	var route = make([][][]float64, 1)
 	for {
@@ -19,7 +17,6 @@ func extractRouteUg(prev *[]int, end int, ug *grids.UniformGrid) *[][][]float64 
 	return &route
 }
 
-// extractNodesUg ...
 func extractNodesUg(nodesProcessed *[]int, ug *grids.UniformGrid) *[][]float64 {
 	var nodesExtended = make([][]float64, len(*nodesProcessed))
 	for i, node := range *nodesProcessed {
@@ -117,11 +114,10 @@ func NeighboursUg(in int, ug *grids.UniformGrid) []int {
 	return neighbours1d
 }
 
-// extractRouteUgBi ...
 func extractRouteUgBi(prev *[][]int, meeting int, ug *grids.UniformGrid) *[][][]float64 {
 	var routes = make([][][]float64, 2)
-
 	var secondMeeting = meeting
+
 	for {
 		routes[0] = append(routes[0], ug.GridToCoord(ug.IDToGrid(meeting)))
 		if (*prev)[meeting][0] == -1 {
@@ -147,5 +143,73 @@ func hUg(dir, node int, from, to []float64, ug *grids.UniformGrid) float64 {
 		return 0.5 * (distance(ug.GridToCoord(ug.IDToGrid(node)), to) - distance(ug.GridToCoord(ug.IDToGrid(node)), from))
 	}
 	return 0.5 * (distance(ug.GridToCoord(ug.IDToGrid(node)), from) - distance(ug.GridToCoord(ug.IDToGrid(node)), to))
+}
 
+// Gets up to 8 neighbours with directions for JPS
+func neighboursUgJPS(in NodeJPS, ug *grids.UniformGrid) *map[int]NodeJPS {
+	var neighbours []NodeJPS
+	var neighbours1d = make(map[int]NodeJPS)
+
+	m := in.grid[0]
+	n := in.grid[1]
+
+	grid := []int{m, mod(n-1, len(ug.VertexData[m]))}
+	neighbours = append(neighbours, NodeJPS{
+		grid: grid,
+		IDX:  ug.GridToID(grid),
+		dir:  3,
+	})
+
+	grid = []int{m, mod(n+1, len(ug.VertexData[m]))}
+	neighbours = append(neighbours, NodeJPS{
+		grid: grid,
+		IDX:  ug.GridToID(grid),
+		dir:  4,
+	})
+
+	coord := ug.GridToCoord(in.grid)
+
+	if m > 0 {
+		coordDown := ug.GridToCoord([]int{m - 1, n})
+		neighbours = append(neighbours, neighboursRowUgJPS([]float64{coord[0], coordDown[1]}, ug, 1)...)
+	}
+
+	if m < len(ug.VertexData)-1 {
+		coordUp := ug.GridToCoord([]int{m + 1, n})
+		neighbours = append(neighbours, neighboursRowUgJPS([]float64{coord[0], coordUp[1]}, ug, 0)...)
+	}
+
+	for _, j := range neighbours {
+		if !ug.VertexData[j.grid[0]][j.grid[1]] {
+			neighbours1d[j.dir] = j
+		}
+	}
+	return &neighbours1d
+}
+
+// Gets neighours left and right in the same row with directions for JPS
+func neighboursRowUgJPS(in []float64, ug *grids.UniformGrid, up int) []NodeJPS {
+	theta := (in[1] + 90) * math.Pi / 180
+	m := math.Round((theta * ug.MTheta / math.Pi) - 0.5)
+	theta = math.Pi * (m + 0.5) / ug.MTheta
+	phi := in[0] * math.Pi / 180
+	mPhi := math.Round(2.0 * math.Pi * math.Sin(theta) / ug.DPhi)
+
+	n1 := math.Round(phi * mPhi / (2 * math.Pi))
+	mIDX := mod(int(m), int(ug.MTheta))
+
+	result := make([]NodeJPS, 3)
+	result[0].grid = []int{mIDX, mod(int(n1-1), int(mPhi))}
+	result[0].IDX = ug.GridToID(result[0].grid)
+	result[0].dir = 5 * up
+
+	result[1].grid = []int{mIDX, mod(int(n1), int(mPhi))}
+	result[1].IDX = ug.GridToID(result[1].grid)
+	result[1].dir = 5*up + 1
+
+	result[2].grid = []int{mIDX, mod(int(n1+1), int(mPhi))}
+	result[2].IDX = ug.GridToID(result[2].grid)
+	result[2].dir = 5*up + 2
+
+	return result
 }

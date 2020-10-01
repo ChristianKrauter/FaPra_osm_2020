@@ -6,12 +6,12 @@ import (
 	"math"
 )
 
-// AStarBg implementation
+// AStarBg on basic grid
 func AStarBg(from, to int, bg *grids.BasicGrid) ([][][]float64, int, float64) {
 	var popped int
 	var dist = make([]float64, len(bg.VertexData))
 	var prev = make([]int, len(bg.VertexData))
-	pq := make(priorityQueue, 1)
+	var pq = make(priorityQueue, 1)
 	var toCoord = bg.GridToCoord(bg.IDToGrid(to))
 
 	for i := 0; i < len(bg.VertexData); i++ {
@@ -57,12 +57,12 @@ func AStarBg(from, to int, bg *grids.BasicGrid) ([][][]float64, int, float64) {
 	return extractRoute(&prev, to, bg), popped, dist[to]
 }
 
-// AStarAllNodesBg additionally returns all visited nodes
+// AStarAllNodesBg also returns visited nodes on basic grid
 func AStarAllNodesBg(from, to int, bg *grids.BasicGrid) ([][][]float64, [][]float64, float64) {
 	var dist = make([]float64, len(bg.VertexData))
 	var prev = make([]int, len(bg.VertexData))
 	var nodesProcessed []int
-	pq := make(priorityQueue, 1)
+	var pq = make(priorityQueue, 1)
 	var toCoord = bg.GridToCoord(bg.IDToGrid(to))
 
 	for i := 0; i < len(bg.VertexData); i++ {
@@ -82,7 +82,6 @@ func AStarAllNodesBg(from, to int, bg *grids.BasicGrid) ([][][]float64, [][]floa
 		if len(pq) == 0 {
 			break
 		} else {
-
 			u := heap.Pop(&pq).(*Item).value
 			nodesProcessed = append(nodesProcessed, u)
 

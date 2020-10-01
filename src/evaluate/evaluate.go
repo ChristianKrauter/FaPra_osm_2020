@@ -200,8 +200,8 @@ func WayFindingBg(xSize, ySize, nRuns int, note string) {
 	var count int
 	var max = make([]time.Duration, 5)
 	var min = make([]time.Duration, 5)
-	from := make([]int, nRuns)
-	to := make([]int, nRuns)
+	var from = make([]int, nRuns)
+	var to = make([]int, nRuns)
 	var lengths = make([]Length, 5)
 	const TOLERANCE = 0.001 // 0.1%#
 	var outFilename string

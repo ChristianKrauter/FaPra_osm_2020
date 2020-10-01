@@ -18,8 +18,8 @@ func createMeshgrid(xSize, ySize int, boundingTreeRoot *boundingTree, polygons *
 	start := time.Now()
 	var xStepSize float64 = 360.0 / float64(xSize)
 	var yStepSize float64 = 360.0 / float64(ySize)
-
 	var wg sync.WaitGroup
+
 	for x := 0.0; x < 360; x += xStepSize {
 		for y := 0.0; y < 360; y += yStepSize {
 			wg.Add(1)
@@ -48,8 +48,8 @@ func createMeshgridNBT(xSize, ySize int, allBoundingBoxes *[]map[string]float64,
 	start := time.Now()
 	var xStepSize float64 = 360.0 / float64(xSize)
 	var yStepSize float64 = 360.0 / float64(ySize)
-
 	var wg sync.WaitGroup
+
 	for x := 0.0; x < 360; x += xStepSize {
 		for y := 0.0; y < 360; y += yStepSize {
 			wg.Add(1)

@@ -11,7 +11,7 @@ func Dijkstra(from, to int, ug *grids.UniformGrid) (*[][][]float64, int, float64
 	var popped int
 	var dist = make([]float64, ug.N)
 	var prev = make([]int, ug.N)
-	pq := make(priorityQueue, 1)
+	var pq = make(priorityQueue, 1)
 
 	for i := 0; i < ug.N; i++ {
 		dist[i] = math.Inf(1)
@@ -32,6 +32,7 @@ func Dijkstra(from, to int, ug *grids.UniformGrid) (*[][][]float64, int, float64
 		} else {
 			u := heap.Pop(&pq).(*Item).value
 			popped++
+
 			if u == to {
 				return extractRouteUg(&prev, to, ug), popped, dist[to]
 			}
@@ -55,12 +56,12 @@ func Dijkstra(from, to int, ug *grids.UniformGrid) (*[][][]float64, int, float64
 	return extractRouteUg(&prev, to, ug), popped, dist[to]
 }
 
-// DijkstraAllNodes additionally returns all visited nodes on uniform grid
+// DijkstraAllNodes also returns visited nodes on uniform grid
 func DijkstraAllNodes(from, to int, ug *grids.UniformGrid) (*[][][]float64, *[][]float64, float64) {
 	var dist = make([]float64, ug.N)
 	var prev = make([]int, ug.N)
 	var nodesProcessed []int
-	pq := make(priorityQueue, 1)
+	var pq = make(priorityQueue, 1)
 
 	for i := 0; i < ug.N; i++ {
 		dist[i] = math.Inf(1)
@@ -79,7 +80,6 @@ func DijkstraAllNodes(from, to int, ug *grids.UniformGrid) (*[][][]float64, *[][
 		if len(pq) == 0 {
 			break
 		} else {
-
 			u := heap.Pop(&pq).(*Item).value
 			nodesProcessed = append(nodesProcessed, u)
 

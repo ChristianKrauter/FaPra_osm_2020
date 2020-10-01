@@ -6,12 +6,12 @@ import (
 	"math"
 )
 
-// DijkstraBg implementation
+// DijkstraBg implementation on basic grid
 func DijkstraBg(from, to int, bg *grids.BasicGrid) ([][][]float64, int, float64) {
 	var popped int
 	var dist = make([]float64, len(bg.VertexData))
 	var prev = make([]int, len(bg.VertexData))
-	pq := make(priorityQueue, 1)
+	var pq = make(priorityQueue, 1)
 
 	for i := 0; i < len(bg.VertexData); i++ {
 		dist[i] = math.Inf(1)
@@ -53,16 +53,15 @@ func DijkstraBg(from, to int, bg *grids.BasicGrid) ([][][]float64, int, float64)
 			}
 		}
 	}
-
 	return extractRoute(&prev, to, bg), popped, dist[to]
 }
 
-// DijkstraAllNodesBg additionally returns all visited nodes
+// DijkstraAllNodesBg also returns visited nodes on basic grid
 func DijkstraAllNodesBg(from, to int, bg *grids.BasicGrid) ([][][]float64, [][]float64, float64) {
 	var dist = make([]float64, len(bg.VertexData))
 	var prev = make([]int, len(bg.VertexData))
 	var nodesProcessed []int
-	pq := make(priorityQueue, 1)
+	var pq = make(priorityQueue, 1)
 
 	for i := 0; i < len(bg.VertexData); i++ {
 		dist[i] = math.Inf(1)
@@ -81,12 +80,10 @@ func DijkstraAllNodesBg(from, to int, bg *grids.BasicGrid) ([][][]float64, [][]f
 		if len(pq) == 0 {
 			break
 		} else {
-
 			u := heap.Pop(&pq).(*Item).value
 			nodesProcessed = append(nodesProcessed, u)
 
 			if u == to {
-				// ToDo: return pointers
 				return extractRoute(&prev, to, bg), extractNodes(&nodesProcessed, bg), dist[to]
 			}
 
@@ -106,6 +103,5 @@ func DijkstraAllNodesBg(from, to int, bg *grids.BasicGrid) ([][][]float64, [][]f
 			}
 		}
 	}
-
 	return extractRoute(&prev, to, bg), extractNodes(&nodesProcessed, bg), dist[to]
 }
