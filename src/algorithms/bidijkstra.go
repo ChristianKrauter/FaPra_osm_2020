@@ -12,7 +12,9 @@ func BiDijkstra(from, to int, ug *grids.UniformGrid) (*[][][]float64, int, float
 	dist := [][]float64{make([]float64, ug.N), make([]float64, ug.N)}
 	pq := []priorityQueue{make(priorityQueue, 1), make(priorityQueue, 1)}
 	proc := []map[int]bool{make(map[int]bool), make(map[int]bool)}
+	var met = false
 	var meeting int
+	var bestDist = math.MaxFloat64
 
 	// Init
 	for i := 0; i < ug.N; i++ {
@@ -40,47 +42,41 @@ func BiDijkstra(from, to int, ug *grids.UniformGrid) (*[][][]float64, int, float
 	var dir = 0 // Direction in which next step should be taken. 0=forward, 1=backward
 	// Main loop
 	for {
-		if len(pq[0]) == 0 || len(pq[1]) == 0 {
+		if len(pq[0]) == 0 && len(pq[1]) == 0 {
 			break
 		} else {
-			u := heap.Pop(&pq[dir]).(*Item).value
-			proc[dir][u] = true
+			if len(pq[dir]) > 0 {
 
-			if proc[1-dir][u] {
-				var bestDist = dist[0][u] + dist[1][u]
-				meeting = u
+				u := heap.Pop(&pq[dir]).(*Item).value
+				proc[dir][u] = true
 
-				for _, k := range pq[0] {
-					if proc[1][k.value] {
-						if dist[0][k.value]+dist[1][k.value] < bestDist {
-							bestDist = dist[0][k.value] + dist[1][k.value]
-							meeting = k.value
-						}
+				if proc[1-dir][u] {
+					met = true
+					if bestDist > dist[0][u]+dist[1][u] {
+						bestDist = dist[0][u] + dist[1][u]
+						meeting = u
 					}
 				}
 
-				for _, k := range pq[1] {
-					if proc[0][k.value] {
-						if dist[0][k.value]+dist[1][k.value] < bestDist {
-							bestDist = dist[0][k.value] + dist[1][k.value]
-							meeting = k.value
+				neighbours := SimpleNeighboursUg(u, ug)
+				for _, j := range neighbours {
+					var alt = dist[dir][u] + distance(ug.GridToCoord(ug.IDToGrid(u)), ug.GridToCoord(ug.IDToGrid(j)))
+					if alt < dist[dir][j] {
+						dist[dir][j] = alt
+						prev[j][dir] = u
+						item := &Item{
+							value:    j,
+							priority: -dist[dir][j],
+						}
+						if !met {
+							heap.Push(&pq[dir], item)
+						} else {
+							if bestDist > dist[0][j]+dist[1][j] {
+								bestDist = dist[0][j] + dist[1][j]
+								meeting = j
+							}
 						}
 					}
-				}
-				break
-			}
-
-			neighbours := SimpleNeighboursUg(u, ug)
-			for _, j := range neighbours {
-				var alt = dist[dir][u] + distance(ug.GridToCoord(ug.IDToGrid(u)), ug.GridToCoord(ug.IDToGrid(j)))
-				if alt < dist[dir][j] {
-					dist[dir][j] = alt
-					prev[j][dir] = u
-					item := &Item{
-						value:    j,
-						priority: -dist[dir][j],
-					}
-					heap.Push(&pq[dir], item)
 				}
 			}
 		}
@@ -96,7 +92,9 @@ func BiDijkstraAllNodes(from, to int, ug *grids.UniformGrid) (*[][][]float64, *[
 	dist := [][]float64{make([]float64, ug.N), make([]float64, ug.N)}
 	pq := []priorityQueue{make(priorityQueue, 1), make(priorityQueue, 1)}
 	proc := []map[int]bool{make(map[int]bool), make(map[int]bool)}
+	var met = false
 	var meeting int
+	var bestDist = math.MaxFloat64
 
 	// Init
 	for i := 0; i < ug.N; i++ {
@@ -124,47 +122,41 @@ func BiDijkstraAllNodes(from, to int, ug *grids.UniformGrid) (*[][][]float64, *[
 	var dir = 0 // Direction in which next step should be taken. 0=forward, 1=backward
 	// Main loop
 	for {
-		if len(pq[0]) == 0 || len(pq[1]) == 0 {
+		if len(pq[0]) == 0 && len(pq[1]) == 0 {
 			break
 		} else {
-			u := heap.Pop(&pq[dir]).(*Item).value
-			proc[dir][u] = true
+			if len(pq[dir]) > 0 {
 
-			if proc[1-dir][u] {
-				var bestDist = dist[0][u] + dist[1][u]
-				meeting = u
+				u := heap.Pop(&pq[dir]).(*Item).value
+				proc[dir][u] = true
 
-				for _, k := range pq[0] {
-					if proc[1][k.value] {
-						if dist[0][k.value]+dist[1][k.value] < bestDist {
-							bestDist = dist[0][k.value] + dist[1][k.value]
-							meeting = k.value
-						}
+				if proc[1-dir][u] {
+					met = true
+					if bestDist > dist[0][u]+dist[1][u] {
+						bestDist = dist[0][u] + dist[1][u]
+						meeting = u
 					}
 				}
 
-				for _, k := range pq[1] {
-					if proc[0][k.value] {
-						if dist[0][k.value]+dist[1][k.value] < bestDist {
-							bestDist = dist[0][k.value] + dist[1][k.value]
-							meeting = k.value
+				neighbours := SimpleNeighboursUg(u, ug)
+				for _, j := range neighbours {
+					var alt = dist[dir][u] + distance(ug.GridToCoord(ug.IDToGrid(u)), ug.GridToCoord(ug.IDToGrid(j)))
+					if alt < dist[dir][j] {
+						dist[dir][j] = alt
+						prev[j][dir] = u
+						item := &Item{
+							value:    j,
+							priority: -dist[dir][j],
+						}
+						if !met {
+							heap.Push(&pq[dir], item)
+						} else {
+							if bestDist > dist[0][j]+dist[1][j] {
+								bestDist = dist[0][j] + dist[1][j]
+								meeting = j
+							}
 						}
 					}
-				}
-				break
-			}
-
-			neighbours := SimpleNeighboursUg(u, ug)
-			for _, j := range neighbours {
-				var alt = dist[dir][u] + distance(ug.GridToCoord(ug.IDToGrid(u)), ug.GridToCoord(ug.IDToGrid(j)))
-				if alt < dist[dir][j] {
-					dist[dir][j] = alt
-					prev[j][dir] = u
-					item := &Item{
-						value:    j,
-						priority: -dist[dir][j],
-					}
-					heap.Push(&pq[dir], item)
 				}
 			}
 		}

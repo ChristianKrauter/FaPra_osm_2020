@@ -12,7 +12,9 @@ func BiAStarBg(from, to int, bg *grids.BasicGrid) ([][][]float64, int, float64) 
 	dist := [][]float64{make([]float64, len(bg.VertexData)), make([]float64, len(bg.VertexData))}
 	pq := []priorityQueue{make(priorityQueue, 1), make(priorityQueue, 1)}
 	proc := []map[int]bool{make(map[int]bool), make(map[int]bool)}
+	var met = false
 	var meeting int
+	var bestDist = math.MaxFloat64
 
 	// Init
 	for i := 0; i < len(bg.VertexData); i++ {
@@ -40,47 +42,41 @@ func BiAStarBg(from, to int, bg *grids.BasicGrid) ([][][]float64, int, float64) 
 	var dir = 0 // Direction in which next step should be taken. 0=forward, 1=backward
 	// Main loop
 	for {
-		if len(pq[0]) == 0 || len(pq[1]) == 0 {
+		if len(pq[0]) == 0 && len(pq[1]) == 0 {
 			break
 		} else {
-			u := heap.Pop(&pq[dir]).(*Item).value
-			proc[dir][u] = true
+			if len(pq[dir]) > 0 {
 
-			if proc[1-dir][u] {
-				var bestDist = dist[0][u] + dist[1][u]
-				meeting = u
+				u := heap.Pop(&pq[dir]).(*Item).value
+				proc[dir][u] = true
 
-				for _, k := range pq[0] {
-					if proc[1][k.value] {
-						if dist[0][k.value]+dist[1][k.value] < bestDist {
-							bestDist = dist[0][k.value] + dist[1][k.value]
-							meeting = k.value
-						}
+				if proc[1-dir][u] {
+					met = true
+					if bestDist > dist[0][u]+dist[1][u] {
+						bestDist = dist[0][u] + dist[1][u]
+						meeting = u
 					}
 				}
 
-				for _, k := range pq[1] {
-					if proc[0][k.value] {
-						if dist[0][k.value]+dist[1][k.value] < bestDist {
-							bestDist = dist[0][k.value] + dist[1][k.value]
-							meeting = k.value
+				neighbours := NeighboursBg(u, bg)
+				for _, j := range neighbours {
+					var alt = dist[dir][u] + distance(bg.GridToCoord(bg.IDToGrid(u)), bg.GridToCoord(bg.IDToGrid(j)))
+					if alt < dist[dir][j] {
+						dist[dir][j] = alt
+						prev[j][dir] = u
+						item := &Item{
+							value:    j,
+							priority: -(dist[dir][j] + hBg(dir, j, from, to, bg)),
+						}
+						if !met {
+							heap.Push(&pq[dir], item)
+						} else {
+							if bestDist > dist[0][j]+dist[1][j] {
+								bestDist = dist[0][j] + dist[1][j]
+								meeting = j
+							}
 						}
 					}
-				}
-				break
-			}
-
-			neighbours := NeighboursBg(u, bg)
-			for _, j := range neighbours {
-				var alt = dist[dir][u] + distance(bg.GridToCoord(bg.IDToGrid(u)), bg.GridToCoord(bg.IDToGrid(j)))
-				if alt < dist[dir][j] {
-					dist[dir][j] = alt
-					prev[j][dir] = u
-					item := &Item{
-						value:    j,
-						priority: -(dist[dir][j] + hBg(dir, j, from, to, bg)),
-					}
-					heap.Push(&pq[dir], item)
 				}
 			}
 		}
@@ -96,7 +92,9 @@ func BiAStarAllNodesBg(from, to int, bg *grids.BasicGrid) ([][][]float64, [][]fl
 	dist := [][]float64{make([]float64, len(bg.VertexData)), make([]float64, len(bg.VertexData))}
 	pq := []priorityQueue{make(priorityQueue, 1), make(priorityQueue, 1)}
 	proc := []map[int]bool{make(map[int]bool), make(map[int]bool)}
+	var met = false
 	var meeting int
+	var bestDist = math.MaxFloat64
 
 	// Init
 	for i := 0; i < len(bg.VertexData); i++ {
@@ -124,47 +122,41 @@ func BiAStarAllNodesBg(from, to int, bg *grids.BasicGrid) ([][][]float64, [][]fl
 	var dir = 0 // Direction in which next step should be taken. 0=forward, 1=backward
 	// Main loop
 	for {
-		if len(pq[0]) == 0 || len(pq[1]) == 0 {
+		if len(pq[0]) == 0 && len(pq[1]) == 0 {
 			break
 		} else {
-			u := heap.Pop(&pq[dir]).(*Item).value
-			proc[dir][u] = true
+			if len(pq[dir]) > 0 {
 
-			if proc[1-dir][u] {
-				var bestDist = dist[0][u] + dist[1][u]
-				meeting = u
+				u := heap.Pop(&pq[dir]).(*Item).value
+				proc[dir][u] = true
 
-				for _, k := range pq[0] {
-					if proc[1][k.value] {
-						if dist[0][k.value]+dist[1][k.value] < bestDist {
-							bestDist = dist[0][k.value] + dist[1][k.value]
-							meeting = k.value
-						}
+				if proc[1-dir][u] {
+					met = true
+					if bestDist > dist[0][u]+dist[1][u] {
+						bestDist = dist[0][u] + dist[1][u]
+						meeting = u
 					}
 				}
 
-				for _, k := range pq[1] {
-					if proc[0][k.value] {
-						if dist[0][k.value]+dist[1][k.value] < bestDist {
-							bestDist = dist[0][k.value] + dist[1][k.value]
-							meeting = k.value
+				neighbours := NeighboursBg(u, bg)
+				for _, j := range neighbours {
+					var alt = dist[dir][u] + distance(bg.GridToCoord(bg.IDToGrid(u)), bg.GridToCoord(bg.IDToGrid(j)))
+					if alt < dist[dir][j] {
+						dist[dir][j] = alt
+						prev[j][dir] = u
+						item := &Item{
+							value:    j,
+							priority: -(dist[dir][j] + hBg(dir, j, from, to, bg)),
+						}
+						if !met {
+							heap.Push(&pq[dir], item)
+						} else {
+							if bestDist > dist[0][j]+dist[1][j] {
+								bestDist = dist[0][j] + dist[1][j]
+								meeting = j
+							}
 						}
 					}
-				}
-				break
-			}
-
-			neighbours := NeighboursBg(u, bg)
-			for _, j := range neighbours {
-				var alt = dist[dir][u] + distance(bg.GridToCoord(bg.IDToGrid(u)), bg.GridToCoord(bg.IDToGrid(j)))
-				if alt < dist[dir][j] {
-					dist[dir][j] = alt
-					prev[j][dir] = u
-					item := &Item{
-						value:    j,
-						priority: -(dist[dir][j] + hBg(dir, j, from, to, bg)),
-					}
-					heap.Push(&pq[dir], item)
 				}
 			}
 		}

@@ -210,7 +210,7 @@ func WayFindingBg(xSize, ySize, nRuns int, note string) {
 	Logs.Parameters = make(map[string]string)
 	Logs.Results = make(map[string]Algo)
 	var exampleCount = 0
-	var exampleCountMax = 100
+	var exampleCountMax = 10
 
 	bg.XSize = xSize
 	bg.YSize = ySize
