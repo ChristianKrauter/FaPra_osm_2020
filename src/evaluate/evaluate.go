@@ -65,7 +65,6 @@ func WayFinding(xSize, ySize, nRuns int, note string) {
 			k++
 		}
 	}
-	ug.Flat = ug1D
 
 	rand.Seed(time.Now().UnixNano())
 	for i := 0; i < nRuns; i++ {
