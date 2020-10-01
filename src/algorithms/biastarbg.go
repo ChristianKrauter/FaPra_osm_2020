@@ -15,6 +15,8 @@ func BiAStarBg(from, to int, bg *grids.BasicGrid) ([][][]float64, int, float64) 
 	var met = false
 	var meeting int
 	var bestDist = math.MaxFloat64
+	var toCoord = bg.GridToCoord(bg.IDToGrid(to))
+	var fromCoord = bg.GridToCoord(bg.IDToGrid(from))
 
 	// Init
 	for i := 0; i < len(bg.VertexData); i++ {
@@ -66,7 +68,7 @@ func BiAStarBg(from, to int, bg *grids.BasicGrid) ([][][]float64, int, float64) 
 						prev[j][dir] = u
 						item := &Item{
 							value:    j,
-							priority: -(dist[dir][j] + hBg(dir, j, from, to, bg)),
+							priority: -(dist[dir][j] + hBg(dir, j, fromCoord, toCoord, bg)),
 						}
 						if !met {
 							heap.Push(&pq[dir], item)
@@ -95,6 +97,8 @@ func BiAStarAllNodesBg(from, to int, bg *grids.BasicGrid) ([][][]float64, [][]fl
 	var met = false
 	var meeting int
 	var bestDist = math.MaxFloat64
+	var toCoord = bg.GridToCoord(bg.IDToGrid(to))
+	var fromCoord = bg.GridToCoord(bg.IDToGrid(from))
 
 	// Init
 	for i := 0; i < len(bg.VertexData); i++ {
@@ -146,7 +150,7 @@ func BiAStarAllNodesBg(from, to int, bg *grids.BasicGrid) ([][][]float64, [][]fl
 						prev[j][dir] = u
 						item := &Item{
 							value:    j,
-							priority: -(dist[dir][j] + hBg(dir, j, from, to, bg)),
+							priority: -(dist[dir][j] + hBg(dir, j, fromCoord, toCoord, bg)),
 						}
 						if !met {
 							heap.Push(&pq[dir], item)

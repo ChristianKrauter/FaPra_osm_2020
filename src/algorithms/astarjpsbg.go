@@ -13,6 +13,7 @@ func AStarJPSBg(from, to int, bg *grids.BasicGrid) ([][][]float64, int, float64)
 	var dist = make([]float64, len(bg.VertexData))
 	var prev = make([]int, len(bg.VertexData))
 	pq := make(pqJPS, 1)
+	var toCoord = bg.GridToCoord(bg.IDToGrid(to))
 
 	for i := 0; i < len(bg.VertexData); i++ {
 		dist[i] = math.Inf(1)
@@ -53,7 +54,7 @@ func AStarJPSBg(from, to int, bg *grids.BasicGrid) ([][][]float64, int, float64)
 							grid:     j.grid,
 							IDX:      j.IDX,
 							dir:      j.dir,
-							priority: -(dist[j.IDX] + distance(bg.GridToCoord(j.grid), bg.GridToCoord(bg.IDToGrid(to)))),
+							priority: -(dist[j.IDX] + distance(bg.GridToCoord(j.grid), toCoord)),
 						}
 						heap.Push(&pq, item)
 					}
@@ -71,6 +72,7 @@ func AStarJPSAllNodesBg(from, to int, bg *grids.BasicGrid) ([][][]float64, [][]f
 	var prev = make([]int, len(bg.VertexData))
 	pq := make(pqJPS, 1)
 	var nodesProcessed []int
+	var toCoord = bg.GridToCoord(bg.IDToGrid(to))
 
 	for i := 0; i < len(bg.VertexData); i++ {
 		dist[i] = math.Inf(1)
@@ -112,7 +114,7 @@ func AStarJPSAllNodesBg(from, to int, bg *grids.BasicGrid) ([][][]float64, [][]f
 							grid:     j.grid,
 							IDX:      j.IDX,
 							dir:      j.dir,
-							priority: -(dist[j.IDX] + distance(bg.GridToCoord(j.grid), bg.GridToCoord(bg.IDToGrid(to)))),
+							priority: -(dist[j.IDX] + distance(bg.GridToCoord(j.grid), toCoord)),
 						}
 						heap.Push(&pq, item)
 					}

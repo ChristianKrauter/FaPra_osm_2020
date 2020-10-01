@@ -13,6 +13,7 @@ func AStarJPS(from, to int, ug *grids.UniformGrid) (*[][][]float64, int, float64
 	var dist = make([]float64, ug.N)
 	var prev = make([]int, ug.N)
 	pq := make(pqJPS, 1)
+	var toCoord = ug.GridToCoord(ug.IDToGrid(to))
 
 	for i := 0; i < ug.N; i++ {
 		dist[i] = math.Inf(1)
@@ -54,7 +55,7 @@ func AStarJPS(from, to int, ug *grids.UniformGrid) (*[][][]float64, int, float64
 							grid:     j.grid,
 							IDX:      j.IDX,
 							dir:      j.dir,
-							priority: -(dist[j.IDX] + distance(ug.GridToCoord(j.grid), ug.GridToCoord(ug.IDToGrid(to)))),
+							priority: -(dist[j.IDX] + distance(ug.GridToCoord(j.grid), toCoord)),
 						}
 						heap.Push(&pq, item)
 					}
@@ -72,6 +73,7 @@ func AStarJPSAllNodes(from, to int, ug *grids.UniformGrid) (*[][][]float64, *[][
 	var prev = make([]int, ug.N)
 	pq := make(pqJPS, 1)
 	var nodesProcessed []int
+	var toCoord = ug.GridToCoord(ug.IDToGrid(to))
 	for i := 0; i < ug.N; i++ {
 		dist[i] = math.Inf(1)
 		prev[i] = -1
@@ -108,12 +110,11 @@ func AStarJPSAllNodes(from, to int, ug *grids.UniformGrid) (*[][][]float64, *[][
 					if alt < dist[j.IDX] {
 						dist[j.IDX] = alt
 						prev[j.IDX] = u.IDX
-						// TODO calc coords of TO in the beginning
 						item := &NodeJPS{
 							grid:     j.grid,
 							IDX:      j.IDX,
 							dir:      j.dir,
-							priority: -(dist[j.IDX] + distance(ug.GridToCoord(j.grid), ug.GridToCoord(ug.IDToGrid(to)))),
+							priority: -(dist[j.IDX] + distance(ug.GridToCoord(j.grid), toCoord)),
 						}
 						heap.Push(&pq, item)
 					}

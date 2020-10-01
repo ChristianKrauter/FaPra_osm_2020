@@ -12,6 +12,7 @@ func AStar(from, to int, ug *grids.UniformGrid) (*[][][]float64, int, float64) {
 	var dist = make([]float64, ug.N)
 	var prev = make([]int, ug.N)
 	pq := make(priorityQueue, 1)
+	var toCoord = ug.GridToCoord(ug.IDToGrid(to))
 
 	for i := 0; i < ug.N; i++ {
 		dist[i] = math.Inf(1)
@@ -46,7 +47,7 @@ func AStar(from, to int, ug *grids.UniformGrid) (*[][][]float64, int, float64) {
 					prev[j] = u
 					item := &Item{
 						value:    j,
-						priority: -(dist[j] + distance(ug.GridToCoord(ug.IDToGrid(j)), ug.GridToCoord(ug.IDToGrid(to)))),
+						priority: -(dist[j] + distance(ug.GridToCoord(ug.IDToGrid(j)), toCoord)),
 					}
 					heap.Push(&pq, item)
 				}
@@ -62,6 +63,7 @@ func AStarAllNodes(from, to int, ug *grids.UniformGrid) (*[][][]float64, *[][]fl
 	var prev = make([]int, ug.N)
 	var nodesProcessed []int
 	pq := make(priorityQueue, 1)
+	var toCoord = ug.GridToCoord(ug.IDToGrid(to))
 
 	for i := 0; i < ug.N; i++ {
 		dist[i] = math.Inf(1)
@@ -99,7 +101,7 @@ func AStarAllNodes(from, to int, ug *grids.UniformGrid) (*[][][]float64, *[][]fl
 					prev[j] = u
 					item := &Item{
 						value:    j,
-						priority: -(dist[j] + distance(ug.GridToCoord(ug.IDToGrid(j)), ug.GridToCoord(ug.IDToGrid(to)))),
+						priority: -(dist[j] + distance(ug.GridToCoord(ug.IDToGrid(j)), toCoord)),
 					}
 					heap.Push(&pq, item)
 				}
