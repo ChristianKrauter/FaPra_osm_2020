@@ -8,7 +8,7 @@ import(
 )
 
 
-// Astern implementation on uniform grid
+// JPSAstern implementation on uniform grid
 func JPSAstern(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64, int) {
 
 	var popped int
@@ -67,7 +67,6 @@ func JPSAstern(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64, int)
 
 // AsternAllNodes additionally returns all visited nodes on uniform grid
 func JPSAsternAllNodes(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64, [][]float64) {
-
 	var dist []float64
 	var prev []int
 	var nodesProcessed []int
@@ -131,6 +130,7 @@ func IdentifySuccessors(x, dir int, fromIDX, toIDX []int, ug *grids.UniformGrid)
 	neighbours, dirs := JPSNeighboursUg(x, dir, ug);
 	var succesors []int
 	var directions []int
+
 	for i, x := range neighbours{
 		n := jump(x, dirs[i], fromIDX, toIDX, ug)
 		if(n != nil){
@@ -145,6 +145,9 @@ func IdentifySuccessors(x, dir int, fromIDX, toIDX []int, ug *grids.UniformGrid)
 func jump(x, dir int, fromIDX, toIDX []int, ug *grids.UniformGrid) []int{
 	n := step(x,dir,ug)
 	if(n == nil || ug.VertexData[n[0]][n[1]]){
+		/*if(n != nil){
+			*nodesProcessed = append(*nodesProcessed, (*ug).GridToID(n))
+		}*/
 		return nil
 	}
 	if(n[0] == toIDX[0] && n[1] == toIDX[1]){
@@ -188,8 +191,8 @@ var allNeighbours [8][]int
 		var lmp = len(ug.VertexData[m+1])
 		nUp = int(math.Round(ratio * float64(lmp)))
 		allNeighbours[5] = []int{m + 1, mod(nUp, lmp)}
-		allNeighbours[4] = []int{m + 1, mod(nUp+1.0, lmp)}
-		allNeighbours[6] = []int{m + 1, mod(nUp-1.0, lmp)}
+		allNeighbours[6] = []int{m + 1, mod(nUp+1.0, lmp)}
+		allNeighbours[4] = []int{m + 1, mod(nUp-1.0, lmp)}
 	}
 
 	if m > 0 {
