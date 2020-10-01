@@ -38,6 +38,8 @@ func WayFinding(xSize, ySize, nRuns int, note string) {
 	var Logs Log
 	Logs.Parameters = make(map[string]string)
 	Logs.Results = make(map[string]Algo)
+	var exampleCount = 0
+	var exampleCountMax = 100
 
 	for i := 0; i < 5; i++ {
 		max[i] = time.Duration(math.MinInt64)
@@ -63,6 +65,7 @@ func WayFinding(xSize, ySize, nRuns int, note string) {
 			k++
 		}
 	}
+	ug.Flat = ug1D
 
 	rand.Seed(time.Now().UnixNano())
 	for i := 0; i < nRuns; i++ {
@@ -134,7 +137,8 @@ func WayFinding(xSize, ySize, nRuns int, note string) {
 				}
 			}
 			count++
-			if !eq {
+			if !eq && exampleCount < exampleCountMax {
+				exampleCount++
 				fmt.Printf("\n%v: %v, %v", text, from[i], to[i])
 			}
 		}
@@ -206,6 +210,8 @@ func WayFindingBg(xSize, ySize, nRuns int, note string) {
 	var Logs Log
 	Logs.Parameters = make(map[string]string)
 	Logs.Results = make(map[string]Algo)
+	var exampleCount = 0
+	var exampleCountMax = 100
 
 	bg.XSize = xSize
 	bg.YSize = ySize
@@ -307,7 +313,8 @@ func WayFindingBg(xSize, ySize, nRuns int, note string) {
 				}
 			}
 			count++
-			if !eq {
+			if !eq && exampleCount < exampleCountMax {
+				exampleCount++
 				fmt.Printf("\n%v: %v, %v", text, from[i], to[i])
 			}
 		}
