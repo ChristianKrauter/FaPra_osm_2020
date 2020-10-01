@@ -244,7 +244,7 @@ func RunUnidistant(xSize, ySize, algorithm int, basicPointInPolygon bool) {
 			var to = ug.CoordToGrid(endLng, endLat)
 
 			if !ug.VertexData[from[0]][from[1]] && !ug.VertexData[to[0]][to[1]] {
-				if strings.Contains(r.URL.Path, "/asternAllNodesBi") {
+				if strings.Contains(r.URL.Path, "/asternBiAllNodes") {
 					var start = time.Now()
 					var route, nodesProcessed = algorithms.BiAsternAllNodes(from, to, &ug)
 					t := time.Now()
@@ -332,7 +332,7 @@ func RunUnidistant(xSize, ySize, algorithm int, basicPointInPolygon bool) {
 			var to = ug.CoordToGrid(endLng, endLat)
 
 			if !ug.VertexData[from[0]][from[1]] && !ug.VertexData[to[0]][to[1]] {
-				if strings.Contains(r.URL.Path, "/dijkstraAllNodesBi") {
+				if strings.Contains(r.URL.Path, "/dijkstraBiAllNodes") {
 					var start = time.Now()
 					var route, nodesProcessed = algorithms.BiDijkstraAllNodes(from, to, &ug)
 					t := time.Now()

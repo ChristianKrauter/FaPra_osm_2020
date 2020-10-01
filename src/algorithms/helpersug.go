@@ -25,6 +25,28 @@ func expandNodeDijkstra(node *int,addToQueue bool, ug *grids.UniformGrid, dist *
 		}
 }
 
+func expandNodeBiDijkstra(node *int,addToQueue bool, ug *grids.UniformGrid, dist *[]float64,distRev *[]float64, prev *[]int, pq *priorityQueue, bestDist *float64, bestDistAt *int){
+	neighbours := NeighboursUg(node, ug)
+		for _, j := range neighbours {
+			var alt = (*dist)[*node] + distance((*ug).GridToCoord((*ug).IDToGrid(*node)), (*ug).GridToCoord((*ug).IDToGrid(j)))
+			if alt < (*dist)[j] {
+				(*dist)[j] = alt
+				(*prev)[j] = *node
+				item := &Item{
+					value:    j,
+					priority: -(*dist)[j],
+				}
+				if((*dist)[j] + (*distRev)[j] < *bestDist){
+					*bestDist = (*dist)[j] + (*distRev)[j]
+					*bestDistAt = j
+				}
+				if(addToQueue){
+					heap.Push(pq, item)	
+				}
+			}
+		}
+}
+
 // ExtractRouteUg ...
 func ExtractRouteUg(prev *[]int, end int, ug *grids.UniformGrid) [][][]float64 {
 	var route [][][]float64
@@ -260,91 +282,7 @@ func JPSNeighboursUg(in, dir int, ug *grids.UniformGrid) ([]int, []int) {
 			directions = append(directions, mod(dir+1, 8))
 		}
 	}
-	/*
-	switch dir {
-
-	case 0:
-		neighbours = append(neighbours, allNeighbours[1])
-		neighbours = append(neighbours, allNeighbours[7])
-
-		if(ug.VertexData[allNeighbours[3][0]][allNeighbours[3][1]]){
-			neighbours = append(neighbours, allNeighbours[2])			
-		}
-
-		if(ug.VertexData[allNeighbours[6][0]][allNeighbours[6][1]]){
-			neighbours = append(neighbours, allNeighbours[6])			
-		}
-
-	case 1:
-		if(ug.VertexData[allNeighbours[7][0]][allNeighbours[7][1]]){
-			neighbours = append(neighbours, allNeighbours[0])			
-		}
-
-		if(ug.VertexData[allNeighbours[4][0]][allNeighbours[4][1]]){
-			neighbours = append(neighbours, allNeighbours[2])			
-		}
-
-	case 2:
-		neighbours = append(neighbours, allNeighbours[1])
-		neighbours = append(neighbours, allNeighbours[4])
-
-		if(ug.VertexData[allNeighbours[3][0]][allNeighbours[3][1]]){
-			neighbours = append(neighbours, allNeighbours[0])			
-		}
-
-		if(ug.VertexData[allNeighbours[6][0]][allNeighbours[6][1]]){
-			neighbours = append(neighbours, allNeighbours[7])			
-		}
-
-	case 3:
-		if(ug.VertexData[allNeighbours[1][0]][allNeighbours[1][1]]){
-			neighbours = append(neighbours, allNeighbours[0])			
-		}
-
-		if(ug.VertexData[allNeighbours[6][0]][allNeighbours[6][1]]){
-			neighbours = append(neighbours, allNeighbours[5])			
-		}
-
-	case 4:
-		if(ug.VertexData[allNeighbours[1][0]][allNeighbours[1][1]]){
-			neighbours = append(neighbours, allNeighbours[2])			
-		}
-
-		if(ug.VertexData[allNeighbours[6][0]][allNeighbours[6][1]]){
-			neighbours = append(neighbours, allNeighbours[7])			
-		}
-
-	case 5:	
-		neighbours = append(neighbours, allNeighbours[3])
-		neighbours = append(neighbours, allNeighbours[6])
-
-		if(ug.VertexData[allNeighbours[1][0]][allNeighbours[1][1]]){
-			neighbours = append(neighbours, allNeighbours[0])			
-		}
-
-		if(ug.VertexData[allNeighbours[4][0]][allNeighbours[4][1]]){
-			neighbours = append(neighbours, allNeighbours[7])			
-		}
-	case 6:
-		if(ug.VertexData[allNeighbours[3][0]][allNeighbours[3][1]]){
-			neighbours = append(neighbours, allNeighbours[5])			
-		}
-
-		if(ug.VertexData[allNeighbours[4][0]][allNeighbours[4][1]]){
-			neighbours = append(neighbours, allNeighbours[7])			
-		}
-	case 7:
-		neighbours = append(neighbours, allNeighbours[4])
-		neighbours = append(neighbours, allNeighbours[6])
-
-		if(ug.VertexData[allNeighbours[1][0]][allNeighbours[1][1]]){
-			neighbours = append(neighbours, allNeighbours[2])			
-		}
-
-		if(ug.VertexData[allNeighbours[3][0]][allNeighbours[3][1]]){
-			neighbours = append(neighbours, allNeighbours[5])			
-		}
-	}*/
+	
 
 	var neighbours1d []int
 	for _, neighbour := range neighbours {
@@ -393,82 +331,19 @@ func isForced(in, dir int, ug *grids.UniformGrid) bool {
 		if ug.VertexData[allNeighbours[mod(dir-3, 8)][0]][allNeighbours[mod(dir-3, 8)][1]] && !ug.VertexData[allNeighbours[mod(dir-2, 8)][0]][allNeighbours[mod(dir-2, 8)][1]] {
 			return true
 		}
-		if ug.VertexData[allNeighbours[mod(dir+3, 8)][0]][allNeighbours[mod(dir+3, 8)][1]] && !ug.VertexData[allNeighbours[mod(dir-2, 8)][0]][allNeighbours[mod(dir-2, 8)][1]] {
+		if ug.VertexData[allNeighbours[mod(dir+3, 8)][0]][allNeighbours[mod(dir+3, 8)][1]] && !ug.VertexData[allNeighbours[mod(dir+2, 8)][0]][allNeighbours[mod(dir+2, 8)][1]] {
 			return true
 		}
 	} else {
 		if ug.VertexData[allNeighbours[mod(dir-2, 8)][0]][allNeighbours[mod(dir-2, 8)][1]] && !ug.VertexData[allNeighbours[mod(dir-1, 8)][0]][allNeighbours[mod(dir-1, 8)][1]] {
 			return true
 		}
-		if ug.VertexData[allNeighbours[mod(dir+2, 8)][0]][allNeighbours[mod(dir+2, 8)][1]] && !ug.VertexData[allNeighbours[mod(dir-1, 8)][0]][allNeighbours[mod(dir-1, 8)][1]] {
+		if ug.VertexData[allNeighbours[mod(dir+2, 8)][0]][allNeighbours[mod(dir+2, 8)][1]] && !ug.VertexData[allNeighbours[mod(dir+1, 8)][0]][allNeighbours[mod(dir+1, 8)][1]] {
 			return true
 		}
 	}
 
-	/*
-	switch dir {
-	case 0:
-		if(ug.VertexData[allNeighbours[4][0]][allNeighbours[4][1]] ||!ug.VertexData[allNeighbours[2][0]][allNeighbours[2][1]] ){
-			return true
-		}
-		if(ug.VertexData[allNeighbours[6][0]][allNeighbours[6][1]] ||!ug.VertexData[allNeighbours[5][0]][allNeighbours[5][1]] ){
-			return true
-		}
-		
-	case 1:
-		if(ug.VertexData[allNeighbours[5][0]][allNeighbours[5][1]] ||!ug.VertexData[allNeighbours[3][0]][allNeighbours[3][1]] ){
-			return true
-		}
-		if(ug.VertexData[allNeighbours[7][0]][allNeighbours[7][1]] ||!ug.VertexData[allNeighbours[4][0]][allNeighbours[4][1]] ){
-			return true
-		}
-
-	case 2:
-		if(ug.VertexData[allNeighbours[3][0]][allNeighbours[3][1]] ||!ug.VertexData[allNeighbours[0][0]][allNeighbours[0][1]] ){
-			return true
-		}
-		if(ug.VertexData[allNeighbours[6][0]][allNeighbours[6][1]] ||!ug.VertexData[allNeighbours[7][0]][allNeighbours[7][1]] ){
-			return true
-		}
-
-	case 3:
-		if(ug.VertexData[allNeighbours[1][0]][allNeighbours[1][1]] ||!ug.VertexData[allNeighbours[0][0]][allNeighbours[0][1]] ){
-			return true
-		}
-		if(ug.VertexData[allNeighbours[6][0]][allNeighbours[6][1]] ||!ug.VertexData[allNeighbours[5][0]][allNeighbours[5][1]] ){
-			return true
-		}
-
-	case 4:
-		if(ug.VertexData[allNeighbours[1][0]][allNeighbours[1][1]] ||!ug.VertexData[allNeighbours[2][0]][allNeighbours[2][1]] ){
-			return true
-		}
-		if(ug.VertexData[allNeighbours[6][0]][allNeighbours[6][1]] ||!ug.VertexData[allNeighbours[7][0]][allNeighbours[7][1]] ){
-			return true
-		}
-
-	case 5:	
-		if(ug.VertexData[allNeighbours[1][0]][allNeighbours[1][1]] ||!ug.VertexData[allNeighbours[0][0]][allNeighbours[0][1]] ){
-			return true
-		}
-		if(ug.VertexData[allNeighbours[4][0]][allNeighbours[4][1]] ||!ug.VertexData[allNeighbours[7][0]][allNeighbours[7][1]] ){
-			return true
-		}
-	case 6:
-		if(ug.VertexData[allNeighbours[3][0]][allNeighbours[3][1]] ||!ug.VertexData[allNeighbours[5][0]][allNeighbours[5][1]] ){
-			return true
-		}
-		if(ug.VertexData[allNeighbours[4][0]][allNeighbours[4][1]] ||!ug.VertexData[allNeighbours[7][0]][allNeighbours[7][1]] ){
-			return true
-		}
-	case 7:
-		if(ug.VertexData[allNeighbours[1][0]][allNeighbours[1][1]] ||!ug.VertexData[allNeighbours[2][0]][allNeighbours[2][1]] ){
-			return true
-		}
-		if(ug.VertexData[allNeighbours[3][0]][allNeighbours[3][1]] ||!ug.VertexData[allNeighbours[5][0]][allNeighbours[5][1]] ){
-			return true
-		}
-	}*/
+	
 	return false
 }
 

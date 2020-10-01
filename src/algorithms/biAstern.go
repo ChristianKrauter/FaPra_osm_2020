@@ -4,15 +4,20 @@ import(
 	"../grids"
 	"container/heap"
 	"math"
+	"fmt"
 )
 
 
 // Astern implementation on uniform grid
 func BiAstern(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64, int) {
-
 	var popped1 int
 	var dist1 []float64
 	var prev1 []int
+
+	var met = false
+	var bestDist = math.Inf(1)
+	var bestDistAt int
+
 	pq1 := make(priorityQueue, 1)
 	nodesProcessed1 := make(map[int]bool)
 
@@ -47,67 +52,97 @@ func BiAstern(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64, int) 
 	heap.Init(&pq1)
 	heap.Init(&pq2)
 	
-
 	for {
-		if len(pq1) == 0 || len(pq2) == 0 {
+		if len(pq1) == 0 && len(pq2) == 0 {
 			break
 		} else {
-			u1 := heap.Pop(&pq1).(*Item).value
-			nodesProcessed1[u1] = true;
-			popped1++
-			if _, ok := nodesProcessed2[u1]; ok {
-				
-				return [][][]float64{ExtractRouteBiUg(&prev1, &prev2, u1, ug)}, popped1+popped2
-			}
+			if(len(pq1) > 0){
+				u1 := heap.Pop(&pq1).(*Item).value
+				nodesProcessed1[u1] = true;
 			
-			
-			neighbours1 := NeighboursUg(&u1, ug)
-			for _, j := range neighbours1 {
-				var alt1 = dist1[u1] + distance((*ug).GridToCoord((*ug).IDToGrid(u1)), (*ug).GridToCoord((*ug).IDToGrid(j)))
-				if alt1 < dist1[j] {
-					dist1[j] = alt1
-					prev1[j] = u1
-					item := &Item{
-						value:    j,
-						priority: -dist1[j] - distance((*ug).GridToCoord((*ug).IDToGrid(j)), (*ug).GridToCoord(toIDX)),
+				popped1++
+		
+				if _, ok := nodesProcessed2[u1]; ok{
+					met = true
+					if(dist1[u1] + dist2[u1] < bestDist){
+						bestDist = dist1[u1] + dist2[u1]
+						bestDistAt = u1
 					}
-					heap.Push(&pq1, item)
+				}
+				neighbours1 := NeighboursUg(&u1, ug)
+				for _, j := range neighbours1 {
+					var alt1 = dist1[u1] + distance((*ug).GridToCoord((*ug).IDToGrid(u1)), (*ug).GridToCoord((*ug).IDToGrid(j)))
+					if alt1 < dist1[j] {
+						dist1[j] = alt1
+						prev1[j] = u1
+						item := &Item{
+							value:    j,
+							priority: -dist1[j] - (distance((*ug).GridToCoord((*ug).IDToGrid(j)), (*ug).GridToCoord(toIDX)) - distance((*ug).GridToCoord(fromIDX), (*ug).GridToCoord((*ug).IDToGrid(j))))/2,
+						}
+						
+						if(!met){
+							heap.Push(&pq1, item)
+						} else {
+							if(dist1[j] + dist2[j] < bestDist){
+								bestDist = dist1[j] + dist2[j]
+								bestDistAt = j
+							}
+						}
+					}
 				}
 			}
 
-			u2 := heap.Pop(&pq2).(*Item).value
-			nodesProcessed2[u2] = true;
-			popped2++
-			if _, ok := nodesProcessed1[u2]; ok {
-				
-				return [][][]float64{ExtractRouteBiUg(&prev1, &prev2, u2, ug)}, popped1+popped2
-			}
+			if(len(pq2) > 0){
+				u2 := heap.Pop(&pq2).(*Item).value
+				nodesProcessed2[u2] = true;
+				popped2++
 
-			neighbours2 := NeighboursUg(&u2, ug)
-			for _, j := range neighbours2 {
-				var alt2 = dist2[u2] + distance((*ug).GridToCoord((*ug).IDToGrid(u2)), (*ug).GridToCoord((*ug).IDToGrid(j)))
-				if alt2 < dist2[j] {
-					dist2[j] = alt2
-					prev2[j] = u2
-					item := &Item{
-						value:    j,
-						priority: -dist2[j] - distance((*ug).GridToCoord((*ug).IDToGrid(j)), (*ug).GridToCoord(fromIDX)),
+				if _, ok := nodesProcessed1[u2]; ok{
+					met = true
+					if(dist1[u2] + dist2[u2] < bestDist){
+						bestDist = dist1[u2] + dist2[u2]
+						bestDistAt = u2
 					}
-					heap.Push(&pq2, item)
 				}
-			}
+				neighbours2 := NeighboursUg(&u2, ug)
+				for _, j := range neighbours2 {
+					var alt2 = dist2[u2] + distance((*ug).GridToCoord((*ug).IDToGrid(u2)), (*ug).GridToCoord((*ug).IDToGrid(j)))
+					if alt2 < dist2[j] {
+						dist2[j] = alt2
+						prev2[j] = u2
+						item := &Item{
+							value:    j,
+							priority: -dist2[j] - (distance((*ug).GridToCoord(fromIDX), (*ug).GridToCoord((*ug).IDToGrid(j))) - distance((*ug).GridToCoord((*ug).IDToGrid(j)), (*ug).GridToCoord(toIDX)))/2,
+						}
+
+						if(!met){
+							heap.Push(&pq2, item)	
+						} else {
+							if(dist1[j] + dist2[j] < bestDist){
+								bestDist = dist1[j] + dist2[j]
+								bestDistAt = j
+							}
+						}
+					}
+				}
+			}			
 		}
 	}
-	return ExtractRouteUg(&prev1, (*ug).GridToID(toIDX), ug), popped1
+	var route = [][][]float64{ExtractRouteBiUg(&prev1, &prev2, bestDistAt, ug)}
+	fmt.Printf("bi dist: %v\n", bestDist)
+	return route , (popped1 + popped2)
 }
 
 // AsternAllNodes additionally returns all visited nodes on uniform grid
 func BiAsternAllNodes(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64, [][]float64) {
-
-	
-	var popped1 int
+var popped1 int
 	var dist1 []float64
 	var prev1 []int
+
+	var met = false
+	var bestDist = math.Inf(1)
+	var bestDistAt int
+
 	pq1 := make(priorityQueue, 1)
 	nodesProcessed1 := make(map[int]bool)
 
@@ -141,90 +176,91 @@ func BiAsternAllNodes(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float6
 
 	heap.Init(&pq1)
 	heap.Init(&pq2)
-	
-
+		
 	for {
-		if len(pq1) == 0 || len(pq2) == 0 {
+		if len(pq1) == 0 && len(pq2) == 0 {
 			break
 		} else {
-			u1 := heap.Pop(&pq1).(*Item).value
-			nodesProcessed1[u1] = true;
-			u2 := heap.Pop(&pq2).(*Item).value
-			nodesProcessed2[u2] = true;
-			popped1++
-			popped2++
-
-			if _, ok := nodesProcessed2[u1]; ok {
-				var route = [][][]float64{ExtractRouteBiUg(&prev1, &prev2, u1, ug)}
-				for k,v := range nodesProcessed1 {
-					nodesProcessed2[k] = v
-				}
-				var allNodes []int 
-				for k,_ := range nodesProcessed2 {
-					allNodes = append(allNodes,k)
-				}
-				var processedNodes = ExtractNodesUg(&allNodes, ug)
-				return route,processedNodes
-			}
-			if _, ok := nodesProcessed1[u2]; ok {
-				
-				var route = [][][]float64{ExtractRouteBiUg(&prev1, &prev2, u2, ug)}
-				for k,v := range nodesProcessed1 {
-					nodesProcessed2[k] = v
-				}
-				var allNodes []int 
-				for k,_ := range nodesProcessed2 {
-					allNodes = append(allNodes,k)
-				}
-				var processedNodes = ExtractNodesUg(&allNodes, ug)
-				return route,processedNodes
-			}
+			if(len(pq1) > 0){
+				u1 := heap.Pop(&pq1).(*Item).value
+				nodesProcessed1[u1] = true;
 			
-			/*if u1 == (*ug).GridToID(toIDX) {
-				fmt.Printf("u1 done")
-				return ExtractRouteUg(&prev1, (*ug).GridToID(toIDX), ug), popped1
-			}
-			if u2 == (*ug).GridToID(fromIDX) {
-				fmt.Printf("u2 done")
-				return ExtractRouteUg(&prev2, (*ug).GridToID(toIDX), ug), popped2
-			}*/
-			
-			neighbours1 := NeighboursUg(&u1, ug)
-			for _, j := range neighbours1 {
-				var alt1 = dist1[u1] + distance((*ug).GridToCoord((*ug).IDToGrid(u1)), (*ug).GridToCoord((*ug).IDToGrid(j)))
-				if alt1 < dist1[j] {
-					dist1[j] = alt1
-					prev1[j] = u1
-					item := &Item{
-						value:    j,
-						priority: -dist1[j] - distance((*ug).GridToCoord((*ug).IDToGrid(j)), (*ug).GridToCoord(toIDX)),
+				popped1++
+		
+				if _, ok := nodesProcessed2[u1]; ok{
+					met = true
+					if(dist1[u1] + dist2[u1] < bestDist){
+						bestDist = dist1[u1] + dist2[u1]
+						bestDistAt = u1
 					}
-					heap.Push(&pq1, item)
+				}
+				neighbours1 := NeighboursUg(&u1, ug)
+				for _, j := range neighbours1 {
+					var alt1 = dist1[u1] + distance((*ug).GridToCoord((*ug).IDToGrid(u1)), (*ug).GridToCoord((*ug).IDToGrid(j)))
+					if alt1 < dist1[j] {
+						dist1[j] = alt1
+						prev1[j] = u1
+						item := &Item{
+							value:    j,
+							priority: -dist1[j] - (distance((*ug).GridToCoord((*ug).IDToGrid(j)), (*ug).GridToCoord(toIDX)) - distance((*ug).GridToCoord(fromIDX), (*ug).GridToCoord((*ug).IDToGrid(j))))/2,
+						}
+						if(dist1[j] + dist2[j] < bestDist){
+							bestDist = dist1[j] + dist2[j]
+							bestDistAt = j
+						}
+						if(!met){
+							heap.Push(&pq1, item)	
+						}
+					}
 				}
 			}
 
-			neighbours2 := NeighboursUg(&u2, ug)
-			for _, j := range neighbours2 {
-				var alt2 = dist2[u2] + distance((*ug).GridToCoord((*ug).IDToGrid(u2)), (*ug).GridToCoord((*ug).IDToGrid(j)))
-				if alt2 < dist2[j] {
-					dist2[j] = alt2
-					prev2[j] = u2
-					item := &Item{
-						value:    j,
-						priority: -dist2[j] - distance((*ug).GridToCoord((*ug).IDToGrid(j)), (*ug).GridToCoord(fromIDX)),
+			if(len(pq2) > 0){
+				u2 := heap.Pop(&pq2).(*Item).value
+				nodesProcessed2[u2] = true;
+				popped2++
+
+				if _, ok := nodesProcessed1[u2]; ok {
+					met = true
+					if(dist1[u2] + dist2[u2] < bestDist){
+						bestDist = dist1[u2] + dist2[u2]
+						bestDistAt = u2
 					}
-					heap.Push(&pq2, item)
 				}
-			}
+				neighbours2 := NeighboursUg(&u2, ug)
+				for _, j := range neighbours2 {
+					var alt2 = dist2[u2] + distance((*ug).GridToCoord((*ug).IDToGrid(u2)), (*ug).GridToCoord((*ug).IDToGrid(j)))
+					if alt2 < dist2[j] {
+						dist2[j] = alt2
+						prev2[j] = u2
+						item := &Item{
+							value:    j,
+							priority: -dist2[j] - (distance((*ug).GridToCoord(fromIDX), (*ug).GridToCoord((*ug).IDToGrid(j))) - distance((*ug).GridToCoord((*ug).IDToGrid(j)), (*ug).GridToCoord(toIDX)))/2,
+						}
+
+						if(dist1[j] + dist2[j] < bestDist){
+							bestDist = dist1[j] + dist2[j]
+							bestDistAt = j
+						}
+						if(!met){
+							heap.Push(&pq2, item)	
+						}
+					}
+				}
+			}			
 		}
 	}
-	var route = ExtractRouteUg(&prev1, (*ug).GridToID(toIDX), ug)
+	var route = [][][]float64{ExtractRouteBiUg(&prev1, &prev2, bestDistAt, ug)}
+	for k,v := range nodesProcessed1 {
+		nodesProcessed2[k] = v
+	}
 	var allNodes []int 
-	for k,_ := range nodesProcessed1 {
+	for k,_ := range nodesProcessed2 {
 		allNodes = append(allNodes,k)
 	}
 	var processedNodes = ExtractNodesUg(&allNodes, ug)
-	return route, processedNodes
+	fmt.Printf("bi dist: %v\n", bestDist)
+	return route,processedNodes
 }
 
 
