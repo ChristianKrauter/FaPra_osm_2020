@@ -19,12 +19,6 @@ func transformLon(newNorth, point []float64) float64 {
 		// Radians to Degrees
 		transformedLon = math.Atan2(t, b) / dtr
 	}
-	/*if transformedLon < -180 {
-		transformedLon += 360.0
-	}
-	if transformedLon > 180 {
-		transformedLon -= 360.0
-	}*/
 	return transformedLon
 }
 
@@ -58,25 +52,32 @@ func pointInPolygonSphere(poly *Polygon, point []float64) bool {
 	if point[1] == 90.0 {
 		return false
 	}
-
+	point[0] = point[0] + 0.00001
+	point[1] = point[1] + 0.00001
 	for i := 0; i < len(poly.Points); i++ {
 		var a = (poly.Points)[i]
 		var b = (poly.Points)[(i+1)%len(poly.Points)]
 		strike = false
 
+		var nortPole = []float64{0.0, 90.0}
+		var aT = a[0]
+		var pT = point[0]
+		var bT = b[0]
 		if a[0] == b[0] {
-			a[0] -= 0.001
+			a[0] -= 0.000000001
+			nortPole = []float64{0.1, 89.9}
+			aT = transformLon(nortPole, a)
+			pT = transformLon(nortPole, point)
+			bT = transformLon(nortPole, b)
 		}
 
-		if point[0] == a[0] {
+		if pT == aT {
 			strike = true
 		} else {
 
-			//var aToB = eastOrWest(a[0], b[0])
-			var aToP = eastOrWest(a[0], point[0])
-			var pToB = eastOrWest(point[0], b[0])
+			var aToP = eastOrWest(aT, pT)
+			var pToB = eastOrWest(pT, bT)
 
-			//if aToP == aToB && pToB == aToB {
 			if aToP == (poly.EoWNext)[i] && pToB == (poly.EoWNext)[i] {
 				strike = true
 			}
@@ -87,19 +88,13 @@ func pointInPolygonSphere(poly *Polygon, point []float64) bool {
 				return true
 			}
 
-			// Possible to calculate once at poly creation
-			// var northPoleLonTransformed = transformLon(a, []float64{0.0, 90.0)
-			// var bLonTransformed = transformLon(a, b)
-			// Not possible
 			var pLonTransformed = transformLon(a, point)
 
 			if (poly.LngTNext)[i] == pLonTransformed {
 				return true
 			}
 
-			//var bToX = eastOrWest((poly.LngTNext)[i], (poly.LngTNorth)[i])
 			var bToP = eastOrWest((poly.LngTNext)[i], pLonTransformed)
-			// if bToX == -bToP {
 			if (poly.BtoX)[i] == -bToP {
 				inside = !inside
 			}
@@ -131,6 +126,9 @@ func isLandSphere(tree *boundingTree, point []float64, polygons *Polygons) bool 
 }
 
 func isLandSphereNBT(allBoundingBoxes *[]map[string]float64, point []float64, polygons *Polygons) bool {
+	if point[1] <= -80.0 {
+		return true
+	}
 	for i, j := range *allBoundingBoxes {
 		if boundingContains(&j, point) {
 			if pointInPolygonSphere(&(*polygons)[i], point) {
