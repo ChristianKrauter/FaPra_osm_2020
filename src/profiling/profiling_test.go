@@ -29,7 +29,7 @@ func TestMain(m *testing.M) {
 // TestWayFinding for profiling
 func TestWayFinding(t *testing.T) {
 
-	fmt.Printf("Starting profilining of ", xSize, ySize)
+	fmt.Printf("Starting profilining of")
 
 	switch algorithm {
 	case 0:

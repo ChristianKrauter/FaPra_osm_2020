@@ -12,6 +12,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 var port int = 8082
@@ -100,16 +101,32 @@ func Start(xSize, ySize int) {
 			var result = make([]*geojson.FeatureCollection, 5)
 			var routes = make([]*[][][]float64, 5)
 			var lengths = make([]float64, 5)
+			var starts = make([]time.Time, 5)
+			var ends = make([]time.Time, 5)
 
+			starts[0] = time.Now()
 			routes[0], _, lengths[0] = algorithms.Dijkstra(int(x), int(y), &ug)
+			ends[0] = time.Now()
+
+			starts[1] = time.Now()
 			routes[1], _, lengths[1] = algorithms.AStar(int(x), int(y), &ug)
+			ends[1] = time.Now()
+
+			starts[2] = time.Now()
 			routes[2], _, lengths[2] = algorithms.BiDijkstra(int(x), int(y), &ug)
+			ends[2] = time.Now()
+
+			starts[3] = time.Now()
 			routes[3], _, lengths[3] = algorithms.BiAStar(int(x), int(y), &ug)
+			ends[3] = time.Now()
+
+			starts[4] = time.Now()
 			routes[4], _, lengths[4] = algorithms.AStarJPS(int(x), int(y), &ug)
+			ends[4] = time.Now()
 
 			for i := 0; i < 5; i++ {
 				result[i] = toGeojson(*routes[i])
-				fmt.Printf("(%s) length: %v\n", algoStr[i], lengths[i])
+				fmt.Printf("(%s) length: %v time: %s\n", algoStr[i], lengths[i], ends[i].Sub(starts[i]))
 			}
 
 			tdJSON, err := json.Marshal(result)
