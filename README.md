@@ -12,3 +12,7 @@ Repository for 'Fachpraktikum OpenStreetMap Daten' 2020 UNI Stuttgart by Jonas V
 ### Tasks 5 & 6
     1. Run 'go run server.go' or server.exe
     2. Visit 'localhost:8081'
+    
+## Final Project (Task 7)
+    1. Run go 'run osmgw.go' or osmgw.exe
+    2. Visit 'localhost:8081'
