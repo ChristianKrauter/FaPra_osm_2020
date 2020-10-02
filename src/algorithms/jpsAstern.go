@@ -8,9 +8,9 @@ import(
 )
 
 
+
 // JPSAstern implementation on uniform grid
 func JPSAstern(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64, int) {
-
 	var popped int
 	var dist []float64
 	var prev []int
@@ -29,7 +29,6 @@ func JPSAstern(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64, int)
 		direction: -1,
 	}
 	heap.Init(&pq)
-
 	for {
 		if len(pq) == 0 {
 			break
@@ -85,7 +84,7 @@ func JPSAsternAllNodes(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float
 		direction: -1,
 	}
 	heap.Init(&pq)
-
+	
 	for {
 		if len(pq) == 0 {
 			break
@@ -101,10 +100,9 @@ func JPSAsternAllNodes(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float
 				var processedNodes = ExtractNodesUg(&nodesProcessed, ug)
 				return route, processedNodes
 			}
-
+			
 			succesors, directions := IdentifySuccessors(u, direction, fromIDX, toIDX, ug)
-			//neighbours := NeighboursUg(&u, ug)
-
+			
 			for i, j := range succesors {
 				var alt = dist[u] + distance((*ug).GridToCoord((*ug).IDToGrid(u)), (*ug).GridToCoord((*ug).IDToGrid(j)))
 				if alt < dist[j] {
@@ -127,72 +125,73 @@ func JPSAsternAllNodes(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float
 
 
 func IdentifySuccessors(x, dir int, fromIDX, toIDX []int, ug *grids.UniformGrid) ([]int,[]int){
-	neighbours, dirs := JPSNeighboursUg(x, dir, ug);
+	dirs := JPSNeighboursUg(x, dir, ug);
 	var succesors []int
 	var directions []int
-
-	for i, x := range neighbours{
-		n := jump(x, dirs[i], fromIDX, toIDX, ug)
-		if(n != nil){
-			succesors = append(succesors, ug.GridToID(n))
-			directions = append(directions, dirs[i])
+	var sGrid [][]int
+	for _, j := range dirs{
+		succ := jump(x, x, &j, fromIDX, toIDX, ug)
+		if(succ != nil){
+			sGrid = append(sGrid,succ)
+			succesors = append(succesors, ug.GridToID(succ))
+			directions = append(directions, j)
 		}
 	}
+	//fmt.Printf("in:%v\nn: %v\ndir: %v\n\n",ug.IDToGrid(x),sGrid,directions)
 	return succesors,directions
 }
 
 
-func jump(x, dir int, fromIDX, toIDX []int, ug *grids.UniformGrid) []int{
-	n := step(x,dir,ug)
-	if(n == nil || ug.VertexData[n[0]][n[1]]){
-		/*if(n != nil){
-			*nodesProcessed = append(*nodesProcessed, (*ug).GridToID(n))
-		}*/
+func jump(origin,x int, dir *int, fromIDX, toIDX []int, ug *grids.UniformGrid) []int{
+	n := step(origin, x, dir, ug)
+	//fmt.Printf("- ")
+	//*jumpLookAts= append(*jumpLookAts, ug.GridToCoord(ug.IDToGrid(x)))
+	//xCoord := ug.IDToGrid(x)
+	//fmt.Printf("xdiff: %v,\nydiff: %v\n\n", xCoord, n)
+	if(n == nil || ug.VertexData[n[0]][n[1]]){		
 		return nil
 	}
+	
 	if(n[0] == toIDX[0] && n[1] == toIDX[1]){
 		return n
 	}
-	if(isForced((*ug).GridToID(n),dir, ug)){
+	if(isForced(ug.GridToID(n),*dir, ug)){
 		return n 
 	}
-	if(dir == 0 || dir == 2 || dir == 4 || dir == 6){
-		temp := jump(ug.GridToID(n),mod(dir-1,8),fromIDX, toIDX, ug)
+	if(*dir == 0 || *dir == 2 || *dir == 4 || *dir == 6){
+		newDir1 := mod((*dir)-1,8)
+		temp := jump(ug.GridToID(n),ug.GridToID(n),&newDir1,fromIDX, toIDX, ug)
 		if(temp != nil){
-			fmt.Printf("hi")
 			return n
 		}
-		temp = jump(ug.GridToID(n),mod(dir+1,8),fromIDX, toIDX, ug)
+		newDir2 := mod((*dir)+1,8)
+		temp = jump(ug.GridToID(n),ug.GridToID(n),&newDir2,fromIDX, toIDX, ug)
 		if(temp != nil){
-			fmt.Printf("ho")
 			return n
 		}
 	}
-	return jump(ug.GridToID(n),dir,fromIDX, toIDX, ug)
+	return jump(origin, ug.GridToID(n), dir, fromIDX, toIDX, ug)
 }
 
-func step(in,dir int, ug *grids.UniformGrid) []int{
-var allNeighbours [8][]int
+func step(origin, in int,dir *int, ug *grids.UniformGrid) []int{
+	var allNeighbours [8][]int
 	var inGrid = ug.IDToGrid(in)
 	var ratio float64
 	var nUp, nDown int
 	var m = inGrid[0]
 	var n = inGrid[1]
 
-	// lengths of rows
 	var lm = len(ug.VertexData[m])
-
-	allNeighbours[7] = []int{m, mod(n-1, lm)}
-	allNeighbours[3] = []int{m, mod(n+1, lm)}
-
+	allNeighbours[7] = []int{m, mod(n-1, lm)}	
+	allNeighbours[3] = []int{m, mod(n+1, lm)}	
 	ratio = float64(n) / float64(lm)
 
 	if m < len(ug.VertexData) -1 {
 		var lmp = len(ug.VertexData[m+1])
 		nUp = int(math.Round(ratio * float64(lmp)))
 		allNeighbours[5] = []int{m + 1, mod(nUp, lmp)}
-		allNeighbours[6] = []int{m + 1, mod(nUp+1.0, lmp)}
-		allNeighbours[4] = []int{m + 1, mod(nUp-1.0, lmp)}
+		allNeighbours[4] = []int{m + 1, mod(nUp+1.0, lmp)}
+		allNeighbours[6] = []int{m + 1, mod(nUp-1.0, lmp)}
 	}
 
 	if m > 0 {
@@ -202,10 +201,44 @@ var allNeighbours [8][]int
 		allNeighbours[2] = []int{m - 1, mod(nDown+1.0, lmm)}
 		allNeighbours[0] = []int{m - 1, mod(nDown-1.0, lmm)}
 	}
-	 if(allNeighbours[dir] == nil){
+	if allNeighbours[*dir][0] >= len(ug.VertexData) -1 {
+		*dir = mod((*dir)+4,8)
+	} 
+	if len(allNeighbours[*dir]) < 1 || ug.GridToID(allNeighbours[*dir]) == origin {
 	 	return nil
-	 } else {
-	 	return allNeighbours[dir]
-	 }
+	} else {
+	 	return allNeighbours[*dir]
+	}
 	
 }
+
+//jump function to show all visited nodes
+/*
+func jumpLookAt(x, dir int, fromIDX, toIDX []int, ug *grids.UniformGrid, jumpLookAts *[][]float64) []int{
+	n := step(x,dir,ug, jumpLookAts)
+	//fmt.Printf("- ")
+	//*jumpLookAts= append(*jumpLookAts, ug.GridToCoord(ug.IDToGrid(x)))
+	//xCoord := ug.IDToGrid(x)
+	//fmt.Printf("xdiff: %v,\nydiff: %v\n\n", xCoord, n)
+	if(n == nil || ug.VertexData[n[0]][n[1]]){		
+		return nil
+	}
+	
+	if(n[0] == toIDX[0] && n[1] == toIDX[1]){
+		return n
+	}
+	if(isForced(ug.GridToID(n),dir, ug)){
+		return n 
+	}
+	if(dir == 0 || dir == 2 || dir == 4 || dir == 6){
+		temp := jump(ug.GridToID(n),mod(dir-1,8),fromIDX, toIDX, ug, jumpLookAts)
+		if(temp != nil){
+			return n
+		}
+		temp = jump(ug.GridToID(n),mod(dir+1,8),fromIDX, toIDX, ug, jumpLookAts)
+		if(temp != nil){
+			return n
+		}
+	}
+	return jump(ug.GridToID(n),dir,fromIDX, toIDX, ug, jumpLookAts)
+}*/

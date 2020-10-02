@@ -207,7 +207,7 @@ func NeighboursUg(in *int, ug *grids.UniformGrid) []int {
 	return neighbours1d
 }
 
-func JPSNeighboursUg(in, dir int, ug *grids.UniformGrid) ([]int, []int) {
+func JPSNeighboursUg(in, dir int, ug *grids.UniformGrid) ([]int) {
 	var allNeighbours [8][]int
 	var inGrid = ug.IDToGrid(in)
 	var ratio float64
@@ -220,8 +220,9 @@ func JPSNeighboursUg(in, dir int, ug *grids.UniformGrid) ([]int, []int) {
 	// lengths of rows
 	var lm = len(ug.VertexData[m])
 
-	allNeighbours[7] = []int{m, mod(n-1, lm)}
-	allNeighbours[3] = []int{m, mod(n+1, lm)}
+	allNeighbours[7] = []int{m, mod(n-1, lm)}	
+	allNeighbours[3] = []int{m, mod(n+1, lm)}	
+	
 
 	ratio = float64(n) / float64(lm)
 
@@ -240,18 +241,27 @@ func JPSNeighboursUg(in, dir int, ug *grids.UniformGrid) ([]int, []int) {
 		allNeighbours[2] = []int{m - 1, mod(nDown+1.0, lmm)}
 		allNeighbours[0] = []int{m - 1, mod(nDown-1.0, lmm)}
 	}
+
+	//Begin pruning 
 	if(dir == -1){
-		var n1d []int 
-		for _,j := range allNeighbours{
-			n1d = append(n1d, ug.GridToID(j))
+		var n1d []int
+		var returnDir []int
+		for i,j := range allNeighbours{
+			if(len(j)>0){
+				n1d = append(n1d, ug.GridToID(j))
+				returnDir = append(returnDir, i)	
+			}
 		}
-		return n1d, []int{0,1,2,3,4,5,6,7}
+
+		return returnDir
 	}
+
 	var neighbours [][]int
 	neighbours = append(neighbours, allNeighbours[dir])
 	directions = append(directions, dir)
-
+	
 	if(dir == 0 || dir == 2 || dir == 4 || dir == 6){
+		
 		neighbours = append(neighbours, allNeighbours[mod(dir-1, 8)])
 		neighbours = append(neighbours, allNeighbours[mod(dir+1, 8)])
 		directions = append(directions, mod(dir-1, 8))
@@ -283,14 +293,14 @@ func JPSNeighboursUg(in, dir int, ug *grids.UniformGrid) ([]int, []int) {
 		}
 	}
 	
+	var directions1d []int
 
-	var neighbours1d []int
-	for _, neighbour := range neighbours {
-		if !ug.VertexData[neighbour[0]][neighbour[1]] {
-			neighbours1d = append(neighbours1d, ug.GridToID(neighbour))
+	for i, neighbour := range neighbours {
+		if len(neighbour)>0 && !ug.VertexData[neighbour[0]][neighbour[1]] {
+			directions1d = append(directions1d, directions[i])
 		}
 	}
-	return neighbours1d,directions
+	return directions1d
 }
 
 func isForced(in, dir int, ug *grids.UniformGrid) bool {
