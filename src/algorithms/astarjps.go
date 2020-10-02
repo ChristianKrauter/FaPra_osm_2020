@@ -43,21 +43,23 @@ func AStarJPS(from, to int, ug *grids.UniformGrid) (*[][][]float64, int, float64
 
 			neighbours := prune(u, SimpleNeighboursUgJPS(*u, ug))
 			uCoord := ug.GridToCoord(u.grid)
-			for _, n := range *neighbours {
-				j := jump(u.IDX, u, n.dir, from, to, ug)
-				if j != nil {
-					j.grid = ug.IDToGrid(j.IDX)
-					alt := dist[u.IDX] + distance(uCoord, ug.GridToCoord(j.grid))
-					if alt < dist[j.IDX] {
-						dist[j.IDX] = alt
-						prev[j.IDX] = u.IDX
-						item := &NodeJPS{
-							grid:     j.grid,
-							IDX:      j.IDX,
-							dir:      j.dir,
-							priority: -(dist[j.IDX] + distance(ug.GridToCoord(j.grid), toCoord)),
+			for n, i := range *neighbours {
+				if i[0] {
+					j := jump(u.IDX, u, n, from, to, ug)
+					if j != nil {
+						j.grid = ug.IDToGrid(j.IDX)
+						alt := dist[u.IDX] + distance(uCoord, ug.GridToCoord(j.grid))
+						if alt < dist[j.IDX] {
+							dist[j.IDX] = alt
+							prev[j.IDX] = u.IDX
+							item := &NodeJPS{
+								grid:     j.grid,
+								IDX:      j.IDX,
+								dir:      j.dir,
+								priority: -(dist[j.IDX] + distance(ug.GridToCoord(j.grid), toCoord)),
+							}
+							heap.Push(&pq, item)
 						}
-						heap.Push(&pq, item)
 					}
 				}
 			}
@@ -102,21 +104,23 @@ func AStarJPSAllNodes(from, to int, ug *grids.UniformGrid) (*[][][]float64, *[][
 
 			neighbours := prune(u, SimpleNeighboursUgJPS(*u, ug))
 			uCoord := ug.GridToCoord(u.grid)
-			for _, n := range *neighbours {
-				j := jump(u.IDX, u, n.dir, from, to, ug)
-				if j != nil {
-					j.grid = ug.IDToGrid(j.IDX)
-					alt := dist[u.IDX] + distance(uCoord, ug.GridToCoord(j.grid))
-					if alt < dist[j.IDX] {
-						dist[j.IDX] = alt
-						prev[j.IDX] = u.IDX
-						item := &NodeJPS{
-							grid:     j.grid,
-							IDX:      j.IDX,
-							dir:      j.dir,
-							priority: -(dist[j.IDX] + distance(ug.GridToCoord(j.grid), toCoord)),
+			for n, i := range *neighbours {
+				if i[0] {
+					j := jump(u.IDX, u, n, from, to, ug)
+					if j != nil {
+						j.grid = ug.IDToGrid(j.IDX)
+						alt := dist[u.IDX] + distance(uCoord, ug.GridToCoord(j.grid))
+						if alt < dist[j.IDX] {
+							dist[j.IDX] = alt
+							prev[j.IDX] = u.IDX
+							item := &NodeJPS{
+								grid:     j.grid,
+								IDX:      j.IDX,
+								dir:      j.dir,
+								priority: -(dist[j.IDX] + distance(ug.GridToCoord(j.grid), toCoord)),
+							}
+							heap.Push(&pq, item)
 						}
-						heap.Push(&pq, item)
 					}
 				}
 			}
@@ -138,7 +142,7 @@ func jump(u int, nn *NodeJPS, dir, from, to int, ug *grids.UniformGrid) *NodeJPS
 	}
 
 	for _, i := range *prune(n, SimpleNeighboursUgJPS(*n, ug)) {
-		if i.forced {
+		if i[1] {
 			return n
 		}
 	}
@@ -258,31 +262,26 @@ func step(i *NodeJPS, dir int, ug *grids.UniformGrid) *NodeJPS {
 }
 
 // SimpleNeighboursUgJPS gets ug neighbours cheaper
-func SimpleNeighboursUgJPS(in NodeJPS, ug *grids.UniformGrid) *map[int]NodeJPS {
+func SimpleNeighboursUgJPS(in NodeJPS, ug *grids.UniformGrid) *[8][2]bool {
 	var ratio float64
 	var nUp, nDown int
 	in.grid = ug.IDToGrid(in.IDX)
 	var m = in.grid[0]
 	var n = in.grid[1]
-	var neighbours1d = make(map[int]NodeJPS)
+	//var neighbours1d = make(map[int]NodeJPS)
+	var result = [8][2]bool{}
 
 	// lengths of rows
 	var lm = len(ug.VertexData[m])
 
 	grid := []int{m, mod(n-1, lm)}
 	if !ug.VertexData[grid[0]][grid[1]] {
-		neighbours1d[3] = NodeJPS{
-			IDX: ug.GridToID(grid),
-			dir: 3,
-		}
+		result[3][0] = true
 	}
 
 	grid = []int{m, mod(n+1, lm)}
 	if !ug.VertexData[grid[0]][grid[1]] {
-		neighbours1d[4] = NodeJPS{
-			IDX: ug.GridToID(grid),
-			dir: 4,
-		}
+		result[4][0] = true
 	}
 
 	ratio = float64(n) / float64(lm)
@@ -293,25 +292,19 @@ func SimpleNeighboursUgJPS(in NodeJPS, ug *grids.UniformGrid) *map[int]NodeJPS {
 
 		grid := []int{m + 1, mod(nUp, lmp)}
 		if !ug.VertexData[grid[0]][grid[1]] {
-			neighbours1d[1] = NodeJPS{
-				IDX: ug.GridToID(grid),
-				dir: 1,
-			}
+			result[1][0] = true
 		}
+
 		grid = []int{m + 1, mod(nUp+1.0, lmp)}
 		if !ug.VertexData[grid[0]][grid[1]] {
-			neighbours1d[2] = NodeJPS{
-				IDX: ug.GridToID(grid),
-				dir: 2,
-			}
+			result[2][0] = true
 		}
+
 		grid = []int{m + 1, mod(nUp-1.0, lmp)}
 		if !ug.VertexData[grid[0]][grid[1]] {
-			neighbours1d[0] = NodeJPS{
-				IDX: ug.GridToID(grid),
-				dir: 0,
-			}
+			result[0][0] = true
 		}
+
 	}
 
 	if m > 0 {
@@ -320,35 +313,29 @@ func SimpleNeighboursUgJPS(in NodeJPS, ug *grids.UniformGrid) *map[int]NodeJPS {
 
 		grid := []int{m - 1, mod(nDown, lmm)}
 		if !ug.VertexData[grid[0]][grid[1]] {
-			neighbours1d[6] = NodeJPS{
-				IDX: ug.GridToID(grid),
-				dir: 6,
-			}
+			result[6][0] = true
 		}
+
 		grid = []int{m - 1, mod(nDown+1.0, lmm)}
 		if !ug.VertexData[grid[0]][grid[1]] {
-			neighbours1d[7] = NodeJPS{
-				IDX: ug.GridToID(grid),
-				dir: 7,
-			}
+			result[7][0] = true
 		}
+
 		grid = []int{m - 1, mod(nDown-1.0, lmm)}
 		if !ug.VertexData[grid[0]][grid[1]] {
-			neighbours1d[5] = NodeJPS{
-				IDX: ug.GridToID(grid),
-				dir: 5,
-			}
+			result[5][0] = true
 		}
+
 	}
-	return &neighbours1d
+	return &result
 }
 
-func prune(i *NodeJPS, nbs *map[int]NodeJPS) *map[int]NodeJPS {
+func prune(i *NodeJPS, nbs *[8][2]bool) *[8][2]bool {
 	if i.dir == -1 {
 		return nbs
 	}
 
-	var res = make(map[int]NodeJPS)
+	var res = [8][2]bool{}
 	var n = make([][]int, 2) // forced neighbours to check
 	var m = make([]int, 3)   // natural neighbours to check
 
@@ -401,16 +388,12 @@ func prune(i *NodeJPS, nbs *map[int]NodeJPS) *map[int]NodeJPS {
 		n[1] = []int{4, 7}
 	}
 	for _, i := range m {
-		if _, ok := (*nbs)[i]; ok {
-			res[i] = (*nbs)[i]
-		}
+		res[i] = (*nbs)[i]
 	}
 	for _, i := range n {
-		if _, ok := (*nbs)[i[0]]; !ok {
-			if _, ok := (*nbs)[i[1]]; ok {
-				x := (*nbs)[i[1]]
-				x.forced = true
-				res[i[1]] = x
+		if !(*nbs)[i[0]][0] {
+			if (*nbs)[i[1]][0] {
+				res[i[1]] = [2]bool{true, true}
 			}
 		}
 	}
