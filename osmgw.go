@@ -26,7 +26,7 @@ func main() {
 	var info string
 
 	flag.IntVar(&mode, "m", 0,
-		"Select Mode:\n  0: Start server \n  1: Evaluate dataprocessing\n  2: Evaluate wayfinding\n  3: Evaluate reading pbf\n  4: Evaluate ug neighbours\n  5: Test routes and neighbours\n  6: Add canals to grid")
+		"Select Mode:\n  0: Start server \n  1: Evaluate grid creation\n  2: Evaluate wayfinding\n  3: Evaluate reading pbf\n  4: Evaluate ug neighbours\n  5: Test routes and neighbours\n  6: Add canals to grid")
 
 	flag.StringVar(&pbfFileName, "f", "antarctica-latest.osm.pbf", "Name of the pbf file inside data/")
 	flag.StringVar(&note, "n", "", "Additional note for evaluations.")
