@@ -15,12 +15,10 @@ func JPSAstern(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64, int)
 	var dist []float64
 	var prev []int
 	pq := make(jpsPriorityQueue, 1)
-
 	for i := 0; i < (*ug).N; i++ {
 		dist = append(dist, math.Inf(1))
 		prev = append(prev, -1)
 	}
-
 	dist[(*ug).GridToID(fromIDX)] = 0
 	pq[0] = &JPSItem{
 		value:    (*ug).GridToID(fromIDX),
@@ -36,7 +34,6 @@ func JPSAstern(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64, int)
 			item := heap.Pop(&pq).(*JPSItem)
 			u := item.value
 			direction := item.direction
-			//u := heap.Pop(&pq).(*Item).value
 			popped++
 
 			if u == (*ug).GridToID(toIDX) {
@@ -44,8 +41,6 @@ func JPSAstern(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64, int)
 				return ExtractRouteUg(&prev, (*ug).GridToID(toIDX), ug), popped
 			}
 			succesors, directions := IdentifySuccessors(u, direction, fromIDX, toIDX, ug)
-			//neighbours := NeighboursUg(&u, ug)
-
 			for i, j := range succesors {
 				var alt = dist[u] + distance((*ug).GridToCoord((*ug).IDToGrid(u)), (*ug).GridToCoord((*ug).IDToGrid(j)))
 				if alt < dist[j] {
@@ -75,7 +70,6 @@ func JPSAsternAllNodes(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float
 		dist = append(dist, math.Inf(1))
 		prev = append(prev, -1)
 	}
-
 	dist[(*ug).GridToID(fromIDX)] = 0
 	pq[0] = &JPSItem{
 		value:    (*ug).GridToID(fromIDX),
@@ -84,7 +78,6 @@ func JPSAsternAllNodes(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float
 		direction: -1,
 	}
 	heap.Init(&pq)
-	
 	for {
 		if len(pq) == 0 {
 			break
@@ -137,17 +130,12 @@ func IdentifySuccessors(x, dir int, fromIDX, toIDX []int, ug *grids.UniformGrid)
 			directions = append(directions, j)
 		}
 	}
-	//fmt.Printf("in:%v\nn: %v\ndir: %v\n\n",ug.IDToGrid(x),sGrid,directions)
 	return succesors,directions
 }
 
 
 func jump(origin,x int, dir *int, fromIDX, toIDX []int, ug *grids.UniformGrid) []int{
 	n := step(origin, x, dir, ug)
-	//fmt.Printf("- ")
-	//*jumpLookAts= append(*jumpLookAts, ug.GridToCoord(ug.IDToGrid(x)))
-	//xCoord := ug.IDToGrid(x)
-	//fmt.Printf("xdiff: %v,\nydiff: %v\n\n", xCoord, n)
 	if(n == nil || ug.VertexData[n[0]][n[1]]){		
 		return nil
 	}

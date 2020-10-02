@@ -208,14 +208,6 @@ func RunUnidistant(xSize, ySize, algorithm int, basicPointInPolygon bool) {
 		}
 	}
 
-	var algoStr string
-	switch algorithm {
-	case 0:
-		algoStr = "_dij"
-	default:
-		algoStr = "_dij"
-	}
-	fmt.Printf("Algo: %v\n", algoStr)
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 

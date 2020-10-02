@@ -25,8 +25,8 @@ func main() {
 	var nRuns int
 
 	flag.StringVar(&pbfFileName, "f", "antarctica-latest.osm.pbf", "Name of the pbf file inside data/")
-	flag.IntVar(&xSize, "x", 360, "Meshgrid size in x direction.")
-	flag.IntVar(&ySize, "y", 360, "Meshgrid size in y direction.")
+	flag.IntVar(&xSize, "x", 1000, "Meshgrid size in x direction.")
+	flag.IntVar(&ySize, "y", 1000, "Meshgrid size in y direction.")
 	flag.BoolVar(&createCoastlineGeoJSON, "coastline", false, "Create coastline geoJSON?")
 	flag.StringVar(&note, "n", "", "Additional note for evaluations.")
 
