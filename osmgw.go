@@ -30,12 +30,12 @@ func main() {
 
 	flag.StringVar(&pbfFileName, "f", "antarctica-latest.osm.pbf", "Name of the pbf file inside data/")
 	flag.StringVar(&note, "n", "", "Additional note for evaluations.")
-	flag.IntVar(&xSize, "x", 360, "Meshgrid size in x direction.")
-	flag.IntVar(&ySize, "y", 360, "Meshgrid size in y direction.")
+	flag.IntVar(&xSize, "x", 1000, "Meshgrid size in x direction.")
+	flag.IntVar(&ySize, "y", 1000, "Meshgrid size in y direction.")
 	flag.BoolVar(&createCoastlineGeoJSON, "coastline", false, "Create coastline geoJSON.")
 
 	flag.BoolVar(&lessMemory, "lm", false, "Use memory efficient method to read unpruned pbf files.")
-	flag.BoolVar(&noBoundingTree, "nbt", false, "Do not use a tree structure for the bounding boxes.")
+	flag.BoolVar(&noBoundingTree, "nbt", true, "Do not use a tree structure for the bounding boxes.")
 	flag.BoolVar(&basicGrid, "bg", false, "Create a basic (non-uniform) grid.")
 	flag.BoolVar(&basicPointInPolygon, "bpip", false, "Use the basic 2D point in polygon test.")
 
