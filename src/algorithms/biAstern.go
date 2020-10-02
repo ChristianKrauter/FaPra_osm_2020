@@ -77,7 +77,7 @@ func BiAstern(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64, int) 
 						prev1[j] = u1
 						item := &Item{
 							value:    j,
-							priority: -dist1[j] - (distance((*ug).GridToCoord((*ug).IDToGrid(j)), (*ug).GridToCoord(toIDX)) - distance((*ug).GridToCoord(fromIDX), (*ug).GridToCoord((*ug).IDToGrid(j))))/2,
+							priority: -(dist1[j] + (distance((*ug).GridToCoord((*ug).IDToGrid(j)), (*ug).GridToCoord(toIDX)) - distance((*ug).GridToCoord(fromIDX), (*ug).GridToCoord((*ug).IDToGrid(j))))/2),
 						}
 						
 						if(!met){
@@ -112,7 +112,7 @@ func BiAstern(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64, int) 
 						prev2[j] = u2
 						item := &Item{
 							value:    j,
-							priority: -dist2[j] - (distance((*ug).GridToCoord(fromIDX), (*ug).GridToCoord((*ug).IDToGrid(j))) - distance((*ug).GridToCoord((*ug).IDToGrid(j)), (*ug).GridToCoord(toIDX)))/2,
+							priority: -(dist2[j] + (distance((*ug).GridToCoord(fromIDX), (*ug).GridToCoord((*ug).IDToGrid(j))) - distance((*ug).GridToCoord((*ug).IDToGrid(j)), (*ug).GridToCoord(toIDX)))/2),
 						}
 
 						if(!met){

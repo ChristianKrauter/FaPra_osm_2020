@@ -48,7 +48,7 @@ func Astern(fromIDX, toIDX []int, ug *grids.UniformGrid) ([][][]float64, int) {
 					prev[j] = u
 					item := &Item{
 						value:    j,
-						priority: -dist[j] - distance((*ug).GridToCoord((*ug).IDToGrid(j)), (*ug).GridToCoord(toIDX)),
+						priority: - (dist[j] + distance((*ug).GridToCoord((*ug).IDToGrid(j)), (*ug).GridToCoord(toIDX))),
 					}
 					heap.Push(&pq, item)
 				}
