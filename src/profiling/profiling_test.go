@@ -3,6 +3,7 @@ package main
 import (
 	"../grids"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -12,12 +13,38 @@ import (
 	"time"
 )
 
+var xSize, ySize, algorithm, nRuns int
+var basicGrid bool
+
+func TestMain(m *testing.M) {
+	flag.IntVar(&xSize, "xs", 1000, "Meshgrid size in x direction.")
+	flag.IntVar(&ySize, "ys", 500, "Meshgrid size in y direction.")
+	flag.IntVar(&algorithm, "alg", 0, "Select Algorithm:\n  0: Dijkstra\n  1: A*\n  2: Bi-Dijkstra\n  3: Bi-A*\n  4: A*-JPS")
+	flag.IntVar(&nRuns, "r", 100, "Number of runs for wayfinding evaluation.")
+
+	flag.Parse()
+	os.Exit(m.Run())
+}
+
 // TestWayFinding for profiling
 func TestWayFinding(t *testing.T) {
-	xSize := 360
-	ySize := 360
-	nRuns := 100
-	algorithm := 4
+
+	fmt.Printf("Starting profilining of ", xSize, ySize)
+
+	switch algorithm {
+	case 0:
+		fmt.Printf(" %v Dijkstra runs ", nRuns)
+	case 1:
+		fmt.Printf(" %v A* runs ", nRuns)
+	case 2:
+		fmt.Printf(" %v Bi-Dijkstra runs ", nRuns)
+	case 3:
+		fmt.Printf(" %v Bi-A* runs ", nRuns)
+	case 4:
+		fmt.Printf(" %v A* JPS runs ", nRuns)
+	}
+
+	fmt.Printf("on the %vx%v uniform grid\n\n", xSize, ySize)
 
 	var ug grids.UniformGrid
 	var from = make([]int, nRuns)
