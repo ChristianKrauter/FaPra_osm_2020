@@ -31,22 +31,24 @@ $("#showNbs").click(function() {
 $("#showGridNode").click(function() {
     x = document.getElementById("gridX").value
     y = document.getElementById("gridY").value
+    dir = document.getElementById("dir").value
     data = {
         x: x,
-        y: y
+        y: y,
+        dir:dir
     }
     console.log(data)
-    /*    $.ajax({
-                url: "/gridPoint",
+    /   $.ajax({
+                url: "/jumpPoint",
                 data: data,
-            }).done(showGridNode);*/
-    data["startLat"] = y
+            }).done(showGridNode);
+    /*data["startLat"] = y
     data["startLng"] = x
     $.ajax({
         url: "/point",
         data: data,
         earthPosition: { ep: [x, y] }
-    }).done(pipTest);
+    }).done(pipTest);*/
 });
 
 var data = {

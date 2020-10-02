@@ -198,6 +198,133 @@ type TestData struct {
 	Nnbs  [][]float64
 }
 
+func jump(x, dir int, fromIDX, toIDX []int, ug *UniformGrid) []int{
+	n := step(x,dir,ug)
+	//xCoord := ug.IDToGrid(x)
+	//fmt.Printf("xdiff: %v,\nydiff: %v\n\n", xCoord, n)
+	if(n == nil || ug.VertexData[n[0]][n[1]]){
+		/*if(n != nil){
+			*nodesProcessed = append(*nodesProcessed, (*ug).GridToID(n))
+		}*/
+		return nil
+	}
+	if(n[0] == toIDX[0] && n[1] == toIDX[1]){
+		return n
+	}
+	if(isForced(ug.GridToID(n),dir, ug)){
+		return n 
+	}
+	if(dir == 0 || dir == 2 || dir == 4 || dir == 6){
+		temp := jump(ug.GridToID(n),mod(dir-1,8),fromIDX, toIDX, ug)
+		if(temp != nil){
+			return n
+		}
+		temp = jump(ug.GridToID(n),mod(dir+1,8),fromIDX, toIDX, ug)
+		if(temp != nil){
+			return n
+		}
+	}
+	return jump(ug.GridToID(n),dir,fromIDX, toIDX, ug)
+}
+
+func step(in,dir int, ug *UniformGrid) []int{
+
+	var allNeighbours [8][]int
+	var inGrid = ug.IDToGrid(in)
+	var ratio float64
+	var nUp, nDown int
+	var m = inGrid[0]
+	var n = inGrid[1]
+
+	// lengths of rows
+	var lm = len(ug.VertexData[m])
+
+	
+		allNeighbours[7] = []int{m, mod(n-1, lm)}	
+		allNeighbours[3] = []int{m, mod(n+1, lm)}	
+	
+	
+
+	ratio = float64(n) / float64(lm)
+
+	if m < len(ug.VertexData) -1 {
+		var lmp = len(ug.VertexData[m+1])
+		nUp = int(math.Round(ratio * float64(lmp)))
+		allNeighbours[5] = []int{m + 1, mod(nUp, lmp)}
+		allNeighbours[4] = []int{m + 1, mod(nUp+1.0, lmp)}
+		allNeighbours[6] = []int{m + 1, mod(nUp-1.0, lmp)}
+	}
+
+	if m > 0 {
+		var lmm = len(ug.VertexData[m-1])
+		nDown = int(math.Round(ratio * float64(lmm)))
+		allNeighbours[1] = []int{m - 1, mod(nDown, lmm)}
+		allNeighbours[2] = []int{m - 1, mod(nDown+1.0, lmm)}
+		allNeighbours[0] = []int{m - 1, mod(nDown-1.0, lmm)}
+	}
+	 if(len(allNeighbours[dir]) < 1 || m >= len(ug.VertexData) -1 || n < 1 || n >= len(ug.VertexData[m]) -1){
+	 	return nil
+	 } else {
+	 	return allNeighbours[dir]
+	 }
+	
+}
+
+
+func isForced(in, dir int, ug *UniformGrid) bool {
+	var allNeighbours [8][]int
+	var inGrid = ug.IDToGrid(in)
+	var ratio float64
+	var nUp, nDown int
+	var m = inGrid[0]
+	var n = inGrid[1]
+
+	// lengths of rows
+	var lm = len(ug.VertexData[m])
+
+	allNeighbours[7] = []int{m, mod(n-1, lm)}
+	allNeighbours[3] = []int{m, mod(n+1, lm)}
+
+	ratio = float64(n) / float64(lm)
+
+	if m < len(ug.VertexData) -1 {
+		var lmp = len(ug.VertexData[m+1])
+		nUp = int(math.Round(ratio * float64(lmp)))
+		allNeighbours[5] = []int{m + 1, mod(nUp, lmp)}
+		allNeighbours[4] = []int{m + 1, mod(nUp+1.0, lmp)}
+		allNeighbours[6] = []int{m + 1, mod(nUp-1.0, lmp)}
+	} else {
+		return false
+	}
+
+	if m > 0 {
+		var lmm = len(ug.VertexData[m-1])
+		nDown = int(math.Round(ratio * float64(lmm)))
+		allNeighbours[1] = []int{m - 1, mod(nDown, lmm)}
+		allNeighbours[2] = []int{m - 1, mod(nDown+1.0, lmm)}
+		allNeighbours[0] = []int{m - 1, mod(nDown-1.0, lmm)}
+	}
+
+	if(dir == 0 || dir == 2 || dir == 4 || dir == 6){
+		if ug.VertexData[allNeighbours[mod(dir-3, 8)][0]][allNeighbours[mod(dir-3, 8)][1]] && !ug.VertexData[allNeighbours[mod(dir-2, 8)][0]][allNeighbours[mod(dir-2, 8)][1]] {
+			return true
+		}
+		if ug.VertexData[allNeighbours[mod(dir+3, 8)][0]][allNeighbours[mod(dir+3, 8)][1]] && !ug.VertexData[allNeighbours[mod(dir+2, 8)][0]][allNeighbours[mod(dir+2, 8)][1]] {
+			return true
+		}
+	} else {
+		if ug.VertexData[allNeighbours[mod(dir-2, 8)][0]][allNeighbours[mod(dir-2, 8)][1]] && !ug.VertexData[allNeighbours[mod(dir-1, 8)][0]][allNeighbours[mod(dir-1, 8)][1]] {
+			return true
+		}
+		if ug.VertexData[allNeighbours[mod(dir+2, 8)][0]][allNeighbours[mod(dir+2, 8)][1]] && !ug.VertexData[allNeighbours[mod(dir+1, 8)][0]][allNeighbours[mod(dir+1, 8)][1]] {
+			return true
+		}
+	}
+
+	
+	return false
+}
+
 func main() {
 	xSize := 100
 	ySize := 500
@@ -267,6 +394,34 @@ func main() {
 				td.Nnbs = append(td.Nnbs, ug.GridToCoord(ug.IDToGrid(i)))
 			}
 			td.Point = gridNodeCoord
+			//fmt.Printf("%v\n", td)
+			tdJSON, err := json.Marshal(td)
+			if err != nil {
+				panic(err)
+			}
+			w.Write(tdJSON)
+
+		} else if strings.Contains(r.URL.Path, "/jumpPoint") {
+			query := r.URL.Query()
+			var x, err = strconv.ParseInt(query.Get("x"), 10, 64)
+			if err != nil {
+				panic(err)
+			}
+			var y, err1 = strconv.ParseInt(query.Get("y"), 10, 64)
+			if err1 != nil {
+				panic(err1)
+			}
+			var dir, err2 = strconv.ParseInt(query.Get("dir"), 10, 64)
+			if err2 != nil {
+				panic(err2)
+			}
+			fmt.Printf("%v, %v, %v\n", int(x), int(y), dir)
+			id := ug.GridToID([]int{int(x), int(y)})
+			jump := jump(id,int(dir),[]int{0,0},ug.CoordToGrid(0.0,0.0),&ug)
+			point := ug.GridToCoord(jump)
+			fmt.Printf("%v\n", point)
+			var td TestData
+			td.Point = point
 			//fmt.Printf("%v\n", td)
 			tdJSON, err := json.Marshal(td)
 			if err != nil {
