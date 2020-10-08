@@ -1,10 +1,10 @@
 import json
-import matplotlib.pyplot as plt
 import matplotlib
+import matplotlib.pyplot as plt
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument('filename', metavar='f', type=str, nargs='+',
+parser.add_argument('filename', type=str, nargs='+',
                     help='filename')
 args = parser.parse_args()
 filename = args.filename[0]
@@ -17,6 +17,11 @@ try:
 except Exception:
     print("Filename not supported.")
     exit()
+
+if "bg" in filename:
+    title = 'Basic Grid (n = %d)' % size
+else:
+    title = 'Uniform Grid (n = %d)' % size
 
 cmap = matplotlib.cm.get_cmap('Pastel1')
 algos = [None] * 5
@@ -56,12 +61,12 @@ for i, x in enumerate(data['Results']):
 times, algos1, colors1, times_faster = zip(
     *sorted(zip(times, algos, colors, times_faster), reverse=True))
 
-fig, ax = plt.subplots()
+fig, ax = plt.subplots(figsize=(10, 10))
 ax.set_ylabel('Average time in ms')
 ax.set_xlabel('Averaging over %s runs with %s CPU cores.'
               % (data["Parameters"]["Run Count"], data["Parameters"]["CPU Cores"]))
 ax.bar(algos1, times, width=0.5, color=colors1)
-ax.set_title('Uniform Grid (n = %d)' % size)
+ax.set_title('Speed for %s' % title)
 
 for i in range(len(times)):
     if i != 0:
@@ -69,7 +74,7 @@ for i in range(len(times)):
                      xy=(algos1[i], times[i]), ha='center', va='bottom')
     else:
         plt.annotate(str(times[i]), xy=(algos1[i], times[i]), ha='center', va='bottom')
-plt.savefig('Uniform Grid (n = %d) speed.jpg' % size)
+plt.savefig('%s speed.jpg' % title)
 plt.show()
 
 #
@@ -78,12 +83,12 @@ plt.show()
 pqpops, algos2, colors2, pqpops_percent = zip(
     *sorted(zip(pqpops, algos, colors, pqpops_percent), reverse=True))
 
-fig, ax = plt.subplots()
+fig, ax = plt.subplots(figsize=(10, 10))
 ax.set_ylabel('Average priority queue pops')
 ax.set_xlabel('Averaging over %s runs with %s CPU cores.'
               % (data["Parameters"]["Run Count"], data["Parameters"]["CPU Cores"]))
 ax.bar(algos2, pqpops, width=0.5, color=colors2)
-ax.set_title('Uniform Grid (n = %d)' % size)
+ax.set_title('PQ-Pops for %s' % title)
 
 for i in range(len(pqpops)):
     if i != 0:
@@ -91,5 +96,5 @@ for i in range(len(pqpops)):
                      xy=(algos2[i], pqpops[i]), ha='center', va='bottom')
     else:
         plt.annotate(str(pqpops[i]), xy=(algos2[i], pqpops[i]), ha='center', va='bottom')
-plt.savefig('Uniform Grid (n = %d) pqpops.jpg' % size)
+plt.savefig('%s pqpops.jpg' % title)
 plt.show()
