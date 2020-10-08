@@ -25,13 +25,13 @@ else:
 
 cmap = matplotlib.cm.get_cmap('Pastel1')
 algos = [None] * 5
+equality = [None] * 5
 times = [None] * 5
 times_faster = [None] * 5
 pqpops = [None] * 5
 pqpops_percent = [None] * 5
 colors = ['yellowgreen', 'deepskyblue', 'darkorchid', 'orange', 'firebrick']
 data = {}
-# ../data/evaluation/wf_360_360_2020-10-02_12-08-17.json
 
 try:
     with open(filename) as file:
@@ -54,6 +54,34 @@ for i, x in enumerate(data['Results']):
     times_faster[i] = round(float(data['Results'][x]['Time']['TimesFaster']), 3)
     pqpops[i] = data['Results'][x]['PQPops']['AVG']
     pqpops_percent[i] = data['Results'][x]['PQPops']['Percent']
+    equality[i] = [data['Results'][x]['Length']['Shorter'], data['Results']
+                   [x]['Length']['Equal'], data['Results'][x]['Length']['Longer']]
+
+#
+# Equality
+#
+fig, axs = plt.subplots(2, 2, figsize=(10, 10))
+
+axs[0, 0].set_title(algos[3])
+axs[0, 0].pie(equality[3], colors=colors, shadow=True, startangle=0, pctdistance=1.3,
+              autopct=lambda p: '{:.1f}%'.format(round(p)) if p > 0 else '')
+
+axs[0, 1].set_title(algos[2])
+axs[0, 1].pie(equality[2], colors=colors, shadow=True, startangle=0, pctdistance=1.3,
+              autopct=lambda p: '{:.1f}%'.format(round(p)) if p > 0 else '')
+
+axs[1, 0].set_title(algos[0])
+axs[1, 0].pie(equality[0], colors=colors, shadow=True, startangle=0, pctdistance=1.3,
+              autopct=lambda p: '{:.1f}%'.format(round(p)) if p > 0 else '')
+
+axs[1, 1].set_title(algos[1])
+axs[1, 1].pie(equality[1], colors=colors, shadow=True, startangle=-90, pctdistance=1.3,
+              autopct=lambda p: '{:.1f}%'.format(round(p)) if p > 0 else '')
+
+fig.legend(['Shorter', 'Equal', 'Longer'], loc="center")
+fig.suptitle(title)
+plt.savefig('%s equality.jpg' % title)
+plt.show()
 
 #
 # Times
