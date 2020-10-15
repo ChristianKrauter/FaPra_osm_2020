@@ -2,6 +2,7 @@ import json
 import matplotlib
 import matplotlib.pyplot as plt
 import argparse
+plt.style.use('dark_background')
 
 parser = argparse.ArgumentParser()
 parser.add_argument('filename', type=str, nargs='+',
@@ -60,7 +61,7 @@ for i, x in enumerate(data['Results']):
 #
 # Equality
 #
-fig, axs = plt.subplots(2, 2, figsize=(10, 10))
+fig, axs = plt.subplots(2, 2, figsize=(12, 8))
 
 axs[0, 0].set_title(algos[3])
 axs[0, 0].pie(equality[3], colors=colors, shadow=True, startangle=0, pctdistance=1.3,
@@ -80,6 +81,7 @@ axs[1, 1].pie(equality[1], colors=colors, shadow=True, startangle=-90, pctdistan
 
 fig.legend(['Shorter', 'Equal', 'Longer'], loc="center")
 fig.suptitle(title)
+plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
 plt.savefig('%s equality.jpg' % title)
 plt.show()
 
@@ -89,11 +91,12 @@ plt.show()
 times, algos1, colors1, times_faster = zip(
     *sorted(zip(times, algos, colors, times_faster), reverse=True))
 
-fig, ax = plt.subplots(figsize=(10, 10))
+fig, ax = plt.subplots(figsize=(12, 8))
 ax.set_ylabel('Average time in ms')
 ax.set_xlabel('Averaging over %s runs with %s CPU cores.'
               % (data["Parameters"]["Run Count"], data["Parameters"]["CPU Cores"]))
-ax.bar(algos1, times, width=0.5, color=colors1)
+ax.bar(algos1, times, color=colors1)
+# ax.bar(algos1, times, width=0.5, color=colors1)
 ax.set_title('Speed for %s' % title)
 
 for i in range(len(times)):
@@ -102,6 +105,7 @@ for i in range(len(times)):
                      xy=(algos1[i], times[i]), ha='center', va='bottom')
     else:
         plt.annotate(str(times[i]), xy=(algos1[i], times[i]), ha='center', va='bottom')
+plt.tight_layout()
 plt.savefig('%s speed.jpg' % title)
 plt.show()
 
@@ -111,11 +115,12 @@ plt.show()
 pqpops, algos2, colors2, pqpops_percent = zip(
     *sorted(zip(pqpops, algos, colors, pqpops_percent), reverse=True))
 
-fig, ax = plt.subplots(figsize=(10, 10))
+fig, ax = plt.subplots(figsize=(12, 8))
 ax.set_ylabel('Average priority queue pops')
 ax.set_xlabel('Averaging over %s runs with %s CPU cores.'
               % (data["Parameters"]["Run Count"], data["Parameters"]["CPU Cores"]))
-ax.bar(algos2, pqpops, width=0.5, color=colors2)
+ax.bar(algos2, pqpops, color=colors2)
+# ax.bar(algos2, pqpops, width=0.5, color=colors2)
 ax.set_title('PQ-Pops for %s' % title)
 
 for i in range(len(pqpops)):
@@ -124,5 +129,6 @@ for i in range(len(pqpops)):
                      xy=(algos2[i], pqpops[i]), ha='center', va='bottom')
     else:
         plt.annotate(str(pqpops[i]), xy=(algos2[i], pqpops[i]), ha='center', va='bottom')
+plt.tight_layout()
 plt.savefig('%s pqpops.jpg' % title)
 plt.show()
