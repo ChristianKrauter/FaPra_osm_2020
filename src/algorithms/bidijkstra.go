@@ -3,6 +3,7 @@ package algorithms
 import (
 	"../grids"
 	"container/heap"
+	// "fmt"
 	"math"
 )
 
@@ -15,6 +16,7 @@ func BiDijkstra(from, to int, ug *grids.UniformGrid) (*[][][]float64, int, float
 	var met = false
 	var meeting int
 	var bestDist = math.MaxFloat64
+	var popped int
 
 	for i := 0; i < ug.N; i++ {
 		dist[0][i] = math.Inf(1)
@@ -47,6 +49,7 @@ func BiDijkstra(from, to int, ug *grids.UniformGrid) (*[][][]float64, int, float
 			if len(pq[dir]) > 0 {
 				u := heap.Pop(&pq[dir]).(*Item).value
 				proc[dir][u] = true
+				popped++
 
 				if proc[1-dir][u] {
 					met = true
@@ -81,7 +84,8 @@ func BiDijkstra(from, to int, ug *grids.UniformGrid) (*[][][]float64, int, float
 		}
 		dir = 1 - dir // Change direction
 	}
-	return extractRouteUgBi(&prev, meeting, ug), len(proc[0]) + len(proc[1]), dist[0][meeting] + dist[1][meeting]
+	// fmt.Printf("popped: %v, old: %v\n", popped, len(proc[0])+len(proc[1]))
+	return extractRouteUgBi(&prev, meeting, ug), popped, dist[0][meeting] + dist[1][meeting]
 }
 
 // BiDijkstraAllNodes also returns visited nodes on uniform grid
