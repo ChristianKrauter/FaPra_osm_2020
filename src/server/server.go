@@ -334,7 +334,7 @@ func Run(xSize, ySize int, basicPointInPolygon bool) {
 						end = time.Now()
 					}
 					elapsed := end.Sub(start)
-					fmt.Printf("(%s) time: %s length: %v\n", algoStr[algorithm], elapsed, length)
+					fmt.Printf("(%s) time: %s length: %v pqpops: %v\n", algoStr[algorithm], elapsed, length, len(*nodesProcessed))
 
 					var result = toGeojson(*route)
 					data := dijkstraData{
@@ -353,34 +353,35 @@ func Run(xSize, ySize int, basicPointInPolygon bool) {
 					var end time.Time
 					var route *[][][]float64
 					var length float64
+					var nodesProcessed int
 					switch algorithm {
 					case 0:
 						start = time.Now()
-						route, _, length = algorithms.Dijkstra(ug.GridToID(from), ug.GridToID(to), &ug)
+						route, nodesProcessed, length = algorithms.Dijkstra(ug.GridToID(from), ug.GridToID(to), &ug)
 						end = time.Now()
 					case 1:
 						start = time.Now()
-						route, _, length = algorithms.AStar(ug.GridToID(from), ug.GridToID(to), &ug)
+						route, nodesProcessed, length = algorithms.AStar(ug.GridToID(from), ug.GridToID(to), &ug)
 						end = time.Now()
 					case 2:
 						start = time.Now()
-						route, _, length = algorithms.BiDijkstra(ug.GridToID(from), ug.GridToID(to), &ug)
+						route, nodesProcessed, length = algorithms.BiDijkstra(ug.GridToID(from), ug.GridToID(to), &ug)
 						end = time.Now()
 					case 3:
 						start = time.Now()
-						route, _, length = algorithms.BiAStar(ug.GridToID(from), ug.GridToID(to), &ug)
+						route, nodesProcessed, length = algorithms.BiAStar(ug.GridToID(from), ug.GridToID(to), &ug)
 						end = time.Now()
 					case 4:
 						start = time.Now()
-						route, _, length = algorithms.AStarJPS(ug.GridToID(from), ug.GridToID(to), &ug)
+						route, nodesProcessed, length = algorithms.AStarJPS(ug.GridToID(from), ug.GridToID(to), &ug)
 						end = time.Now()
 					default:
 						start = time.Now()
-						route, _, length = algorithms.Dijkstra(ug.GridToID(from), ug.GridToID(to), &ug)
+						route, nodesProcessed, length = algorithms.Dijkstra(ug.GridToID(from), ug.GridToID(to), &ug)
 						end = time.Now()
 					}
 					elapsed := end.Sub(start)
-					fmt.Printf("(%s) time: %s length: %v\n", algoStr[algorithm], elapsed, length)
+					fmt.Printf("(%s) time: %s length: %v pqpops: %v\n", algoStr[algorithm], elapsed, length, nodesProcessed)
 					rawJSON, err := toGeojson(*route).MarshalJSON()
 					check(err)
 					w.Write(rawJSON)

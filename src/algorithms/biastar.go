@@ -3,6 +3,7 @@ package algorithms
 import (
 	"../grids"
 	"container/heap"
+	"fmt"
 	"math"
 )
 
@@ -17,6 +18,7 @@ func BiAStar(from, to int, ug *grids.UniformGrid) (*[][][]float64, int, float64)
 	var bestDist = math.MaxFloat64
 	var toCoord = ug.GridToCoord(ug.IDToGrid(to))
 	var fromCoord = ug.GridToCoord(ug.IDToGrid(from))
+	var popped int
 
 	for i := 0; i < ug.N; i++ {
 		dist[0][i] = math.Inf(1)
@@ -49,6 +51,7 @@ func BiAStar(from, to int, ug *grids.UniformGrid) (*[][][]float64, int, float64)
 			if len(pq[dir]) > 0 {
 				u := heap.Pop(&pq[dir]).(*Item).value
 				proc[dir][u] = true
+				popped++
 
 				if proc[1-dir][u] {
 					met = true
@@ -83,8 +86,9 @@ func BiAStar(from, to int, ug *grids.UniformGrid) (*[][][]float64, int, float64)
 		}
 		dir = 1 - dir // Change direction
 	}
-
-	return extractRouteUgBi(&prev, meeting, ug), len(proc[0]) + len(proc[1]), dist[0][meeting] + dist[1][meeting]
+	//fmt.Printf("len p1: %v, p2: %v\n", len(proc[0]), len(proc[1]))
+	//fmt.Printf("processed%v\n", popped)
+	return extractRouteUgBi(&prev, meeting, ug), popped, dist[0][meeting] + dist[1][meeting]
 }
 
 // BiAStarAllNodes also returns visited nodes on uniform grid
@@ -98,6 +102,7 @@ func BiAStarAllNodes(from, to int, ug *grids.UniformGrid) (*[][][]float64, *[][]
 	var bestDist = math.MaxFloat64
 	var toCoord = ug.GridToCoord(ug.IDToGrid(to))
 	var fromCoord = ug.GridToCoord(ug.IDToGrid(from))
+	var processed int
 
 	for i := 0; i < ug.N; i++ {
 		dist[0][i] = math.Inf(1)
@@ -130,6 +135,7 @@ func BiAStarAllNodes(from, to int, ug *grids.UniformGrid) (*[][][]float64, *[][]
 			if len(pq[dir]) > 0 {
 				u := heap.Pop(&pq[dir]).(*Item).value
 				proc[dir][u] = true
+				processed++
 
 				if proc[1-dir][u] {
 					met = true
@@ -175,6 +181,7 @@ func BiAStarAllNodes(from, to int, ug *grids.UniformGrid) (*[][][]float64, *[][]
 		keys[i] = k
 		i++
 	}
-
+	fmt.Printf("len p1: %v, p2: %v\n", len(proc[0]), len(proc[1]))
+	fmt.Printf("processed: %v\n", processed)
 	return extractRouteUgBi(&prev, meeting, ug), extractNodesUg(&keys, ug), dist[0][meeting] + dist[1][meeting]
 }
