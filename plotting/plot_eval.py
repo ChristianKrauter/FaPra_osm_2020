@@ -2,7 +2,7 @@ import json
 import matplotlib
 import matplotlib.pyplot as plt
 import argparse
-plt.style.use('dark_background')
+# plt.style.use('dark_background')
 
 parser = argparse.ArgumentParser()
 parser.add_argument('filename', type=str, nargs='+',
