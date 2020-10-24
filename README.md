@@ -52,33 +52,33 @@ Open a browser at 'lohalhost:8081'
 # Screenshots
 
 ## Canals
-<img alt="A*" width="50%" src="https://github.com/ChristianKrauter/FaPra_osm_2020/blob/chris/images/canals.png?raw=true"/>
-<img alt="A*" width="50%" src="https://github.com/ChristianKrauter/FaPra_osm_2020/blob/chris/images/canals_2.png?raw=true"/>
+<img alt="A*" src="https://github.com/ChristianKrauter/FaPra_osm_2020/blob/chris/images/canals.png?raw=true"/>
+<img alt="A*" src="https://github.com/ChristianKrauter/FaPra_osm_2020/blob/chris/images/canals_2.png?raw=true"/>
 
 ## Algorithms (The images show the expanded nodes.)
 
 ### Dijkstra
-<img alt="Dijkstra" width="50%" src="https://github.com/ChristianKrauter/FaPra_osm_2020/blob/chris/images/alg_dij.png?raw=true"/>
+<img alt="Dijkstra" src="https://github.com/ChristianKrauter/FaPra_osm_2020/blob/chris/images/alg_dij.png?raw=true"/>
 
 ### Bidirectional Dijkstra
-<img alt="Bidirectional Dijkstra" width="50%" src="https://github.com/ChristianKrauter/FaPra_osm_2020/blob/chris/images/alg_bi_dij.png?raw=true"/>
+<img alt="Bidirectional Dijkstra" src="https://github.com/ChristianKrauter/FaPra_osm_2020/blob/chris/images/alg_bi_dij.png?raw=true"/>
 
 ### A-Star
-<img alt="A-Star" width="50%" src="https://github.com/ChristianKrauter/FaPra_osm_2020/blob/chris/images/alg_astar.png?raw=true"/>
+<img alt="A-Star" src="https://github.com/ChristianKrauter/FaPra_osm_2020/blob/chris/images/alg_astar.png?raw=true"/>
 
 ## Bidirectional A-Star
-<img alt="Bidirectional A-Star" width="50%" src="https://github.com/ChristianKrauter/FaPra_osm_2020/blob/chris/images/alg_bi_astar.png?raw=true"/>
+<img alt="Bidirectional A-Star" src="https://github.com/ChristianKrauter/FaPra_osm_2020/blob/chris/images/alg_bi_astar.png?raw=true"/>
 
 ## A-Star Jump-Point-Search
-<img alt="A-Star Jump-Point-Search" width="50%" src="https://github.com/ChristianKrauter/FaPra_osm_2020/blob/chris/images/alg_astar_jps.png?raw=true"/>
+<img alt="A-Star Jump-Point-Search" src="https://github.com/ChristianKrauter/FaPra_osm_2020/blob/chris/images/alg_astar_jps.png?raw=true"/>
 
 Comparison of expanded nodes vs.
 
-<img alt="jps pq" width="50%" src="https://github.com/ChristianKrauter/FaPra_osm_2020/blob/chris/images/jps_pq.png?raw=true"/>
+<img alt="jps pq" src="https://github.com/ChristianKrauter/FaPra_osm_2020/blob/chris/images/jps_pq.png?raw=true"/>
 
 "viewed" nodes
 
-<img alt="jps viewed" width="50%" src="https://github.com/ChristianKrauter/FaPra_osm_2020/blob/chris/images/jps_viewed.png?raw=true"/>
+<img alt="jps viewed" src="https://github.com/ChristianKrauter/FaPra_osm_2020/blob/chris/images/jps_viewed.png?raw=true"/>
 
 For a jump point search explanation please see
 [Online graph pruning for pathfinding on grid maps](https://dl.acm.org/doi/10.5555/2900423.2900600).
@@ -89,24 +89,24 @@ For a jump point search explanation please see
 
 ### Bidirectional algorithms don't always find the same route as dijkstra and A*.
 
-<img alt="bi problem 1" width="50%" src="https://github.com/ChristianKrauter/FaPra_osm_2020/blob/chris/images/bi_prob.png?raw=true"/>
+<img alt="bi problem 1" src="https://github.com/ChristianKrauter/FaPra_osm_2020/blob/chris/images/bi_prob.png?raw=true"/>
 
 ### For some routes even dijkstra/A* find different routes depending on the direction.
 
-<img alt="bi problem 2" width="50%" src="https://github.com/ChristianKrauter/FaPra_osm_2020/blob/chris/images/bi_prob_2.png?raw=true"/>
-<img alt="bi problem 3" width="50%" src="https://github.com/ChristianKrauter/FaPra_osm_2020/blob/chris/images/bi_prob_3.png?raw=true"/>
+<img alt="bi problem 2" src="https://github.com/ChristianKrauter/FaPra_osm_2020/blob/chris/images/bi_prob_2.png?raw=true"/>
+<img alt="bi problem 3" src="https://github.com/ChristianKrauter/FaPra_osm_2020/blob/chris/images/bi_prob_3.png?raw=true"/>
 
 ## Jump-Point-Search
 
 ### Routing through the North Pole
 
-<img alt="jps problem 1" width="50%" src="https://github.com/ChristianKrauter/FaPra_osm_2020/blob/chris/images/jps_prob.png?raw=true"/>
-<img alt="jps problem 2" width="50%" src="https://github.com/ChristianKrauter/FaPra_osm_2020/blob/chris/images/jps_prob_2.png?raw=true"/>
+<img alt="jps problem 1" src="https://github.com/ChristianKrauter/FaPra_osm_2020/blob/chris/images/jps_prob.png?raw=true"/>
+<img alt="jps problem 2" src="https://github.com/ChristianKrauter/FaPra_osm_2020/blob/chris/images/jps_prob_2.png?raw=true"/>
 
 ### Routing around the South Pole
 
-<img alt="jps problem 3" width="50%" src="https://github.com/ChristianKrauter/FaPra_osm_2020/blob/chris/images/jps_prob_3.png?raw=true"/>
-<img alt="jps problem 4" width="50%" src="https://github.com/ChristianKrauter/FaPra_osm_2020/blob/chris/images/jps_prob_4.png?raw=true"/>
+<img alt="jps problem 3" src="https://github.com/ChristianKrauter/FaPra_osm_2020/blob/chris/images/jps_prob_3.png?raw=true"/>
+<img alt="jps problem 4" src="https://github.com/ChristianKrauter/FaPra_osm_2020/blob/chris/images/jps_prob_4.png?raw=true"/>
 
 # Evaluation
 
@@ -114,26 +114,26 @@ For a jump point search explanation please see
 
 ### Speed
 
-<img alt="small speed" width="50%" src="https://github.com/ChristianKrauter/FaPra_osm_2020/blob/chris/images/ug_129600_speed.jpg?raw=true"/>
+<img alt="small speed" src="https://github.com/ChristianKrauter/FaPra_osm_2020/blob/chris/images/ug_129600_speed.jpg?raw=true"/>
 
 ### Priority Queue Pops
 
-<img alt="small pq" width="50%" src="https://github.com/ChristianKrauter/FaPra_osm_2020/blob/chris/images/ug_129600_pqpops.jpg?raw=true"/>
+<img alt="small pq" src="https://github.com/ChristianKrauter/FaPra_osm_2020/blob/chris/images/ug_129600_pqpops.jpg?raw=true"/>
 
 ### Route Equality
 
-<img alt="small optimality" width="50%" src="https://github.com/ChristianKrauter/FaPra_osm_2020/blob/chris/images/ug_129600_equality.jpg?raw=true"/>
+<img alt="small optimality" src="https://github.com/ChristianKrauter/FaPra_osm_2020/blob/chris/images/ug_129600_equality.jpg?raw=true"/>
 
 ## Big Grid (1000000 nodes)
 
 ### Speed
 
-<img alt="big speed" width="50%" src="https://github.com/ChristianKrauter/FaPra_osm_2020/blob/chris/images/ug_1000000_speed.jpg?raw=true"/>
+<img alt="big speed" src="https://github.com/ChristianKrauter/FaPra_osm_2020/blob/chris/images/ug_1000000_speed.jpg?raw=true"/>
 
 ### Priority Queue Pops
 
-<img alt="big pq" width="50%" src="https://github.com/ChristianKrauter/FaPra_osm_2020/blob/chris/images/ug_1000000_pqpops.jpg?raw=true"/>
+<img alt="big pq" src="https://github.com/ChristianKrauter/FaPra_osm_2020/blob/chris/images/ug_1000000_pqpops.jpg?raw=true"/>
 
 ### Route Equality
 
-<img alt="big optimality" width="50%" src="https://github.com/ChristianKrauter/FaPra_osm_2020/blob/chris/images/ug_1000000_equality.jpg?raw=true"/>
+<img alt="big optimality" src="https://github.com/ChristianKrauter/FaPra_osm_2020/blob/chris/images/ug_1000000_equality.jpg?raw=true"/>
